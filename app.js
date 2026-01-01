@@ -5,6 +5,10 @@ const DB_NAME = 'HourglassDB';
 const DB_VERSION = 1;
 let db = null;
 
+// Cache mémoire pour les médias récemment sauvegardés
+// Évite les problèmes de timing avec IndexedDB
+const mediaCache = new Map();
+
 async function initDB() {
     return new Promise((resolve) => {
         if (!window.indexedDB) {
@@ -117,18 +121,19 @@ async function saveMedia(blob, type, name) {
 
     const mediaData = { id, base64, type, name };
 
+    // IMPORTANT: Stocker immédiatement dans le cache mémoire
+    // Cela garantit que le média est disponible pour renderBackground
+    // même si IndexedDB n'a pas encore terminé l'écriture
+    mediaCache.set(id, mediaData);
+    console.log('Média mis en cache:', id);
+
     if (!db) {
         try {
             localStorage.setItem('hourglass_media_' + id, JSON.stringify(mediaData));
             console.log('Média sauvé en localStorage:', id);
-            // Vérification immédiate que les données sont bien sauvées
-            const verify = localStorage.getItem('hourglass_media_' + id);
-            if (!verify) {
-                console.error('Échec vérification localStorage');
-                return null;
-            }
         } catch (e) {
             console.error('Média trop large pour localStorage');
+            mediaCache.delete(id); // Retirer du cache si échec
             return null;
         }
         return id;
@@ -142,27 +147,22 @@ async function saveMedia(blob, type, name) {
 
             request.onerror = (e) => {
                 console.error('Erreur put média:', e);
+                mediaCache.delete(id); // Retirer du cache si échec
                 resolve(null);
             };
 
             tx.oncomplete = () => {
                 console.log('Média sauvé en IndexedDB:', id);
-                // Vérification que le média est bien lisible
-                verifyMediaSaved(id).then(verified => {
-                    if (verified) {
-                        resolve(id);
-                    } else {
-                        console.error('Média sauvé mais non vérifiable');
-                        resolve(id); // On retourne quand même l'id, le média devrait être là
-                    }
-                });
+                resolve(id);
             };
             tx.onerror = (e) => {
                 console.error('Erreur transaction média:', e);
+                mediaCache.delete(id); // Retirer du cache si échec
                 resolve(null);
             };
         } catch (e) {
             console.error('Exception sauvegarde média:', e);
+            mediaCache.delete(id); // Retirer du cache si échec
             resolve(null);
         }
     });
@@ -186,61 +186,52 @@ async function verifyMediaSaved(id) {
     });
 }
 
-// Récupère média (retourne base64 directement) avec retry
-async function getMedia(id, retries = 3) {
+// Récupère média (retourne base64 directement)
+async function getMedia(id) {
     if (!id) return null;
 
-    const attemptGet = () => {
-        if (!db) {
-            try {
-                const data = localStorage.getItem('hourglass_media_' + id);
-                return data ? JSON.parse(data) : null;
-            } catch (e) {
-                return null;
-            }
-        }
+    // PRIORITÉ 1: Vérifier le cache mémoire (médias récemment sauvegardés)
+    if (mediaCache.has(id)) {
+        console.log('Média trouvé dans le cache:', id);
+        return mediaCache.get(id);
+    }
 
-        return new Promise((resolve) => {
-            try {
-                const tx = db.transaction('media', 'readonly');
-                const request = tx.objectStore('media').get(id);
-                request.onsuccess = () => resolve(request.result || null);
-                request.onerror = () => resolve(null);
-            } catch (e) {
-                resolve(null);
-            }
-        });
-    };
-
-    // Premier essai
-    let result = await attemptGet();
-    if (result) return result;
-
-    // Retries avec délai croissant si le premier essai échoue
-    for (let i = 0; i < retries; i++) {
-        await new Promise(r => setTimeout(r, 100 * (i + 1))); // 100ms, 200ms, 300ms
-        result = await attemptGet();
-        if (result) {
-            console.log(`Média ${id} récupéré après ${i + 1} retry(s)`);
-            return result;
+    // PRIORITÉ 2: Lire depuis le stockage persistant
+    if (!db) {
+        try {
+            const data = localStorage.getItem('hourglass_media_' + id);
+            return data ? JSON.parse(data) : null;
+        } catch (e) {
+            return null;
         }
     }
 
-    console.warn(`Média ${id} introuvable après ${retries} retries`);
-    return null;
+    return new Promise((resolve) => {
+        try {
+            const tx = db.transaction('media', 'readonly');
+            const request = tx.objectStore('media').get(id);
+            request.onsuccess = () => resolve(request.result || null);
+            request.onerror = () => resolve(null);
+        } catch (e) {
+            resolve(null);
+        }
+    });
 }
 
 // Supprime média
 async function deleteMedia(id) {
     if (!id) return;
-    
+
+    // Supprimer du cache mémoire aussi
+    mediaCache.delete(id);
+
     if (!db) {
         try {
             localStorage.removeItem('hourglass_media_' + id);
         } catch (e) {}
         return;
     }
-    
+
     return new Promise((resolve) => {
         try {
             const tx = db.transaction('media', 'readwrite');
