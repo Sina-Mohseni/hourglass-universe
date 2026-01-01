@@ -207,6 +207,13 @@ let calendarState = { parentType: null, editIndex: null };
 let deleteState = { type: null };
 let audioState = { tracks: [], currentIndex: 0, isPlaying: false };
 
+// Track active sections for each page
+let activeSections = {
+    universe: null,
+    era: null,
+    detail: null
+};
+
 // =============================================
 // INITIALIZATION
 // =============================================
@@ -384,15 +391,11 @@ function hideAllUniverseSections() {
 
 async function showUniverseSection(section) {
     hideAllUniverseSections();
+    activeSections.universe = section;
     document.getElementById('universe' + section.charAt(0).toUpperCase() + section.slice(1)).style.display = 'block';
 
-    // Find the clicked button properly
-    const buttons = document.querySelectorAll('#universePage .sub-menu-btn');
-    buttons.forEach(btn => {
-        if (btn.getAttribute('title')?.toLowerCase() === section) {
-            btn.classList.add('active');
-        }
-    });
+    // Find and activate the correct button
+    setActiveButton('#universePage', section);
 
     if (section === 'itemline') {
         renderUniverseItemline();
@@ -401,6 +404,16 @@ async function showUniverseSection(section) {
     } else if (section === 'timeline') {
         await renderEras();
     }
+}
+
+function setActiveButton(pageSelector, section) {
+    const buttons = document.querySelectorAll(`${pageSelector} .sub-menu-btn`);
+    buttons.forEach(btn => {
+        btn.classList.remove('active');
+        if (btn.getAttribute('title')?.toLowerCase() === section) {
+            btn.classList.add('active');
+        }
+    });
 }
 
 function renderUniverseItemline() {
@@ -486,6 +499,7 @@ async function deleteUniverseCrossline(index) {
     await saveAppData();
     showToast('Supprimé');
     renderUniverseCrossline();
+    restoreActiveSection('universe');
 }
 
 // =============================================
@@ -549,15 +563,11 @@ function hideAllEraSections() {
 
 async function showEraSection(section) {
     hideAllEraSections();
+    activeSections.era = section;
     document.getElementById('era' + section.charAt(0).toUpperCase() + section.slice(1)).style.display = 'block';
 
-    // Find the clicked button properly
-    const buttons = document.querySelectorAll('#eraPage .sub-menu-btn');
-    buttons.forEach(btn => {
-        if (btn.getAttribute('title')?.toLowerCase() === section) {
-            btn.classList.add('active');
-        }
-    });
+    // Find and activate the correct button
+    setActiveButton('#eraPage', section);
 
     if (section === 'itemline') {
         renderEraItemline();
@@ -672,15 +682,11 @@ function hideAllDetailSections() {
 
 async function showDetailSection(section) {
     hideAllDetailSections();
+    activeSections.detail = section;
     document.getElementById('detail' + section.charAt(0).toUpperCase() + section.slice(1)).style.display = 'block';
 
-    // Find the clicked button properly
-    const buttons = document.querySelectorAll('#detailPage .sub-menu-btn');
-    buttons.forEach(btn => {
-        if (btn.getAttribute('title')?.toLowerCase() === section) {
-            btn.classList.add('active');
-        }
-    });
+    // Find and activate the correct button
+    setActiveButton('#detailPage', section);
 
     if (section === 'itemline') {
         renderDetailItemline();
@@ -1270,6 +1276,7 @@ async function saveItemline() {
         closeModal('itemlineModal');
         showToast('Élément enregistré');
         renderUniverseCrossline();
+        restoreActiveSection('universe');
         return;
     }
 
@@ -1299,10 +1306,22 @@ async function saveItemline() {
 
     if (itemlineState.parentType === 'universe') {
         renderUniverseItemline();
+        restoreActiveSection('universe');
     } else if (itemlineState.parentType === 'era') {
         renderEraItemline();
+        restoreActiveSection('era');
     } else {
         renderDetailItemline();
+        restoreActiveSection('detail');
+    }
+}
+
+function restoreActiveSection(pageType) {
+    const section = activeSections[pageType];
+    if (section) {
+        const pageSelector = pageType === 'universe' ? '#universePage' :
+                            pageType === 'era' ? '#eraPage' : '#detailPage';
+        setActiveButton(pageSelector, section);
     }
 }
 
@@ -1325,10 +1344,13 @@ async function deleteItemline(parent, index) {
 
     if (parent === 'universe') {
         renderUniverseItemline();
+        restoreActiveSection('universe');
     } else if (parent === 'era') {
         renderEraItemline();
+        restoreActiveSection('era');
     } else {
         renderDetailItemline();
+        restoreActiveSection('detail');
     }
 }
 
@@ -1418,8 +1440,10 @@ async function saveCalendar() {
 
     if (calendarState.parentType === 'era') {
         renderEraCalendars();
+        restoreActiveSection('era');
     } else {
         renderDetailCalendars();
+        restoreActiveSection('detail');
     }
 }
 
@@ -1440,8 +1464,10 @@ async function deleteCalendar(parent, index) {
 
     if (parent === 'era') {
         renderEraCalendars();
+        restoreActiveSection('era');
     } else {
         renderDetailCalendars();
+        restoreActiveSection('detail');
     }
 }
 
