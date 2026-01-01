@@ -643,14 +643,14 @@ async function renderEraCrossline(type) {
     for (let i = 0; i < era[type].length; i++) {
         const item = era[type][i];
         const card = document.createElement('div');
-        card.className = 'card-era';
+        card.className = 'card-crossline';
         card.onclick = () => openDetail(i, type);
-        card.innerHTML = `${await getCardBackground(item.mediaId)}<div class="card-content"><div class="card-title">${item.name}</div><div class="card-desc">${item.description || ''}</div></div>`;
+        card.innerHTML = `${await getCardBackground(item.mediaId)}<div class="card-overlay"></div><div class="card-content"><div class="card-title">${item.name}</div><div class="card-desc">${item.description || ''}</div></div>`;
         grid.appendChild(card);
     }
 
     const addCard = document.createElement('div');
-    addCard.className = 'card-era add-card';
+    addCard.className = 'card-crossline add-card';
     addCard.onclick = () => openCreateModal(type);
     addCard.innerHTML = '<div class="add-icon">+</div><span class="add-text">Nouveau</span>';
     grid.appendChild(addCard);
@@ -766,13 +766,13 @@ async function renderDetailCrossline(type) {
     for (let i = 0; i < detail[type].length; i++) {
         const item = detail[type][i];
         const card = document.createElement('div');
-        card.className = 'card-era';
-        card.innerHTML = `${await getCardBackground(item.mediaId)}<div class="card-content"><div class="card-title">${item.name}</div><div class="card-desc">${item.description || ''}</div></div>`;
+        card.className = 'card-crossline';
+        card.innerHTML = `${await getCardBackground(item.mediaId)}<div class="card-overlay"></div><div class="card-content"><div class="card-title">${item.name}</div><div class="card-desc">${item.description || ''}</div></div>`;
         grid.appendChild(card);
     }
 
     const addCard = document.createElement('div');
-    addCard.className = 'card-era add-card';
+    addCard.className = 'card-crossline add-card';
     addCard.onclick = () => openCreateModal(type, 'detail');
     addCard.innerHTML = '<div class="add-icon">+</div><span class="add-text">Nouveau</span>';
     grid.appendChild(addCard);

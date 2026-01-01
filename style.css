@@ -226,23 +226,62 @@ html, body {
     padding: clamp(8px, 2vmin, 16px) 0;
 }
 
-/* Universe Card */
+/* Universe Card - Circular */
 .card-universe {
-    width: clamp(140px, 28vmin, 200px);
-    height: clamp(200px, 40vmin, 300px);
-    border-radius: 16px;
+    width: clamp(120px, 25vmin, 180px);
+    height: clamp(120px, 25vmin, 180px);
+    border-radius: 50%;
     overflow: hidden;
     position: relative;
     cursor: pointer;
     transition: var(--transition);
-    border: 1px solid var(--glass-border);
+    border: 2px solid var(--glass-border);
     background: var(--bg-tertiary);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
 }
 
 .card-universe:hover {
-    transform: translateY(-8px) scale(1.02);
-    box-shadow: var(--shadow-glow);
+    transform: translateY(-8px) scale(1.05);
+    box-shadow: var(--shadow-glow), 0 8px 30px rgba(212, 175, 55, 0.2);
     border-color: var(--accent-gold);
+}
+
+.card-universe .card-overlay {
+    background: radial-gradient(circle at center, transparent 20%, rgba(10, 10, 15, 0.7) 70%, rgba(10, 10, 15, 0.95) 100%);
+}
+
+.card-universe .card-content {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: clamp(8px, 2vmin, 16px);
+    z-index: 2;
+}
+
+.card-universe .card-title {
+    font-size: clamp(11px, 2.5vmin, 16px);
+    margin-bottom: clamp(2px, 0.5vmin, 4px);
+    white-space: normal;
+    text-align: center;
+    line-height: 1.2;
+}
+
+.card-universe .card-desc {
+    font-size: clamp(9px, 1.8vmin, 11px);
+    -webkit-line-clamp: 2;
+    text-align: center;
+}
+
+.card-universe.add-card {
+    border: 2px dashed var(--glass-border);
+    background: transparent;
 }
 
 .card-bg {
@@ -289,6 +328,34 @@ html, body {
     -webkit-box-orient: vertical;
     overflow: hidden;
     line-height: 1.4;
+}
+
+/* Crossline Card - Portrait (lieux, sagas, elements) */
+.card-crossline {
+    width: clamp(140px, 28vmin, 200px);
+    height: clamp(200px, 40vmin, 300px);
+    border-radius: 16px;
+    overflow: hidden;
+    position: relative;
+    cursor: pointer;
+    transition: var(--transition);
+    border: 1px solid var(--glass-border);
+    background: var(--bg-tertiary);
+}
+
+.card-crossline:hover {
+    transform: translateY(-8px) scale(1.02);
+    box-shadow: var(--shadow-glow);
+    border-color: var(--accent-gold);
+}
+
+.card-crossline.add-card {
+    border: 2px dashed var(--glass-border);
+    background: transparent;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
 }
 
 /* Era Card */
