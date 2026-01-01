@@ -385,11 +385,20 @@ function hideAllUniverseSections() {
 async function showUniverseSection(section) {
     hideAllUniverseSections();
     document.getElementById('universe' + section.charAt(0).toUpperCase() + section.slice(1)).style.display = 'block';
-    event.target.classList.add('active');
+
+    // Find the clicked button properly
+    const buttons = document.querySelectorAll('#universePage .sub-menu-btn');
+    buttons.forEach(btn => {
+        if (btn.getAttribute('title')?.toLowerCase() === section) {
+            btn.classList.add('active');
+        }
+    });
 
     if (section === 'itemline') {
         renderUniverseItemline();
     } else if (section === 'crossline') {
+        renderUniverseCrossline();
+    } else if (section === 'timeline') {
         await renderEras();
     }
 }
@@ -419,6 +428,64 @@ function renderUniverseItemline() {
         `;
         container.appendChild(el);
     });
+}
+
+// =============================================
+// UNIVERSE CROSSLINE (itemline style)
+// =============================================
+let universeCrosslineState = { editIndex: null };
+
+function renderUniverseCrossline() {
+    const universe = appData.universes[appData.currentUniverse];
+    const container = document.getElementById('universeCrosslineList');
+    container.innerHTML = '';
+
+    if (!universe.crossline || !universe.crossline.length) {
+        container.innerHTML = '<div class="empty-state"><div class="empty-icon">🌐</div><div class="empty-text">Aucun élément</div></div>';
+        return;
+    }
+
+    universe.crossline.forEach((item, index) => {
+        const el = document.createElement('div');
+        el.className = 'itemline-item';
+        el.innerHTML = `
+            <div class="itemline-item-header">
+                <div class="itemline-item-title">${item.title}</div>
+                <div class="itemline-item-actions">
+                    <button class="itemline-item-btn" onclick="editUniverseCrossline(${index})">✎</button>
+                    <button class="itemline-item-btn delete" onclick="deleteUniverseCrossline(${index})">✕</button>
+                </div>
+            </div>
+            <div class="itemline-item-content">${item.content}</div>
+        `;
+        container.appendChild(el);
+    });
+}
+
+function openUniverseCrosslineModal() {
+    universeCrosslineState = { editIndex: null };
+    document.getElementById('itemlineTitle').value = '';
+    document.getElementById('itemlineContent').value = '';
+    document.getElementById('itemlineModal').classList.add('active');
+    itemlineState = { parentType: 'universeCrossline', editIndex: null };
+}
+
+function editUniverseCrossline(index) {
+    const universe = appData.universes[appData.currentUniverse];
+    const item = universe.crossline[index];
+
+    document.getElementById('itemlineTitle').value = item.title;
+    document.getElementById('itemlineContent').value = item.content;
+    document.getElementById('itemlineModal').classList.add('active');
+    itemlineState = { parentType: 'universeCrossline', editIndex: index };
+}
+
+async function deleteUniverseCrossline(index) {
+    const universe = appData.universes[appData.currentUniverse];
+    universe.crossline.splice(index, 1);
+    await saveAppData();
+    showToast('Supprimé');
+    renderUniverseCrossline();
 }
 
 // =============================================
@@ -483,7 +550,14 @@ function hideAllEraSections() {
 async function showEraSection(section) {
     hideAllEraSections();
     document.getElementById('era' + section.charAt(0).toUpperCase() + section.slice(1)).style.display = 'block';
-    event.target.classList.add('active');
+
+    // Find the clicked button properly
+    const buttons = document.querySelectorAll('#eraPage .sub-menu-btn');
+    buttons.forEach(btn => {
+        if (btn.getAttribute('title')?.toLowerCase() === section) {
+            btn.classList.add('active');
+        }
+    });
 
     if (section === 'itemline') {
         renderEraItemline();
@@ -599,7 +673,14 @@ function hideAllDetailSections() {
 async function showDetailSection(section) {
     hideAllDetailSections();
     document.getElementById('detail' + section.charAt(0).toUpperCase() + section.slice(1)).style.display = 'block';
-    event.target.classList.add('active');
+
+    // Find the clicked button properly
+    const buttons = document.querySelectorAll('#detailPage .sub-menu-btn');
+    buttons.forEach(btn => {
+        if (btn.getAttribute('title')?.toLowerCase() === section) {
+            btn.classList.add('active');
+        }
+    });
 
     if (section === 'itemline') {
         renderDetailItemline();
@@ -1173,6 +1254,25 @@ async function saveItemline() {
     }
 
     const item = { title, content };
+
+    // Handle universe crossline separately
+    if (itemlineState.parentType === 'universeCrossline') {
+        const universe = appData.universes[appData.currentUniverse];
+        if (!universe.crossline) universe.crossline = [];
+
+        if (itemlineState.editIndex !== null) {
+            universe.crossline[itemlineState.editIndex] = item;
+        } else {
+            universe.crossline.push(item);
+        }
+
+        await saveAppData();
+        closeModal('itemlineModal');
+        showToast('Élément enregistré');
+        renderUniverseCrossline();
+        return;
+    }
+
     let target;
 
     if (itemlineState.parentType === 'universe') {

@@ -86,9 +86,22 @@
         <div class="content">
             <p class="page-subtitle" id="universeDesc"></p>
             <div class="sub-menus">
-                <button class="sub-menu-btn" onclick="showUniverseSection('itemline')">Itemline</button>
-                <button class="sub-menu-btn" onclick="showUniverseSection('crossline')">Crossline</button>
-                <button class="sub-menu-btn" onclick="showUniverseSection('timeline')">Timeline</button>
+                <button class="sub-menu-btn" onclick="showUniverseSection('itemline')" title="Itemline">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20">
+                        <line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/>
+                        <line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/>
+                    </svg>
+                </button>
+                <button class="sub-menu-btn" onclick="showUniverseSection('crossline')" title="Crossline">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20">
+                        <circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+                    </svg>
+                </button>
+                <button class="sub-menu-btn" onclick="showUniverseSection('timeline')" title="Timeline">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20">
+                        <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+                    </svg>
+                </button>
             </div>
             
             <!-- Itemline Section -->
@@ -97,36 +110,15 @@
                 <button class="btn btn-secondary" onclick="openItemlineModal('universe')" style="margin-top:20px;width:100%">+ Ajouter une info</button>
             </div>
             
-            <!-- Crossline Section (Eras) -->
+            <!-- Crossline Section (Itemline style) -->
             <div id="universeCrossline" style="display:none">
-                <div class="cards-grid" id="erasGrid" style="flex-direction:column;align-items:center"></div>
+                <div class="itemline-container" id="universeCrosslineList"></div>
+                <button class="btn btn-secondary" onclick="openUniverseCrosslineModal()" style="margin-top:20px;width:100%">+ Ajouter un élément</button>
             </div>
-            
-            <!-- Timeline Section -->
+
+            <!-- Timeline Section (Eras) -->
             <div id="universeTimeline" style="display:none">
-                <h2 class="page-title" style="font-size:clamp(16px,4vmin,24px)">Système Temporel</h2>
-                <div class="timeline-choice">
-                    <div class="timeline-option" data-type="linear" onclick="selectTimeSystem('linear')">
-                        <div class="timeline-option-icon">→</div>
-                        <div class="timeline-option-title">De A vers B</div>
-                        <div class="timeline-option-desc">Linéaire</div>
-                    </div>
-                    <div class="timeline-option" data-type="circular" onclick="selectTimeSystem('circular')">
-                        <div class="timeline-option-icon">↻</div>
-                        <div class="timeline-option-title">De A vers A</div>
-                        <div class="timeline-option-desc">Cyclique</div>
-                    </div>
-                    <div class="timeline-option" data-type="singular" onclick="selectTimeSystem('singular')">
-                        <div class="timeline-option-icon">●</div>
-                        <div class="timeline-option-title">A</div>
-                        <div class="timeline-option-desc">Unique</div>
-                    </div>
-                    <div class="timeline-option" data-type="branching" onclick="selectTimeSystem('branching')">
-                        <div class="timeline-option-icon">⑃</div>
-                        <div class="timeline-option-title">De A vers N</div>
-                        <div class="timeline-option-desc">Ramifié</div>
-                    </div>
-                </div>
+                <div class="cards-grid" id="erasGrid" style="flex-direction:column;align-items:center"></div>
             </div>
         </div>
     </div>
@@ -172,9 +164,22 @@
         <div class="content">
             <p class="page-subtitle" id="eraDesc"></p>
             <div class="sub-menus">
-                <button class="sub-menu-btn" onclick="showEraSection('itemline')">Itemline</button>
-                <button class="sub-menu-btn" onclick="showEraSection('crossline')">Crossline</button>
-                <button class="sub-menu-btn" onclick="showEraSection('timeline')">Timeline</button>
+                <button class="sub-menu-btn" onclick="showEraSection('itemline')" title="Itemline">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20">
+                        <line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/>
+                        <line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/>
+                    </svg>
+                </button>
+                <button class="sub-menu-btn" onclick="showEraSection('crossline')" title="Crossline">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20">
+                        <circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+                    </svg>
+                </button>
+                <button class="sub-menu-btn" onclick="showEraSection('timeline')" title="Timeline">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20">
+                        <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+                    </svg>
+                </button>
             </div>
             
             <!-- Itemline Section -->
@@ -242,9 +247,22 @@
         <div class="content">
             <p class="page-subtitle" id="detailDesc"></p>
             <div class="sub-menus">
-                <button class="sub-menu-btn" onclick="showDetailSection('itemline')">Itemline</button>
-                <button class="sub-menu-btn" onclick="showDetailSection('crossline')">Crossline</button>
-                <button class="sub-menu-btn" onclick="showDetailSection('timeline')">Timeline</button>
+                <button class="sub-menu-btn" onclick="showDetailSection('itemline')" title="Itemline">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20">
+                        <line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/>
+                        <line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/>
+                    </svg>
+                </button>
+                <button class="sub-menu-btn" onclick="showDetailSection('crossline')" title="Crossline">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20">
+                        <circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+                    </svg>
+                </button>
+                <button class="sub-menu-btn" onclick="showDetailSection('timeline')" title="Timeline">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20">
+                        <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+                    </svg>
+                </button>
             </div>
             
             <!-- Itemline Section -->
