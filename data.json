@@ -1,0 +1,150 @@
+{
+    "id": "main",
+    "universes": [],
+    "currentUniverse": null,
+    "currentEra": null,
+    "currentDetail": null,
+    "currentDetailType": null,
+    "navStack": ["home"],
+    "schema": {
+        "version": "1.0.0",
+        "description": "Hourglass Project - Structure de données pour la gestion d'univers narratifs",
+        "entities": {
+            "universe": {
+                "name": "string",
+                "description": "string",
+                "mediaId": "string | null",
+                "audioIds": "string[]",
+                "timeSystem": "linear | circular | singular | branching | null",
+                "itemline": "itemlineItem[]",
+                "eras": "era[]"
+            },
+            "era": {
+                "name": "string",
+                "description": "string",
+                "mediaId": "string | null",
+                "audioIds": "string[]",
+                "itemline": "itemlineItem[]",
+                "calendars": "calendar[]",
+                "lieux": "detail[]",
+                "sagas": "detail[]",
+                "elements": "detail[]"
+            },
+            "detail": {
+                "name": "string",
+                "description": "string",
+                "mediaId": "string | null",
+                "audioIds": "string[]",
+                "itemline": "itemlineItem[]",
+                "calendars": "calendar[]",
+                "lieux": "detail[]",
+                "sagas": "detail[]",
+                "elements": "detail[]"
+            },
+            "itemlineItem": {
+                "title": "string",
+                "content": "string"
+            },
+            "calendar": {
+                "name": "string",
+                "yearName": "string",
+                "monthName": "string",
+                "weekName": "string",
+                "dayName": "string",
+                "hourName": "string",
+                "daysPerWeek": "number",
+                "weeksPerMonth": "number",
+                "monthsPerYear": "number",
+                "hoursPerDay": "number"
+            }
+        },
+        "timeSystems": {
+            "linear": {
+                "icon": "→",
+                "title": "De A vers B",
+                "description": "Linéaire"
+            },
+            "circular": {
+                "icon": "↻",
+                "title": "De A vers A",
+                "description": "Cyclique"
+            },
+            "singular": {
+                "icon": "●",
+                "title": "A",
+                "description": "Unique"
+            },
+            "branching": {
+                "icon": "⑃",
+                "title": "De A vers N",
+                "description": "Ramifié"
+            }
+        },
+        "crosslineTypes": [
+            "lieux",
+            "sagas",
+            "elements"
+        ],
+        "defaultCalendar": {
+            "daysPerWeek": 7,
+            "weeksPerMonth": 4,
+            "monthsPerYear": 12,
+            "hoursPerDay": 24
+        }
+    },
+    "example": {
+        "universes": [
+            {
+                "name": "Exemple d'Univers",
+                "description": "Un monde fantastique pour démonstration",
+                "mediaId": null,
+                "audioIds": [],
+                "timeSystem": "linear",
+                "itemline": [
+                    {
+                        "title": "Origine",
+                        "content": "Cet univers a été créé par les Anciens il y a des millénaires."
+                    }
+                ],
+                "eras": [
+                    {
+                        "name": "L'Âge des Légendes",
+                        "description": "Une époque mythique où la magie régnait",
+                        "mediaId": null,
+                        "audioIds": [],
+                        "itemline": [],
+                        "calendars": [
+                            {
+                                "name": "Calendrier Ancien",
+                                "yearName": "Cycle",
+                                "monthName": "Lune",
+                                "weekName": "Septénaire",
+                                "dayName": "Soleil",
+                                "hourName": "Veille",
+                                "daysPerWeek": 7,
+                                "weeksPerMonth": 4,
+                                "monthsPerYear": 13,
+                                "hoursPerDay": 20
+                            }
+                        ],
+                        "lieux": [
+                            {
+                                "name": "La Citadelle d'Émeraude",
+                                "description": "Capitale de l'ancien empire",
+                                "mediaId": null,
+                                "audioIds": [],
+                                "itemline": [],
+                                "calendars": [],
+                                "lieux": [],
+                                "sagas": [],
+                                "elements": []
+                            }
+                        ],
+                        "sagas": [],
+                        "elements": []
+                    }
+                ]
+            }
+        ]
+    }
+}
