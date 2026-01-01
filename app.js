@@ -109,66 +109,125 @@ function blobToBase64(blob) {
 async function saveMedia(blob, type, name) {
     const id = 'm_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
     const base64 = await blobToBase64(blob);
-    
+
     if (!base64) {
         console.error('Échec conversion base64');
         return null;
     }
-    
+
     const mediaData = { id, base64, type, name };
-    
+
     if (!db) {
         try {
             localStorage.setItem('hourglass_media_' + id, JSON.stringify(mediaData));
             console.log('Média sauvé en localStorage:', id);
+            // Vérification immédiate que les données sont bien sauvées
+            const verify = localStorage.getItem('hourglass_media_' + id);
+            if (!verify) {
+                console.error('Échec vérification localStorage');
+                return null;
+            }
         } catch (e) {
             console.error('Média trop large pour localStorage');
             return null;
         }
         return id;
     }
-    
+
     return new Promise((resolve) => {
         try {
             const tx = db.transaction('media', 'readwrite');
-            tx.objectStore('media').put(mediaData);
+            const store = tx.objectStore('media');
+            const request = store.put(mediaData);
+
+            request.onerror = (e) => {
+                console.error('Erreur put média:', e);
+                resolve(null);
+            };
+
             tx.oncomplete = () => {
                 console.log('Média sauvé en IndexedDB:', id);
-                resolve(id);
+                // Vérification que le média est bien lisible
+                verifyMediaSaved(id).then(verified => {
+                    if (verified) {
+                        resolve(id);
+                    } else {
+                        console.error('Média sauvé mais non vérifiable');
+                        resolve(id); // On retourne quand même l'id, le média devrait être là
+                    }
+                });
             };
-            tx.onerror = () => {
-                console.error('Erreur sauvegarde média');
+            tx.onerror = (e) => {
+                console.error('Erreur transaction média:', e);
                 resolve(null);
             };
         } catch (e) {
+            console.error('Exception sauvegarde média:', e);
             resolve(null);
         }
     });
 }
 
-// Récupère média (retourne base64 directement)
-async function getMedia(id) {
-    if (!id) return null;
-    
-    if (!db) {
-        try {
-            const data = localStorage.getItem('hourglass_media_' + id);
-            return data ? JSON.parse(data) : null;
-        } catch (e) {
-            return null;
-        }
-    }
-    
+// Vérifie qu'un média est bien sauvegardé
+async function verifyMediaSaved(id) {
     return new Promise((resolve) => {
+        if (!db) {
+            resolve(!!localStorage.getItem('hourglass_media_' + id));
+            return;
+        }
         try {
             const tx = db.transaction('media', 'readonly');
             const request = tx.objectStore('media').get(id);
-            request.onsuccess = () => resolve(request.result || null);
-            request.onerror = () => resolve(null);
+            request.onsuccess = () => resolve(!!request.result);
+            request.onerror = () => resolve(false);
         } catch (e) {
-            resolve(null);
+            resolve(false);
         }
     });
+}
+
+// Récupère média (retourne base64 directement) avec retry
+async function getMedia(id, retries = 3) {
+    if (!id) return null;
+
+    const attemptGet = () => {
+        if (!db) {
+            try {
+                const data = localStorage.getItem('hourglass_media_' + id);
+                return data ? JSON.parse(data) : null;
+            } catch (e) {
+                return null;
+            }
+        }
+
+        return new Promise((resolve) => {
+            try {
+                const tx = db.transaction('media', 'readonly');
+                const request = tx.objectStore('media').get(id);
+                request.onsuccess = () => resolve(request.result || null);
+                request.onerror = () => resolve(null);
+            } catch (e) {
+                resolve(null);
+            }
+        });
+    };
+
+    // Premier essai
+    let result = await attemptGet();
+    if (result) return result;
+
+    // Retries avec délai croissant si le premier essai échoue
+    for (let i = 0; i < retries; i++) {
+        await new Promise(r => setTimeout(r, 100 * (i + 1))); // 100ms, 200ms, 300ms
+        result = await attemptGet();
+        if (result) {
+            console.log(`Média ${id} récupéré après ${i + 1} retry(s)`);
+            return result;
+        }
+    }
+
+    console.warn(`Média ${id} introuvable après ${retries} retries`);
+    return null;
 }
 
 // Supprime média
@@ -294,13 +353,26 @@ function goBack() {
 // =============================================
 async function renderBackground(containerId, mediaId) {
     const container = document.getElementById(containerId);
-    container.innerHTML = '';
-    
-    if (!mediaId) return;
-    
+
+    // Si pas de mediaId, vider le container
+    if (!mediaId) {
+        container.innerHTML = '';
+        return;
+    }
+
+    // Récupérer le média AVANT de vider le container
     const media = await getMedia(mediaId);
-    if (!media || !media.base64) return;
-    
+
+    // Si le média n'a pas pu être récupéré, garder le contenu actuel
+    // pour éviter un écran vide
+    if (!media || !media.base64) {
+        console.warn(`Impossible de charger le média ${mediaId}, conservation du contenu actuel`);
+        return;
+    }
+
+    // Seulement maintenant, vider et remplacer le contenu
+    container.innerHTML = '';
+
     if (media.type && media.type.startsWith('video')) {
         const video = document.createElement('video');
         video.src = media.base64;
@@ -1025,25 +1097,35 @@ async function removeAudioModal(index) {
 // =============================================
 async function saveEntity() {
     const name = document.getElementById('inputName').value.trim();
-    
+
     if (!name) {
         showToast('Entrez un nom');
         return;
     }
-    
+
     let mediaId = modalState.mediaId;
-    
+
+    // Sauvegarde du média principal avec vérification
     if (modalState.mediaBlob) {
         mediaId = await saveMedia(modalState.mediaBlob, modalState.mediaType, 'media');
+        if (!mediaId) {
+            showToast('Erreur: impossible de sauvegarder le média. Fichier trop volumineux?');
+            return;
+        }
     }
-    
+
+    // Sauvegarde des fichiers audio avec filtrage des échecs
     const audioIds = [];
     for (const audio of modalState.audioFiles) {
         if (audio.id) {
             audioIds.push(audio.id);
         } else {
             const id = await saveMedia(audio.blob, audio.type, audio.name);
-            audioIds.push(id);
+            if (id) {
+                audioIds.push(id);
+            } else {
+                console.warn(`Échec sauvegarde audio: ${audio.name}`);
+            }
         }
     }
     
