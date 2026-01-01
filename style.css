@@ -331,21 +331,22 @@ html, body {
 .sub-menus {
     display: flex;
     justify-content: center;
-    padding: clamp(16px, 4vmin, 24px) 0;
+    padding: clamp(16px, 4vmin, 24px) clamp(12px, 3vmin, 20px);
     width: 100%;
 }
 
 .sub-menus-container {
     display: flex;
-    align-items: center;
+    align-items: stretch;
     justify-content: center;
     background: var(--bg-tertiary);
-    border-top: 1px solid var(--glass-border);
-    border-bottom: 1px solid var(--glass-border);
-    padding: 8px clamp(16px, 5vw, 60px);
+    border: 1px solid var(--glass-border);
+    border-radius: 16px;
+    padding: 8px;
     position: relative;
-    gap: clamp(8px, 3vw, 24px);
+    gap: 0;
     width: 100%;
+    max-width: 500px;
 }
 
 .sub-menus-container::before {
@@ -353,16 +354,18 @@ html, body {
     position: absolute;
     top: 8px;
     bottom: 8px;
-    width: calc(33.333% - clamp(16px, 4vw, 50px));
-    max-width: 140px;
+    width: calc(33.333% - 6px);
     background: linear-gradient(135deg, var(--accent-gold), var(--accent-copper));
-    border-radius: 12px;
-    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    border-radius: 10px;
+    transition: left 0.35s cubic-bezier(0.4, 0, 0.2, 1),
+                right 0.35s cubic-bezier(0.4, 0, 0.2, 1),
+                opacity 0.25s ease;
     box-shadow: 0 4px 20px rgba(212, 168, 83, 0.5),
-                0 0 40px rgba(212, 168, 83, 0.2),
+                0 0 30px rgba(212, 168, 83, 0.15),
                 inset 0 1px 0 rgba(255, 255, 255, 0.2);
     z-index: 0;
     opacity: 0;
+    pointer-events: none;
 }
 
 .sub-menus-container[data-active="1"]::before,
@@ -372,17 +375,18 @@ html, body {
 }
 
 .sub-menus-container[data-active="1"]::before {
-    left: clamp(16px, 5vw, 60px);
+    left: 8px;
+    right: calc(66.666% + 2px);
 }
 
 .sub-menus-container[data-active="2"]::before {
-    left: 50%;
-    transform: translateX(-50%);
+    left: calc(33.333% + 3px);
+    right: calc(33.333% + 3px);
 }
 
 .sub-menus-container[data-active="3"]::before {
-    right: clamp(16px, 5vw, 60px);
-    left: auto;
+    left: calc(66.666% + 2px);
+    right: 8px;
 }
 
 .sub-menu-btn {
@@ -390,24 +394,24 @@ html, body {
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: clamp(4px, 1vmin, 8px);
-    padding: clamp(12px, 3vmin, 18px) clamp(20px, 5vmin, 32px);
+    gap: clamp(6px, 1.5vmin, 10px);
+    padding: clamp(14px, 3vmin, 20px) 0;
     background: transparent;
     border: none;
-    border-radius: 12px;
+    border-radius: 10px;
     cursor: pointer;
-    transition: all 0.3s ease;
+    transition: transform 0.2s ease;
     position: relative;
     z-index: 1;
-    min-width: clamp(80px, 22vmin, 140px);
-    height: clamp(70px, 16vmin, 100px);
+    flex: 1;
+    min-height: clamp(70px, 15vmin, 90px);
 }
 
 .sub-menu-btn svg {
-    width: clamp(22px, 5vmin, 32px);
-    height: clamp(22px, 5vmin, 32px);
+    width: clamp(24px, 6vmin, 32px);
+    height: clamp(24px, 6vmin, 32px);
     color: var(--text-muted);
-    transition: all 0.3s ease;
+    transition: color 0.3s ease, filter 0.3s ease;
     flex-shrink: 0;
 }
 
@@ -416,19 +420,22 @@ html, body {
     font-size: clamp(9px, 2vmin, 11px);
     color: var(--text-muted);
     text-transform: uppercase;
-    letter-spacing: 0.15em;
-    transition: all 0.3s ease;
+    letter-spacing: 0.12em;
+    transition: color 0.3s ease, font-weight 0.3s ease;
     white-space: nowrap;
     font-weight: 500;
 }
 
 .sub-menu-btn:hover svg {
     color: var(--text-secondary);
-    transform: scale(1.1);
 }
 
 .sub-menu-btn:hover span {
     color: var(--text-secondary);
+}
+
+.sub-menu-btn:active {
+    transform: scale(0.96);
 }
 
 .sub-menu-btn.active svg {
@@ -439,25 +446,6 @@ html, body {
 .sub-menu-btn.active span {
     color: var(--bg-primary);
     font-weight: 600;
-    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
-}
-
-/* Ripple effect on click */
-.sub-menu-btn::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-    border-radius: 12px;
-    background: radial-gradient(circle at center, rgba(212, 168, 83, 0.4), transparent 70%);
-    opacity: 0;
-    transform: scale(0);
-    transition: all 0.5s ease;
-}
-
-.sub-menu-btn:active::after {
-    opacity: 1;
-    transform: scale(1);
-    transition: all 0.1s ease;
 }
 
 /* Modal */
