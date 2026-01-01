@@ -1,53 +1,46 @@
 // =============================================
-// DATABASE
+// DATABASE & STORAGE
 // =============================================
 const DB_NAME = 'HourglassDB';
 const DB_VERSION = 1;
 let db = null;
 
-// Cache mémoire pour les médias récemment sauvegardés
-// Évite les problèmes de timing avec IndexedDB
-const mediaCache = new Map();
+// Cache mémoire pour tous les médias chargés
+const mediaStore = new Map();
 
 async function initDB() {
     return new Promise((resolve) => {
         if (!window.indexedDB) {
-            console.log('IndexedDB non disponible');
+            console.log('IndexedDB non disponible, utilisation localStorage');
             resolve(null);
             return;
         }
-        
-        try {
-            const request = indexedDB.open(DB_NAME, DB_VERSION);
-            
-            request.onerror = () => {
-                console.log('IndexedDB erreur');
-                resolve(null);
-            };
-            
-            request.onsuccess = () => {
-                db = request.result;
-                console.log('IndexedDB connectée');
-                resolve(db);
-            };
-            
-            request.onupgradeneeded = (e) => {
-                const database = e.target.result;
-                if (!database.objectStoreNames.contains('appData')) {
-                    database.createObjectStore('appData', { keyPath: 'id' });
-                }
-                if (!database.objectStoreNames.contains('media')) {
-                    database.createObjectStore('media', { keyPath: 'id' });
-                }
-            };
-        } catch (e) {
-            console.log('Erreur IndexedDB:', e);
+
+        const request = indexedDB.open(DB_NAME, DB_VERSION);
+
+        request.onerror = () => {
+            console.log('IndexedDB erreur, fallback localStorage');
             resolve(null);
-        }
+        };
+
+        request.onsuccess = () => {
+            db = request.result;
+            console.log('IndexedDB connectée');
+            resolve(db);
+        };
+
+        request.onupgradeneeded = (e) => {
+            const database = e.target.result;
+            if (!database.objectStoreNames.contains('appData')) {
+                database.createObjectStore('appData', { keyPath: 'id' });
+            }
+            if (!database.objectStoreNames.contains('media')) {
+                database.createObjectStore('media', { keyPath: 'id' });
+            }
+        };
     });
 }
 
-// Sauvegarde données app
 async function saveAppData() {
     if (!db) {
         try {
@@ -57,190 +50,131 @@ async function saveAppData() {
         }
         return;
     }
-    
+
     return new Promise((resolve) => {
-        try {
-            const tx = db.transaction('appData', 'readwrite');
-            tx.objectStore('appData').put(appData);
-            tx.oncomplete = () => resolve();
-            tx.onerror = () => resolve();
-        } catch (e) {
-            resolve();
-        }
+        const tx = db.transaction('appData', 'readwrite');
+        tx.objectStore('appData').put(appData);
+        tx.oncomplete = () => resolve();
+        tx.onerror = () => resolve();
     });
 }
 
-// Charge données app
 async function loadAppData() {
     if (!db) {
         try {
             const data = localStorage.getItem('hourglass_appData');
-            if (data) {
-                appData = JSON.parse(data);
-            }
+            if (data) appData = JSON.parse(data);
         } catch (e) {}
         return;
     }
-    
+
     return new Promise((resolve) => {
-        try {
-            const tx = db.transaction('appData', 'readonly');
-            const request = tx.objectStore('appData').get('main');
-            request.onsuccess = () => {
-                if (request.result) {
-                    appData = request.result;
-                }
-                resolve();
-            };
-            request.onerror = () => resolve();
-        } catch (e) {
+        const tx = db.transaction('appData', 'readonly');
+        const request = tx.objectStore('appData').get('main');
+        request.onsuccess = () => {
+            if (request.result) appData = request.result;
             resolve();
-        }
+        };
+        request.onerror = () => resolve();
     });
 }
 
-// Convertir File/Blob en base64
-function blobToBase64(blob) {
-    return new Promise((resolve) => {
+// =============================================
+// MEDIA SYSTEM - Nouveau système simplifié
+// =============================================
+
+// Convertir File en base64
+function fileToBase64(file) {
+    return new Promise((resolve, reject) => {
         const reader = new FileReader();
-        reader.onloadend = () => resolve(reader.result);
-        reader.onerror = () => resolve(null);
-        reader.readAsDataURL(blob);
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = () => reject(new Error('Erreur lecture fichier'));
+        reader.readAsDataURL(file);
     });
 }
 
-// Sauvegarde média (stocke en base64)
-async function saveMedia(blob, type, name) {
+// Sauvegarder un média
+async function saveMedia(base64Data, type, name) {
     const id = 'm_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
-    const base64 = await blobToBase64(blob);
+    const mediaData = { id, base64: base64Data, type, name };
 
-    if (!base64) {
-        console.error('Échec conversion base64');
-        return null;
-    }
-
-    const mediaData = { id, base64, type, name };
-
-    // IMPORTANT: Stocker immédiatement dans le cache mémoire
-    // Cela garantit que le média est disponible pour renderBackground
-    // même si IndexedDB n'a pas encore terminé l'écriture
-    mediaCache.set(id, mediaData);
-    console.log('Média mis en cache:', id);
+    // Toujours mettre en cache d'abord
+    mediaStore.set(id, mediaData);
 
     if (!db) {
         try {
-            localStorage.setItem('hourglass_media_' + id, JSON.stringify(mediaData));
-            console.log('Média sauvé en localStorage:', id);
+            localStorage.setItem('media_' + id, JSON.stringify(mediaData));
         } catch (e) {
-            console.error('Média trop large pour localStorage');
-            mediaCache.delete(id); // Retirer du cache si échec
+            console.error('Erreur sauvegarde localStorage:', e);
+            mediaStore.delete(id);
             return null;
         }
         return id;
     }
 
     return new Promise((resolve) => {
-        try {
-            const tx = db.transaction('media', 'readwrite');
-            const store = tx.objectStore('media');
-            const request = store.put(mediaData);
-
-            request.onerror = (e) => {
-                console.error('Erreur put média:', e);
-                mediaCache.delete(id); // Retirer du cache si échec
-                resolve(null);
-            };
-
-            tx.oncomplete = () => {
-                console.log('Média sauvé en IndexedDB:', id);
-                resolve(id);
-            };
-            tx.onerror = (e) => {
-                console.error('Erreur transaction média:', e);
-                mediaCache.delete(id); // Retirer du cache si échec
-                resolve(null);
-            };
-        } catch (e) {
-            console.error('Exception sauvegarde média:', e);
-            mediaCache.delete(id); // Retirer du cache si échec
+        const tx = db.transaction('media', 'readwrite');
+        tx.objectStore('media').put(mediaData);
+        tx.oncomplete = () => resolve(id);
+        tx.onerror = () => {
+            mediaStore.delete(id);
             resolve(null);
-        }
+        };
     });
 }
 
-// Vérifie qu'un média est bien sauvegardé
-async function verifyMediaSaved(id) {
-    return new Promise((resolve) => {
-        if (!db) {
-            resolve(!!localStorage.getItem('hourglass_media_' + id));
-            return;
-        }
-        try {
-            const tx = db.transaction('media', 'readonly');
-            const request = tx.objectStore('media').get(id);
-            request.onsuccess = () => resolve(!!request.result);
-            request.onerror = () => resolve(false);
-        } catch (e) {
-            resolve(false);
-        }
-    });
-}
-
-// Récupère média (retourne base64 directement)
+// Récupérer un média
 async function getMedia(id) {
     if (!id) return null;
 
-    // PRIORITÉ 1: Vérifier le cache mémoire (médias récemment sauvegardés)
-    if (mediaCache.has(id)) {
-        console.log('Média trouvé dans le cache:', id);
-        return mediaCache.get(id);
+    // Vérifier le cache d'abord
+    if (mediaStore.has(id)) {
+        return mediaStore.get(id);
     }
 
-    // PRIORITÉ 2: Lire depuis le stockage persistant
     if (!db) {
         try {
-            const data = localStorage.getItem('hourglass_media_' + id);
-            return data ? JSON.parse(data) : null;
-        } catch (e) {
-            return null;
-        }
+            const data = localStorage.getItem('media_' + id);
+            if (data) {
+                const parsed = JSON.parse(data);
+                mediaStore.set(id, parsed);
+                return parsed;
+            }
+        } catch (e) {}
+        return null;
     }
 
     return new Promise((resolve) => {
-        try {
-            const tx = db.transaction('media', 'readonly');
-            const request = tx.objectStore('media').get(id);
-            request.onsuccess = () => resolve(request.result || null);
-            request.onerror = () => resolve(null);
-        } catch (e) {
-            resolve(null);
-        }
+        const tx = db.transaction('media', 'readonly');
+        const request = tx.objectStore('media').get(id);
+        request.onsuccess = () => {
+            if (request.result) {
+                mediaStore.set(id, request.result);
+                resolve(request.result);
+            } else {
+                resolve(null);
+            }
+        };
+        request.onerror = () => resolve(null);
     });
 }
 
-// Supprime média
+// Supprimer un média
 async function deleteMedia(id) {
     if (!id) return;
 
-    // Supprimer du cache mémoire aussi
-    mediaCache.delete(id);
+    mediaStore.delete(id);
 
     if (!db) {
-        try {
-            localStorage.removeItem('hourglass_media_' + id);
-        } catch (e) {}
+        localStorage.removeItem('media_' + id);
         return;
     }
 
     return new Promise((resolve) => {
-        try {
-            const tx = db.transaction('media', 'readwrite');
-            tx.objectStore('media').delete(id);
-            tx.oncomplete = () => resolve();
-            tx.onerror = () => resolve();
-        } catch (e) {
-            resolve();
-        }
+        const tx = db.transaction('media', 'readwrite');
+        tx.objectStore('media').delete(id);
+        tx.oncomplete = () => resolve();
+        tx.onerror = () => resolve();
     });
 }
 
@@ -263,7 +197,7 @@ let modalState = {
     editIndex: null,
     parentType: null,
     mediaId: null,
-    mediaBlob: null,
+    mediaBase64: null,
     mediaType: null,
     audioFiles: []
 };
@@ -317,7 +251,7 @@ function navigateTo(page) {
 function goBack() {
     appData.navStack.pop();
     const page = appData.navStack[appData.navStack.length - 1];
-    
+
     if (page === 'home') {
         appData.currentUniverse = null;
         appData.currentEra = null;
@@ -334,7 +268,7 @@ function goBack() {
         renderEraPage();
         navigateTo('eraPage');
     }
-    
+
     closeAudioPlayer();
     saveAppData();
 }
@@ -345,23 +279,18 @@ function goBack() {
 async function renderBackground(containerId, mediaId) {
     const container = document.getElementById(containerId);
 
-    // Si pas de mediaId, vider le container
     if (!mediaId) {
         container.innerHTML = '';
         return;
     }
 
-    // Récupérer le média AVANT de vider le container
     const media = await getMedia(mediaId);
 
-    // Si le média n'a pas pu être récupéré, garder le contenu actuel
-    // pour éviter un écran vide
     if (!media || !media.base64) {
-        console.warn(`Impossible de charger le média ${mediaId}, conservation du contenu actuel`);
+        console.warn('Média non trouvé:', mediaId);
         return;
     }
 
-    // Seulement maintenant, vider et remplacer le contenu
     container.innerHTML = '';
 
     if (media.type && media.type.startsWith('video')) {
@@ -383,41 +312,41 @@ async function renderBackground(containerId, mediaId) {
 }
 
 // =============================================
+// CARD BACKGROUND HELPER
+// =============================================
+async function getCardBackground(mediaId) {
+    if (!mediaId) return '<div class="card-overlay"></div>';
+
+    const media = await getMedia(mediaId);
+    if (!media || !media.base64) return '<div class="card-overlay"></div>';
+
+    if (media.type && media.type.startsWith('video')) {
+        return `<video class="card-bg" src="${media.base64}" autoplay loop muted playsinline></video><div class="card-overlay"></div>`;
+    }
+    return `<img class="card-bg" src="${media.base64}"><div class="card-overlay"></div>`;
+}
+
+// =============================================
 // UNIVERSES
 // =============================================
 async function renderUniverses() {
     const grid = document.getElementById('universesGrid');
     grid.innerHTML = '';
-    
+
     for (let i = 0; i < appData.universes.length; i++) {
-        grid.appendChild(await createUniverseCard(appData.universes[i], i));
+        const universe = appData.universes[i];
+        const card = document.createElement('div');
+        card.className = 'card-universe';
+        card.onclick = () => openUniverse(i);
+        card.innerHTML = `${await getCardBackground(universe.mediaId)}<div class="card-content"><div class="card-title">${universe.name}</div><div class="card-desc">${universe.description || ''}</div></div>`;
+        grid.appendChild(card);
     }
-    
+
     const addCard = document.createElement('div');
     addCard.className = 'card-universe add-card';
     addCard.onclick = () => openCreateModal('universe');
     addCard.innerHTML = '<div class="add-icon">+</div><span class="add-text">Nouvel Univers</span>';
     grid.appendChild(addCard);
-}
-
-async function createUniverseCard(universe, index) {
-    const card = document.createElement('div');
-    card.className = 'card-universe';
-    card.onclick = () => openUniverse(index);
-    
-    let bg = '<div class="card-overlay"></div>';
-    
-    if (universe.mediaId) {
-        const media = await getMedia(universe.mediaId);
-        if (media && media.base64) {
-            bg = media.type && media.type.startsWith('video')
-                ? `<video class="card-bg" src="${media.base64}" autoplay loop muted playsinline></video><div class="card-overlay"></div>`
-                : `<img class="card-bg" src="${media.base64}"><div class="card-overlay"></div>`;
-        }
-    }
-    
-    card.innerHTML = `${bg}<div class="card-content"><div class="card-title">${universe.name}</div><div class="card-desc">${universe.description || ''}</div></div>`;
-    return card;
 }
 
 async function openUniverse(index) {
@@ -431,17 +360,17 @@ async function openUniverse(index) {
 async function renderUniversePage() {
     const universe = appData.universes[appData.currentUniverse];
     if (!universe) return;
-    
+
     document.getElementById('universeTitle').textContent = universe.name;
     document.getElementById('universeDesc').textContent = universe.description || '';
-    
+
     await renderBackground('universeBackground', universe.mediaId);
-    
+
     const musicBtn = document.getElementById('universeMusicBtn');
     musicBtn.style.display = (universe.audioIds && universe.audioIds.length) ? 'flex' : 'none';
-    
+
     if (universe.audioIds) await loadAudioTracks(universe.audioIds);
-    
+
     hideAllUniverseSections();
     updateTimelineSelection(universe.timeSystem);
 }
@@ -457,7 +386,7 @@ async function showUniverseSection(section) {
     hideAllUniverseSections();
     document.getElementById('universe' + section.charAt(0).toUpperCase() + section.slice(1)).style.display = 'block';
     event.target.classList.add('active');
-    
+
     if (section === 'itemline') {
         renderUniverseItemline();
     } else if (section === 'crossline') {
@@ -469,12 +398,12 @@ function renderUniverseItemline() {
     const universe = appData.universes[appData.currentUniverse];
     const container = document.getElementById('universeItemlineList');
     container.innerHTML = '';
-    
+
     if (!universe.itemline || !universe.itemline.length) {
         container.innerHTML = '<div class="empty-state"><div class="empty-icon">📝</div><div class="empty-text">Aucune info</div></div>';
         return;
     }
-    
+
     universe.itemline.forEach((item, index) => {
         const el = document.createElement('div');
         el.className = 'itemline-item';
@@ -499,38 +428,23 @@ async function renderEras() {
     const universe = appData.universes[appData.currentUniverse];
     const grid = document.getElementById('erasGrid');
     grid.innerHTML = '';
-    
+
     if (!universe.eras) universe.eras = [];
-    
+
     for (let i = 0; i < universe.eras.length; i++) {
-        grid.appendChild(await createEraCard(universe.eras[i], i));
+        const era = universe.eras[i];
+        const card = document.createElement('div');
+        card.className = 'card-era';
+        card.onclick = () => openEra(i);
+        card.innerHTML = `${await getCardBackground(era.mediaId)}<div class="card-content"><div class="card-title">${era.name}</div><div class="card-desc">${era.description || ''}</div></div>`;
+        grid.appendChild(card);
     }
-    
+
     const addCard = document.createElement('div');
     addCard.className = 'card-era add-card';
     addCard.onclick = () => openCreateModal('era');
     addCard.innerHTML = '<div class="add-icon">+</div><span class="add-text">Nouvelle Era</span>';
     grid.appendChild(addCard);
-}
-
-async function createEraCard(era, index) {
-    const card = document.createElement('div');
-    card.className = 'card-era';
-    card.onclick = () => openEra(index);
-    
-    let bg = '<div class="card-overlay"></div>';
-    
-    if (era.mediaId) {
-        const media = await getMedia(era.mediaId);
-        if (media && media.base64) {
-            bg = media.type && media.type.startsWith('video')
-                ? `<video class="card-bg" src="${media.base64}" autoplay loop muted playsinline></video><div class="card-overlay"></div>`
-                : `<img class="card-bg" src="${media.base64}"><div class="card-overlay"></div>`;
-        }
-    }
-    
-    card.innerHTML = `${bg}<div class="card-content"><div class="card-title">${era.name}</div><div class="card-desc">${era.description || ''}</div></div>`;
-    return card;
 }
 
 async function openEra(index) {
@@ -545,17 +459,17 @@ async function renderEraPage() {
     const universe = appData.universes[appData.currentUniverse];
     const era = universe.eras[appData.currentEra];
     if (!era) return;
-    
+
     document.getElementById('eraTitle').textContent = era.name;
     document.getElementById('eraDesc').textContent = era.description || '';
-    
+
     await renderBackground('eraBackground', era.mediaId);
-    
+
     const musicBtn = document.getElementById('eraMusicBtn');
     musicBtn.style.display = (era.audioIds && era.audioIds.length) ? 'flex' : 'none';
-    
+
     if (era.audioIds) await loadAudioTracks(era.audioIds);
-    
+
     hideAllEraSections();
 }
 
@@ -570,7 +484,7 @@ async function showEraSection(section) {
     hideAllEraSections();
     document.getElementById('era' + section.charAt(0).toUpperCase() + section.slice(1)).style.display = 'block';
     event.target.classList.add('active');
-    
+
     if (section === 'itemline') {
         renderEraItemline();
     } else if (section === 'crossline') {
@@ -585,12 +499,12 @@ function renderEraItemline() {
     const era = universe.eras[appData.currentEra];
     const container = document.getElementById('eraItemlineList');
     container.innerHTML = '';
-    
+
     if (!era.itemline || !era.itemline.length) {
         container.innerHTML = '<div class="empty-state"><div class="empty-icon">📝</div><div class="empty-text">Aucune info</div></div>';
         return;
     }
-    
+
     era.itemline.forEach((item, index) => {
         const el = document.createElement('div');
         el.className = 'itemline-item';
@@ -625,38 +539,23 @@ async function renderEraCrossline(type) {
     const era = universe.eras[appData.currentEra];
     const grid = document.getElementById('eraCrosslineGrid');
     grid.innerHTML = '';
-    
+
     if (!era[type]) era[type] = [];
-    
+
     for (let i = 0; i < era[type].length; i++) {
-        grid.appendChild(await createDetailCard(era[type][i], i, type));
+        const item = era[type][i];
+        const card = document.createElement('div');
+        card.className = 'card-era';
+        card.onclick = () => openDetail(i, type);
+        card.innerHTML = `${await getCardBackground(item.mediaId)}<div class="card-content"><div class="card-title">${item.name}</div><div class="card-desc">${item.description || ''}</div></div>`;
+        grid.appendChild(card);
     }
-    
+
     const addCard = document.createElement('div');
     addCard.className = 'card-era add-card';
     addCard.onclick = () => openCreateModal(type);
     addCard.innerHTML = '<div class="add-icon">+</div><span class="add-text">Nouveau</span>';
     grid.appendChild(addCard);
-}
-
-async function createDetailCard(detail, index, type) {
-    const card = document.createElement('div');
-    card.className = 'card-era';
-    card.onclick = () => openDetail(index, type);
-    
-    let bg = '<div class="card-overlay"></div>';
-    
-    if (detail.mediaId) {
-        const media = await getMedia(detail.mediaId);
-        if (media && media.base64) {
-            bg = media.type && media.type.startsWith('video')
-                ? `<video class="card-bg" src="${media.base64}" autoplay loop muted playsinline></video><div class="card-overlay"></div>`
-                : `<img class="card-bg" src="${media.base64}"><div class="card-overlay"></div>`;
-        }
-    }
-    
-    card.innerHTML = `${bg}<div class="card-content"><div class="card-title">${detail.name}</div><div class="card-desc">${detail.description || ''}</div></div>`;
-    return card;
 }
 
 // =============================================
@@ -676,17 +575,17 @@ async function renderDetailPage() {
     const era = universe.eras[appData.currentEra];
     const detail = era[appData.currentDetailType][appData.currentDetail];
     if (!detail) return;
-    
+
     document.getElementById('detailTitle').textContent = detail.name;
     document.getElementById('detailDesc').textContent = detail.description || '';
-    
+
     await renderBackground('detailBackground', detail.mediaId);
-    
+
     const musicBtn = document.getElementById('detailMusicBtn');
     musicBtn.style.display = (detail.audioIds && detail.audioIds.length) ? 'flex' : 'none';
-    
+
     if (detail.audioIds) await loadAudioTracks(detail.audioIds);
-    
+
     hideAllDetailSections();
 }
 
@@ -701,7 +600,7 @@ async function showDetailSection(section) {
     hideAllDetailSections();
     document.getElementById('detail' + section.charAt(0).toUpperCase() + section.slice(1)).style.display = 'block';
     event.target.classList.add('active');
-    
+
     if (section === 'itemline') {
         renderDetailItemline();
     } else if (section === 'crossline') {
@@ -717,12 +616,12 @@ function renderDetailItemline() {
     const detail = era[appData.currentDetailType][appData.currentDetail];
     const container = document.getElementById('detailItemlineList');
     container.innerHTML = '';
-    
+
     if (!detail.itemline || !detail.itemline.length) {
         container.innerHTML = '<div class="empty-state"><div class="empty-icon">📝</div><div class="empty-text">Aucune info</div></div>';
         return;
     }
-    
+
     detail.itemline.forEach((item, index) => {
         const el = document.createElement('div');
         el.className = 'itemline-item';
@@ -758,29 +657,17 @@ async function renderDetailCrossline(type) {
     const detail = era[appData.currentDetailType][appData.currentDetail];
     const grid = document.getElementById('detailCrosslineGrid');
     grid.innerHTML = '';
-    
+
     if (!detail[type]) detail[type] = [];
-    
+
     for (let i = 0; i < detail[type].length; i++) {
         const item = detail[type][i];
         const card = document.createElement('div');
         card.className = 'card-era';
-        
-        let bg = '<div class="card-overlay"></div>';
-        
-        if (item.mediaId) {
-            const media = await getMedia(item.mediaId);
-            if (media && media.base64) {
-                bg = media.type && media.type.startsWith('video')
-                    ? `<video class="card-bg" src="${media.base64}" autoplay loop muted playsinline></video><div class="card-overlay"></div>`
-                    : `<img class="card-bg" src="${media.base64}"><div class="card-overlay"></div>`;
-            }
-        }
-        
-        card.innerHTML = `${bg}<div class="card-content"><div class="card-title">${item.name}</div><div class="card-desc">${item.description || ''}</div></div>`;
+        card.innerHTML = `${await getCardBackground(item.mediaId)}<div class="card-content"><div class="card-title">${item.name}</div><div class="card-desc">${item.description || ''}</div></div>`;
         grid.appendChild(card);
     }
-    
+
     const addCard = document.createElement('div');
     addCard.className = 'card-era add-card';
     addCard.onclick = () => openCreateModal(type, 'detail');
@@ -815,12 +702,12 @@ function renderEraCalendars() {
     const era = universe.eras[appData.currentEra];
     const container = document.getElementById('calendarsContainer');
     container.innerHTML = '';
-    
+
     if (!era.calendars || !era.calendars.length) {
         container.innerHTML = '<div class="empty-state"><div class="empty-icon">📅</div><div class="empty-text">Aucun calendrier</div></div>';
         return;
     }
-    
+
     era.calendars.forEach((cal, index) => {
         container.appendChild(createCalendarElement(cal, index, 'era'));
     });
@@ -832,12 +719,12 @@ function renderDetailCalendars() {
     const detail = era[appData.currentDetailType][appData.currentDetail];
     const container = document.getElementById('detailCalendarsContainer');
     container.innerHTML = '';
-    
+
     if (!detail.calendars || !detail.calendars.length) {
         container.innerHTML = '<div class="empty-state"><div class="empty-icon">📅</div><div class="empty-text">Aucun calendrier</div></div>';
         return;
     }
-    
+
     detail.calendars.forEach((cal, index) => {
         container.appendChild(createCalendarElement(cal, index, 'detail'));
     });
@@ -846,23 +733,18 @@ function renderDetailCalendars() {
 function createCalendarElement(cal, index, parentType) {
     const div = document.createElement('div');
     div.className = 'calendar-container';
-    
+
     const days = cal.daysPerWeek * cal.weeksPerMonth;
-    const dayNames = [];
-    
-    for (let j = 1; j <= cal.daysPerWeek; j++) {
-        dayNames.push((cal.dayName || 'J').substring(0, 2) + j);
-    }
-    
     let dayHeaders = '';
-    dayNames.forEach(name => {
-        dayHeaders += `<div class="calendar-day-header">${name}</div>`;
-    });
-    
+
+    for (let j = 1; j <= cal.daysPerWeek; j++) {
+        dayHeaders += `<div class="calendar-day-header">${(cal.dayName || 'J').substring(0, 2)}${j}</div>`;
+    }
+
     for (let j = 1; j <= days; j++) {
         dayHeaders += `<div class="calendar-day">${j}</div>`;
     }
-    
+
     div.innerHTML = `
         <div class="calendar-header">
             <div class="calendar-nav">
@@ -875,43 +757,38 @@ function createCalendarElement(cal, index, parentType) {
         </div>
         <div class="calendar-grid" style="grid-template-columns:repeat(${cal.daysPerWeek},1fr)">${dayHeaders}</div>
         <div class="calendar-customize">
-            <div class="calendar-setting">
-                <span class="calendar-setting-label">${cal.dayName || 'Jours'}/${cal.weekName || 'sem'}</span>
-                <span>${cal.daysPerWeek}</span>
-            </div>
-            <div class="calendar-setting">
-                <span class="calendar-setting-label">${cal.weekName || 'Sem'}/${cal.monthName || 'mois'}</span>
-                <span>${cal.weeksPerMonth}</span>
-            </div>
-            <div class="calendar-setting">
-                <span class="calendar-setting-label">${cal.monthName || 'Mois'}/${cal.yearName || 'an'}</span>
-                <span>${cal.monthsPerYear}</span>
-            </div>
-            <div class="calendar-setting">
-                <span class="calendar-setting-label">${cal.hourName || 'H'}/${cal.dayName || 'jour'}</span>
-                <span>${cal.hoursPerDay}</span>
-            </div>
+            <div class="calendar-setting"><span class="calendar-setting-label">${cal.dayName || 'Jours'}/${cal.weekName || 'sem'}</span><span>${cal.daysPerWeek}</span></div>
+            <div class="calendar-setting"><span class="calendar-setting-label">${cal.weekName || 'Sem'}/${cal.monthName || 'mois'}</span><span>${cal.weeksPerMonth}</span></div>
+            <div class="calendar-setting"><span class="calendar-setting-label">${cal.monthName || 'Mois'}/${cal.yearName || 'an'}</span><span>${cal.monthsPerYear}</span></div>
+            <div class="calendar-setting"><span class="calendar-setting-label">${cal.hourName || 'H'}/${cal.dayName || 'jour'}</span><span>${cal.hoursPerDay}</span></div>
         </div>
     `;
-    
+
     return div;
 }
 
 // =============================================
 // MODALS - CREATE/EDIT
 // =============================================
-function openCreateModal(type, parent = null) {
+function resetModalState() {
     modalState = {
-        type: type,
-        mode: 'create',
+        type: null,
+        mode: null,
         editIndex: null,
-        parentType: parent,
+        parentType: null,
         mediaId: null,
-        mediaBlob: null,
+        mediaBase64: null,
         mediaType: null,
         audioFiles: []
     };
-    
+}
+
+function openCreateModal(type, parent = null) {
+    resetModalState();
+    modalState.type = type;
+    modalState.mode = 'create';
+    modalState.parentType = parent;
+
     document.getElementById('modalTitle').textContent = 'Créer';
     document.getElementById('modalSaveBtn').textContent = 'Créer';
     document.getElementById('inputName').value = '';
@@ -924,10 +801,11 @@ function openCreateModal(type, parent = null) {
 }
 
 async function openEditModal(type) {
-    let entity;
+    resetModalState();
     modalState.type = type;
     modalState.mode = 'edit';
-    
+
+    let entity;
     if (type === 'universe') {
         entity = appData.universes[appData.currentUniverse];
         modalState.editIndex = appData.currentUniverse;
@@ -941,11 +819,10 @@ async function openEditModal(type) {
         modalState.editIndex = appData.currentDetail;
         modalState.type = appData.currentDetailType;
     }
-    
+
     modalState.mediaId = entity.mediaId || null;
-    modalState.mediaBlob = null;
-    modalState.audioFiles = [];
-    
+
+    // Charger les audios existants
     if (entity.audioIds) {
         for (const id of entity.audioIds) {
             const audio = await getMedia(id);
@@ -959,27 +836,29 @@ async function openEditModal(type) {
             }
         }
     }
-    
+
     document.getElementById('modalTitle').textContent = 'Modifier';
     document.getElementById('modalSaveBtn').textContent = 'Enregistrer';
     document.getElementById('inputName').value = entity.name;
     document.getElementById('inputDesc').value = entity.description || '';
-    
+
+    // Afficher le média existant
     const preview = document.getElementById('mediaPreview');
-    
     if (entity.mediaId) {
         const media = await getMedia(entity.mediaId);
         if (media && media.base64) {
             preview.classList.add('active');
-            preview.innerHTML = media.type && media.type.startsWith('video')
-                ? `<video src="${media.base64}" controls style="width:100%;height:100%;object-fit:cover"></video><button class="remove-btn" onclick="removeMedia()">✕</button>`
-                : `<img src="${media.base64}" style="width:100%;height:100%;object-fit:cover"><button class="remove-btn" onclick="removeMedia()">✕</button>`;
+            if (media.type && media.type.startsWith('video')) {
+                preview.innerHTML = `<video src="${media.base64}" controls style="width:100%;height:100%;object-fit:cover"></video><button class="remove-btn" onclick="removeMedia()">✕</button>`;
+            } else {
+                preview.innerHTML = `<img src="${media.base64}" style="width:100%;height:100%;object-fit:cover"><button class="remove-btn" onclick="removeMedia()">✕</button>`;
+            }
         }
     } else {
         preview.classList.remove('active');
         preview.innerHTML = '';
     }
-    
+
     updateAudioListModal();
     document.getElementById('createModal').classList.add('active');
 }
@@ -989,82 +868,78 @@ function closeModal(id) {
 }
 
 // =============================================
-// MEDIA HANDLING
+// MEDIA UPLOAD - Système simplifié
 // =============================================
-function handleMediaUpload(e) {
+async function handleMediaUpload(e) {
     const file = e.target.files[0];
-    if (!file) {
-        console.log('Aucun fichier média sélectionné');
-        return;
+    if (!file) return;
+
+    try {
+        // Convertir immédiatement en base64
+        const base64 = await fileToBase64(file);
+
+        modalState.mediaBase64 = base64;
+        modalState.mediaType = file.type;
+        modalState.mediaId = null; // Nouveau média, pas encore d'ID
+
+        const preview = document.getElementById('mediaPreview');
+        preview.classList.add('active');
+
+        if (file.type.startsWith('video')) {
+            preview.innerHTML = `<video src="${base64}" controls style="width:100%;height:100%;object-fit:cover"></video><button class="remove-btn" onclick="removeMedia()">✕</button>`;
+        } else {
+            preview.innerHTML = `<img src="${base64}" style="width:100%;height:100%;object-fit:cover"><button class="remove-btn" onclick="removeMedia()">✕</button>`;
+        }
+
+        showToast('Média ajouté');
+    } catch (err) {
+        console.error('Erreur upload:', err);
+        showToast('Erreur lors du chargement');
     }
-    
-    console.log('Média sélectionné:', file.name, file.type);
-    
-    modalState.mediaBlob = file;
-    modalState.mediaType = file.type;
-    modalState.mediaId = null;
-    
-    const url = URL.createObjectURL(file);
-    const preview = document.getElementById('mediaPreview');
-    preview.classList.add('active');
-    
-    preview.innerHTML = file.type.startsWith('video')
-        ? `<video src="${url}" controls style="width:100%;height:100%;object-fit:cover"></video><button class="remove-btn" onclick="removeMedia()">✕</button>`
-        : `<img src="${url}" style="width:100%;height:100%;object-fit:cover"><button class="remove-btn" onclick="removeMedia()">✕</button>`;
-    
-    // Reset l'input
+
     e.target.value = '';
-    
-    showToast('Média ajouté');
 }
 
 function removeMedia() {
-    modalState.mediaBlob = null;
+    modalState.mediaBase64 = null;
     modalState.mediaType = null;
     modalState.mediaId = null;
-    
+
     const preview = document.getElementById('mediaPreview');
     preview.classList.remove('active');
     preview.innerHTML = '';
 }
 
-function handleAudioUpload(e) {
+async function handleAudioUpload(e) {
     const files = e.target.files;
-    if (!files || !files.length) {
-        console.log('Aucun fichier sélectionné');
-        return;
+    if (!files || !files.length) return;
+
+    for (const file of files) {
+        try {
+            const base64 = await fileToBase64(file);
+            modalState.audioFiles.push({
+                id: null,
+                name: file.name,
+                base64: base64,
+                type: file.type
+            });
+        } catch (err) {
+            console.error('Erreur audio:', err);
+        }
     }
-    
-    console.log('Fichiers audio sélectionnés:', files.length);
-    
-    Array.from(files).forEach(file => {
-        console.log('Ajout audio:', file.name);
-        modalState.audioFiles.push({
-            id: null,
-            name: file.name,
-            blob: file,
-            type: file.type
-        });
-    });
-    
-    // Reset l'input pour permettre de re-sélectionner le même fichier
+
     e.target.value = '';
-    
     updateAudioListModal();
     showToast(files.length + ' piste(s) ajoutée(s)');
 }
 
 function updateAudioListModal() {
     const list = document.getElementById('audioList');
-    
-    if (!list) {
-        console.error('Element audioList non trouvé');
-        return;
-    }
-    
+    if (!list) return;
+
     if (modalState.audioFiles && modalState.audioFiles.length) {
         list.style.display = 'block';
-        list.innerHTML = modalState.audioFiles.map((audio, index) => 
+        list.innerHTML = modalState.audioFiles.map((audio, index) =>
             `<div class="audio-list-item">
                 <span class="audio-list-item-name">${audio.name}</span>
                 <button class="itemline-item-btn delete" onclick="removeAudioModal(${index})">✕</button>
@@ -1088,7 +963,6 @@ async function removeAudioModal(index) {
 // =============================================
 async function saveEntity() {
     const name = document.getElementById('inputName').value.trim();
-
     if (!name) {
         showToast('Entrez un nom');
         return;
@@ -1096,30 +970,26 @@ async function saveEntity() {
 
     let mediaId = modalState.mediaId;
 
-    // Sauvegarde du média principal avec vérification
-    if (modalState.mediaBlob) {
-        mediaId = await saveMedia(modalState.mediaBlob, modalState.mediaType, 'media');
+    // Si nouveau média uploadé, le sauvegarder
+    if (modalState.mediaBase64) {
+        mediaId = await saveMedia(modalState.mediaBase64, modalState.mediaType, 'media');
         if (!mediaId) {
-            showToast('Erreur: impossible de sauvegarder le média. Fichier trop volumineux?');
+            showToast('Erreur sauvegarde média');
             return;
         }
     }
 
-    // Sauvegarde des fichiers audio avec filtrage des échecs
+    // Sauvegarder les nouveaux audios
     const audioIds = [];
     for (const audio of modalState.audioFiles) {
         if (audio.id) {
             audioIds.push(audio.id);
-        } else {
-            const id = await saveMedia(audio.blob, audio.type, audio.name);
-            if (id) {
-                audioIds.push(id);
-            } else {
-                console.warn(`Échec sauvegarde audio: ${audio.name}`);
-            }
+        } else if (audio.base64) {
+            const id = await saveMedia(audio.base64, audio.type, audio.name);
+            if (id) audioIds.push(id);
         }
     }
-    
+
     const entity = {
         name: name,
         description: document.getElementById('inputDesc').value.trim(),
@@ -1128,7 +998,7 @@ async function saveEntity() {
         itemline: [],
         calendars: []
     };
-    
+
     if (modalState.mode === 'edit') {
         if (modalState.type === 'universe' || (appData.navStack[appData.navStack.length - 1] === 'universe' && modalState.type !== 'era')) {
             const existing = appData.universes[modalState.editIndex];
@@ -1209,7 +1079,7 @@ async function saveEntity() {
             await renderEraCrossline(modalState.type);
         }
     }
-    
+
     showToast('Enregistré');
     closeModal('createModal');
 }
@@ -1227,9 +1097,7 @@ async function confirmDelete() {
         const universe = appData.universes[appData.currentUniverse];
         if (universe.mediaId) await deleteMedia(universe.mediaId);
         if (universe.audioIds) {
-            for (const id of universe.audioIds) {
-                await deleteMedia(id);
-            }
+            for (const id of universe.audioIds) await deleteMedia(id);
         }
         appData.universes.splice(appData.currentUniverse, 1);
         appData.currentUniverse = null;
@@ -1242,9 +1110,7 @@ async function confirmDelete() {
         const era = universe.eras[appData.currentEra];
         if (era.mediaId) await deleteMedia(era.mediaId);
         if (era.audioIds) {
-            for (const id of era.audioIds) {
-                await deleteMedia(id);
-            }
+            for (const id of era.audioIds) await deleteMedia(id);
         }
         universe.eras.splice(appData.currentEra, 1);
         appData.currentEra = null;
@@ -1256,16 +1122,14 @@ async function confirmDelete() {
         const detail = era[appData.currentDetailType][appData.currentDetail];
         if (detail.mediaId) await deleteMedia(detail.mediaId);
         if (detail.audioIds) {
-            for (const id of detail.audioIds) {
-                await deleteMedia(id);
-            }
+            for (const id of detail.audioIds) await deleteMedia(id);
         }
         era[appData.currentDetailType].splice(appData.currentDetail, 1);
         appData.currentDetail = null;
         await saveAppData();
         goBack();
     }
-    
+
     showToast('Supprimé');
     closeModal('deleteModal');
 }
@@ -1282,7 +1146,7 @@ function openItemlineModal(parent) {
 
 function editItemline(parent, index) {
     itemlineState = { parentType: parent, editIndex: index };
-    
+
     let item;
     if (parent === 'universe') {
         item = appData.universes[appData.currentUniverse].itemline[index];
@@ -1293,7 +1157,7 @@ function editItemline(parent, index) {
         const era = universe.eras[appData.currentEra];
         item = era[appData.currentDetailType][appData.currentDetail].itemline[index];
     }
-    
+
     document.getElementById('itemlineTitle').value = item.title;
     document.getElementById('itemlineContent').value = item.content;
     document.getElementById('itemlineModal').classList.add('active');
@@ -1302,15 +1166,15 @@ function editItemline(parent, index) {
 async function saveItemline() {
     const title = document.getElementById('itemlineTitle').value.trim();
     const content = document.getElementById('itemlineContent').value.trim();
-    
+
     if (!title) {
         showToast('Entrez un titre');
         return;
     }
-    
+
     const item = { title, content };
     let target;
-    
+
     if (itemlineState.parentType === 'universe') {
         target = appData.universes[appData.currentUniverse];
     } else if (itemlineState.parentType === 'era') {
@@ -1320,19 +1184,19 @@ async function saveItemline() {
         const era = universe.eras[appData.currentEra];
         target = era[appData.currentDetailType][appData.currentDetail];
     }
-    
+
     if (!target.itemline) target.itemline = [];
-    
+
     if (itemlineState.editIndex !== null) {
         target.itemline[itemlineState.editIndex] = item;
     } else {
         target.itemline.push(item);
     }
-    
+
     await saveAppData();
     closeModal('itemlineModal');
     showToast('Info enregistrée');
-    
+
     if (itemlineState.parentType === 'universe') {
         renderUniverseItemline();
     } else if (itemlineState.parentType === 'era') {
@@ -1344,7 +1208,7 @@ async function saveItemline() {
 
 async function deleteItemline(parent, index) {
     let target;
-    
+
     if (parent === 'universe') {
         target = appData.universes[appData.currentUniverse];
     } else if (parent === 'era') {
@@ -1354,11 +1218,11 @@ async function deleteItemline(parent, index) {
         const era = universe.eras[appData.currentEra];
         target = era[appData.currentDetailType][appData.currentDetail];
     }
-    
+
     target.itemline.splice(index, 1);
     await saveAppData();
     showToast('Supprimé');
-    
+
     if (parent === 'universe') {
         renderUniverseItemline();
     } else if (parent === 'era') {
@@ -1373,11 +1237,11 @@ async function deleteItemline(parent, index) {
 // =============================================
 function openCalendarModal(parent = 'era') {
     calendarState = { parentType: parent, editIndex: null };
-    
+
     ['calendarName', 'calendarYearName', 'calendarMonthName', 'calendarWeekName', 'calendarDayName', 'calendarHourName'].forEach(id => {
         document.getElementById(id).value = '';
     });
-    
+
     document.getElementById('daysPerWeek').value = 7;
     document.getElementById('weeksPerMonth').value = 4;
     document.getElementById('monthsPerYear').value = 12;
@@ -1387,7 +1251,7 @@ function openCalendarModal(parent = 'era') {
 
 function editCalendar(parent, index) {
     calendarState = { parentType: parent, editIndex: index };
-    
+
     let cal;
     if (parent === 'era') {
         cal = appData.universes[appData.currentUniverse].eras[appData.currentEra].calendars[index];
@@ -1396,7 +1260,7 @@ function editCalendar(parent, index) {
         const era = universe.eras[appData.currentEra];
         cal = era[appData.currentDetailType][appData.currentDetail].calendars[index];
     }
-    
+
     document.getElementById('calendarName').value = cal.name || '';
     document.getElementById('calendarYearName').value = cal.yearName || '';
     document.getElementById('calendarMonthName').value = cal.monthName || '';
@@ -1412,12 +1276,12 @@ function editCalendar(parent, index) {
 
 async function saveCalendar() {
     const name = document.getElementById('calendarName').value.trim();
-    
+
     if (!name) {
         showToast('Entrez un nom');
         return;
     }
-    
+
     const cal = {
         name: name,
         yearName: document.getElementById('calendarYearName').value.trim() || 'Année',
@@ -1430,7 +1294,7 @@ async function saveCalendar() {
         monthsPerYear: parseInt(document.getElementById('monthsPerYear').value) || 12,
         hoursPerDay: parseInt(document.getElementById('hoursPerDay').value) || 24
     };
-    
+
     let target;
     if (calendarState.parentType === 'era') {
         target = appData.universes[appData.currentUniverse].eras[appData.currentEra];
@@ -1439,19 +1303,19 @@ async function saveCalendar() {
         const era = universe.eras[appData.currentEra];
         target = era[appData.currentDetailType][appData.currentDetail];
     }
-    
+
     if (!target.calendars) target.calendars = [];
-    
+
     if (calendarState.editIndex !== null) {
         target.calendars[calendarState.editIndex] = cal;
     } else {
         target.calendars.push(cal);
     }
-    
+
     await saveAppData();
     closeModal('calendarModal');
     showToast('Calendrier enregistré');
-    
+
     if (calendarState.parentType === 'era') {
         renderEraCalendars();
     } else {
@@ -1461,7 +1325,7 @@ async function saveCalendar() {
 
 async function deleteCalendar(parent, index) {
     let target;
-    
+
     if (parent === 'era') {
         target = appData.universes[appData.currentUniverse].eras[appData.currentEra];
     } else {
@@ -1469,11 +1333,11 @@ async function deleteCalendar(parent, index) {
         const era = universe.eras[appData.currentEra];
         target = era[appData.currentDetailType][appData.currentDetail];
     }
-    
+
     target.calendars.splice(index, 1);
     await saveAppData();
     showToast('Supprimé');
-    
+
     if (parent === 'era') {
         renderEraCalendars();
     } else {
@@ -1488,7 +1352,7 @@ const audioEl = document.getElementById('audioElement');
 
 async function loadAudioTracks(ids) {
     audioState.tracks = [];
-    
+
     for (const id of ids) {
         const audio = await getMedia(id);
         if (audio && audio.base64) {
@@ -1504,7 +1368,7 @@ async function loadAudioTracks(ids) {
 function toggleAudioPlayer() {
     const overlay = document.getElementById('audioPlayerOverlay');
     overlay.classList.toggle('active');
-    
+
     if (overlay.classList.contains('active')) {
         renderPlayerList();
         if (audioState.tracks.length && !audioEl.src) {
@@ -1527,7 +1391,7 @@ function closeAudioPlayer() {
 
 function renderPlayerList() {
     const list = document.getElementById('playerAudioList');
-    list.innerHTML = audioState.tracks.map((track, index) => 
+    list.innerHTML = audioState.tracks.map((track, index) =>
         `<div class="audio-list-item ${index === audioState.currentIndex ? 'active' : ''}" onclick="loadTrack(${index})">
             <span class="audio-list-item-name">${track.name}</span>
         </div>`
@@ -1536,14 +1400,14 @@ function renderPlayerList() {
 
 function loadTrack(index) {
     if (!audioState.tracks.length) return;
-    
+
     audioState.currentIndex = index;
     const track = audioState.tracks[index];
-    
+
     audioEl.src = track.base64;
     document.getElementById('audioCurrentTitle').textContent = track.name;
     renderPlayerList();
-    
+
     if (audioState.isPlaying) {
         audioEl.play();
     }
@@ -1551,7 +1415,7 @@ function loadTrack(index) {
 
 function togglePlay() {
     if (!audioState.tracks.length) return;
-    
+
     if (audioState.isPlaying) {
         audioEl.pause();
         audioState.isPlaying = false;
