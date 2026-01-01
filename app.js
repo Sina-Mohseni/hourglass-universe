@@ -554,6 +554,7 @@ async function renderEraPage() {
 
     document.getElementById('eraTitle').textContent = era.name;
     document.getElementById('eraDesc').textContent = era.description || '';
+    document.getElementById('eraParentContext').textContent = universe.name;
 
     await renderBackground('eraBackground', era.mediaId);
 
