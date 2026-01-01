@@ -332,82 +332,99 @@ html, body {
     display: flex;
     justify-content: center;
     padding: clamp(16px, 4vmin, 24px) 0;
+    width: 100%;
 }
 
 .sub-menus-container {
     display: flex;
     align-items: center;
+    justify-content: center;
     background: var(--bg-tertiary);
-    border: 1px solid var(--glass-border);
-    border-radius: 50px;
-    padding: 6px;
+    border-top: 1px solid var(--glass-border);
+    border-bottom: 1px solid var(--glass-border);
+    padding: 8px clamp(16px, 5vw, 60px);
     position: relative;
-    gap: 4px;
+    gap: clamp(8px, 3vw, 24px);
+    width: 100%;
 }
 
 .sub-menus-container::before {
     content: '';
     position: absolute;
-    top: 6px;
-    bottom: 6px;
-    left: 6px;
-    width: calc(33.333% - 6px);
+    top: 8px;
+    bottom: 8px;
+    width: calc(33.333% - clamp(16px, 4vw, 50px));
+    max-width: 140px;
     background: linear-gradient(135deg, var(--accent-gold), var(--accent-copper));
-    border-radius: 50px;
-    transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-    box-shadow: 0 4px 15px rgba(212, 168, 83, 0.4),
+    border-radius: 12px;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 4px 20px rgba(212, 168, 83, 0.5),
+                0 0 40px rgba(212, 168, 83, 0.2),
                 inset 0 1px 0 rgba(255, 255, 255, 0.2);
     z-index: 0;
+    opacity: 0;
+}
+
+.sub-menus-container[data-active="1"]::before,
+.sub-menus-container[data-active="2"]::before,
+.sub-menus-container[data-active="3"]::before {
+    opacity: 1;
 }
 
 .sub-menus-container[data-active="1"]::before {
-    transform: translateX(0);
+    left: clamp(16px, 5vw, 60px);
 }
 
 .sub-menus-container[data-active="2"]::before {
-    transform: translateX(100%);
+    left: 50%;
+    transform: translateX(-50%);
 }
 
 .sub-menus-container[data-active="3"]::before {
-    transform: translateX(200%);
+    right: clamp(16px, 5vw, 60px);
+    left: auto;
 }
 
 .sub-menu-btn {
     display: flex;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: clamp(6px, 1.5vmin, 10px);
-    padding: clamp(10px, 2.5vmin, 14px) clamp(16px, 4vmin, 24px);
+    gap: clamp(4px, 1vmin, 8px);
+    padding: clamp(12px, 3vmin, 18px) clamp(20px, 5vmin, 32px);
     background: transparent;
     border: none;
-    border-radius: 50px;
+    border-radius: 12px;
     cursor: pointer;
     transition: all 0.3s ease;
     position: relative;
     z-index: 1;
-    min-width: clamp(80px, 20vmin, 120px);
+    min-width: clamp(80px, 22vmin, 140px);
+    height: clamp(70px, 16vmin, 100px);
 }
 
 .sub-menu-btn svg {
-    width: clamp(16px, 4vmin, 20px);
-    height: clamp(16px, 4vmin, 20px);
+    width: clamp(22px, 5vmin, 32px);
+    height: clamp(22px, 5vmin, 32px);
     color: var(--text-muted);
     transition: all 0.3s ease;
     flex-shrink: 0;
 }
 
 .sub-menu-btn span {
-    font-family: var(--font-display);
-    font-size: clamp(10px, 2.2vmin, 12px);
+    font-family: var(--font-body);
+    font-size: clamp(9px, 2vmin, 11px);
     color: var(--text-muted);
     text-transform: uppercase;
-    letter-spacing: 0.08em;
+    letter-spacing: 0.15em;
     transition: all 0.3s ease;
     white-space: nowrap;
+    font-weight: 500;
 }
 
 .sub-menu-btn:hover svg {
     color: var(--text-secondary);
+    transform: scale(1.1);
 }
 
 .sub-menu-btn:hover span {
@@ -416,13 +433,13 @@ html, body {
 
 .sub-menu-btn.active svg {
     color: var(--bg-primary);
-    filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.3));
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.4));
 }
 
 .sub-menu-btn.active span {
     color: var(--bg-primary);
     font-weight: 600;
-    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
 }
 
 /* Ripple effect on click */
@@ -430,8 +447,8 @@ html, body {
     content: '';
     position: absolute;
     inset: 0;
-    border-radius: 50px;
-    background: radial-gradient(circle at center, rgba(212, 168, 83, 0.3), transparent 70%);
+    border-radius: 12px;
+    background: radial-gradient(circle at center, rgba(212, 168, 83, 0.4), transparent 70%);
     opacity: 0;
     transform: scale(0);
     transition: all 0.5s ease;
