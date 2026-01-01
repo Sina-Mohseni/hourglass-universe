@@ -387,6 +387,8 @@ function hideAllUniverseSections() {
         document.getElementById(id).style.display = 'none';
     });
     document.querySelectorAll('#universePage .sub-menu-btn').forEach(b => b.classList.remove('active'));
+    const container = document.getElementById('universeSubMenus');
+    if (container) container.setAttribute('data-active', '0');
 }
 
 async function showUniverseSection(section) {
@@ -407,13 +409,22 @@ async function showUniverseSection(section) {
 }
 
 function setActiveButton(pageSelector, section) {
+    const container = document.querySelector(`${pageSelector} .sub-menus-container`);
     const buttons = document.querySelectorAll(`${pageSelector} .sub-menu-btn`);
-    buttons.forEach(btn => {
+
+    let activeIndex = 0;
+    buttons.forEach((btn, index) => {
         btn.classList.remove('active');
-        if (btn.getAttribute('title')?.toLowerCase() === section) {
+        if (btn.getAttribute('data-section') === section) {
             btn.classList.add('active');
+            activeIndex = index + 1;
         }
     });
+
+    // Update the sliding indicator position
+    if (container) {
+        container.setAttribute('data-active', activeIndex);
+    }
 }
 
 function renderUniverseItemline() {
@@ -559,6 +570,8 @@ function hideAllEraSections() {
         document.getElementById(id).style.display = 'none';
     });
     document.querySelectorAll('#eraPage .sub-menu-btn').forEach(b => b.classList.remove('active'));
+    const container = document.getElementById('eraSubMenus');
+    if (container) container.setAttribute('data-active', '0');
 }
 
 async function showEraSection(section) {
@@ -678,6 +691,8 @@ function hideAllDetailSections() {
         document.getElementById(id).style.display = 'none';
     });
     document.querySelectorAll('#detailPage .sub-menu-btn').forEach(b => b.classList.remove('active'));
+    const container = document.getElementById('detailSubMenus');
+    if (container) container.setAttribute('data-active', '0');
 }
 
 async function showDetailSection(section) {
