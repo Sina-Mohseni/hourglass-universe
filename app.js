@@ -371,17 +371,15 @@ async function openUniverse(index, cardElement) {
     // Trigger zoom animation on the card
     if (cardElement) {
         cardElement.classList.add('zooming');
-        document.getElementById('homePage').classList.add('fading-out');
     }
 
     await renderUniversePage();
 
-    // Wait for animation then navigate
+    // Wait for zoom animation then navigate
     setTimeout(() => {
-        document.getElementById('homePage').classList.remove('fading-out');
         navigateTo('universePage');
         if (cardElement) cardElement.classList.remove('zooming');
-    }, 300);
+    }, 350);
 
     saveAppData();
 }
