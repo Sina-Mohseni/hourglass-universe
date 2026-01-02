@@ -344,7 +344,7 @@ async function renderUniverses() {
         const universe = appData.universes[i];
         const card = document.createElement('div');
         card.className = 'card-universe';
-        card.onclick = (e) => openUniverse(i, e.currentTarget);
+        card.onclick = () => openUniverse(i);
         card.innerHTML = `${await getCardBackground(universe.mediaId)}<div class="card-overlay"></div><div class="card-content"><div class="card-title">${universe.name}</div><div class="card-desc">${universe.description || ''}</div></div>`;
         grid.appendChild(card);
     }
@@ -364,39 +364,11 @@ function slideUniverses(direction) {
     track.scrollBy({ left: scrollAmount, behavior: 'smooth' });
 }
 
-async function openUniverse(index, cardElement) {
+async function openUniverse(index) {
     appData.currentUniverse = index;
     appData.navStack.push('universe');
-
     await renderUniversePage();
-
-    // Trigger expand animation on the card
-    if (cardElement) {
-        // Get card position for animation start
-        const rect = cardElement.getBoundingClientRect();
-        cardElement.style.top = rect.top + 'px';
-        cardElement.style.left = rect.left + 'px';
-        cardElement.style.width = rect.width + 'px';
-        cardElement.style.height = rect.height + 'px';
-        cardElement.classList.add('expanding');
-
-        // After card expands, show the new page with content fade-in
-        setTimeout(() => {
-            const universePage = document.getElementById('universePage');
-            universePage.classList.add('fade-in-content');
-            navigateTo('universePage');
-
-            // Clean up
-            setTimeout(() => {
-                cardElement.classList.remove('expanding');
-                cardElement.style.cssText = '';
-                universePage.classList.remove('fade-in-content');
-            }, 400);
-        }, 500);
-    } else {
-        navigateTo('universePage');
-    }
-
+    navigateTo('universePage');
     saveAppData();
 }
 
