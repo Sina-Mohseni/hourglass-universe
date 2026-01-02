@@ -379,7 +379,7 @@ async function openUniverse(index, cardElement) {
     setTimeout(() => {
         navigateTo('universePage');
         if (cardElement) cardElement.classList.remove('zooming');
-    }, 350);
+    }, 450);
 
     saveAppData();
 }
