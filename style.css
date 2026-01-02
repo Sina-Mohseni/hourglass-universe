@@ -230,20 +230,29 @@ html, body {
 .universe-slider {
     position: relative;
     width: 100%;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
     overflow: hidden;
-    padding: clamp(20px, 5vmin, 40px) 0;
 }
 
 .universe-slider-track {
     display: flex;
+    align-items: center;
+    justify-content: flex-start;
     gap: clamp(24px, 6vmin, 40px);
     overflow-x: auto;
+    overflow-y: hidden;
     scroll-behavior: smooth;
     scroll-snap-type: x mandatory;
     -webkit-overflow-scrolling: touch;
-    padding: 20px clamp(20px, 8vw, 60px);
+    padding: clamp(20px, 5vmin, 40px) clamp(30px, 10vw, 80px);
     scrollbar-width: none;
     -ms-overflow-style: none;
+    width: 100%;
+    touch-action: pan-x;
 }
 
 .universe-slider-track::-webkit-scrollbar {
@@ -253,6 +262,11 @@ html, body {
 .universe-slider-track > * {
     scroll-snap-align: center;
     flex-shrink: 0;
+}
+
+/* Home page content centering */
+#homePage .content {
+    justify-content: center;
 }
 
 /* Slider Navigation Arrows */
