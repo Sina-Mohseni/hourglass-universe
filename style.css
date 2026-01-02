@@ -241,14 +241,14 @@ html, body {
 .universe-slider-track {
     display: flex;
     align-items: center;
-    justify-content: center;
+    justify-content: flex-start;
     gap: clamp(24px, 6vmin, 40px);
     overflow-x: auto;
     overflow-y: hidden;
     scroll-behavior: smooth;
     scroll-snap-type: x mandatory;
     -webkit-overflow-scrolling: touch;
-    padding: clamp(20px, 5vmin, 40px) clamp(30px, 10vw, 80px);
+    padding: clamp(20px, 5vmin, 40px) calc(50% - clamp(160px, 37.5vmin, 260px));
     scrollbar-width: none;
     -ms-overflow-style: none;
     width: 100%;
