@@ -314,8 +314,8 @@ html, body {
 
 /* Universe Card - Circular (Larger) */
 .card-universe {
-    width: clamp(180px, 40vmin, 280px);
-    height: clamp(180px, 40vmin, 280px);
+    width: clamp(320px, 75vmin, 520px);
+    height: clamp(320px, 75vmin, 520px);
     border-radius: 50%;
     overflow: hidden;
     position: relative;
@@ -350,13 +350,13 @@ html, body {
     align-items: center;
     justify-content: center;
     text-align: center;
-    padding: clamp(16px, 4vmin, 32px);
+    padding: clamp(32px, 8vmin, 64px);
     z-index: 2;
 }
 
 .card-universe .card-title {
-    font-size: clamp(14px, 3.5vmin, 22px);
-    margin-bottom: clamp(4px, 1vmin, 8px);
+    font-size: clamp(20px, 5vmin, 32px);
+    margin-bottom: clamp(8px, 2vmin, 16px);
     white-space: normal;
     text-align: center;
     line-height: 1.3;
@@ -364,7 +364,7 @@ html, body {
 }
 
 .card-universe .card-desc {
-    font-size: clamp(11px, 2.2vmin, 14px);
+    font-size: clamp(14px, 3vmin, 20px);
     -webkit-line-clamp: 3;
     text-align: center;
     line-height: 1.4;
