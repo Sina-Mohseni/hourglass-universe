@@ -77,36 +77,42 @@ html, body {
 
 .page.active {
     display: flex;
-    animation: pageZoomOut 0.5s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* Card zoom effect on click */
-.card-universe.zooming {
+/* Card expand effect on click */
+.card-universe.expanding {
     position: fixed !important;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
     z-index: 1000;
-    animation: cardZoomFullscreen 0.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+    animation: cardExpand 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
 }
 
-@keyframes cardZoomFullscreen {
+@keyframes cardExpand {
     0% {
-        transform: translate(-50%, -50%) scale(1);
         border-radius: 50%;
     }
     100% {
-        transform: translate(-50%, -50%) scale(4);
-        border-radius: 20%;
+        top: 0 !important;
+        left: 0 !important;
+        width: 100vw !important;
+        height: 100vh !important;
+        border-radius: 0;
     }
 }
 
-@keyframes pageZoomOut {
+/* Page content fade in */
+.page.fade-in-content .header,
+.page.fade-in-content .content {
+    animation: contentFadeIn 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+@keyframes contentFadeIn {
     0% {
-        transform: scale(1.15);
+        opacity: 0;
+        transform: translateY(20px);
     }
     100% {
-        transform: scale(1);
+        opacity: 1;
+        transform: translateY(0);
     }
 }
 

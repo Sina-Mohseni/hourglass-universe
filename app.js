@@ -368,18 +368,34 @@ async function openUniverse(index, cardElement) {
     appData.currentUniverse = index;
     appData.navStack.push('universe');
 
-    // Trigger zoom animation on the card
-    if (cardElement) {
-        cardElement.classList.add('zooming');
-    }
-
     await renderUniversePage();
 
-    // Wait for zoom animation then navigate
-    setTimeout(() => {
+    // Trigger expand animation on the card
+    if (cardElement) {
+        // Get card position for animation start
+        const rect = cardElement.getBoundingClientRect();
+        cardElement.style.top = rect.top + 'px';
+        cardElement.style.left = rect.left + 'px';
+        cardElement.style.width = rect.width + 'px';
+        cardElement.style.height = rect.height + 'px';
+        cardElement.classList.add('expanding');
+
+        // After card expands, show the new page with content fade-in
+        setTimeout(() => {
+            const universePage = document.getElementById('universePage');
+            universePage.classList.add('fade-in-content');
+            navigateTo('universePage');
+
+            // Clean up
+            setTimeout(() => {
+                cardElement.classList.remove('expanding');
+                cardElement.style.cssText = '';
+                universePage.classList.remove('fade-in-content');
+            }, 400);
+        }, 500);
+    } else {
         navigateTo('universePage');
-        if (cardElement) cardElement.classList.remove('zooming');
-    }, 450);
+    }
 
     saveAppData();
 }
