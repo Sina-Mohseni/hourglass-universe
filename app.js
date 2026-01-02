@@ -344,7 +344,7 @@ async function renderUniverses() {
         const universe = appData.universes[i];
         const card = document.createElement('div');
         card.className = 'card-universe';
-        card.onclick = () => openUniverse(i);
+        card.onclick = (e) => openUniverse(i, e.currentTarget);
         card.innerHTML = `${await getCardBackground(universe.mediaId)}<div class="card-overlay"></div><div class="card-content"><div class="card-title">${universe.name}</div><div class="card-desc">${universe.description || ''}</div></div>`;
         grid.appendChild(card);
     }
@@ -364,11 +364,25 @@ function slideUniverses(direction) {
     track.scrollBy({ left: scrollAmount, behavior: 'smooth' });
 }
 
-async function openUniverse(index) {
+async function openUniverse(index, cardElement) {
     appData.currentUniverse = index;
     appData.navStack.push('universe');
+
+    // Trigger zoom animation on the card
+    if (cardElement) {
+        cardElement.classList.add('zooming');
+        document.getElementById('homePage').classList.add('fading-out');
+    }
+
     await renderUniversePage();
-    navigateTo('universePage');
+
+    // Wait for animation then navigate
+    setTimeout(() => {
+        document.getElementById('homePage').classList.remove('fading-out');
+        navigateTo('universePage');
+        if (cardElement) cardElement.classList.remove('zooming');
+    }, 300);
+
     saveAppData();
 }
 

@@ -73,11 +73,53 @@ html, body {
     position: absolute;
     top: 0;
     left: 0;
-    animation: fadeIn 0.5s;
 }
 
 .page.active {
     display: flex;
+    animation: pageZoomIn 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Card zoom effect on click */
+.card-universe.zooming {
+    animation: cardZoomOut 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+    z-index: 100;
+}
+
+@keyframes cardZoomOut {
+    0% {
+        transform: scale(1);
+        opacity: 1;
+    }
+    100% {
+        transform: scale(1.5);
+        opacity: 0;
+    }
+}
+
+@keyframes pageZoomIn {
+    0% {
+        opacity: 0;
+        transform: scale(1.1);
+    }
+    100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+/* Fade out effect for home page */
+.page.fading-out {
+    animation: pageFadeOut 0.3s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+@keyframes pageFadeOut {
+    0% {
+        opacity: 1;
+    }
+    100% {
+        opacity: 0;
+    }
 }
 
 /* Header */
