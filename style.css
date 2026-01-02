@@ -226,28 +226,103 @@ html, body {
     padding: clamp(8px, 2vmin, 16px) 0;
 }
 
-/* Universe Card - Circular */
+/* Universe Slider */
+.universe-slider {
+    position: relative;
+    width: 100%;
+    overflow: hidden;
+    padding: clamp(20px, 5vmin, 40px) 0;
+}
+
+.universe-slider-track {
+    display: flex;
+    gap: clamp(24px, 6vmin, 40px);
+    overflow-x: auto;
+    scroll-behavior: smooth;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    padding: 20px clamp(20px, 8vw, 60px);
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+
+.universe-slider-track::-webkit-scrollbar {
+    display: none;
+}
+
+.universe-slider-track > * {
+    scroll-snap-align: center;
+    flex-shrink: 0;
+}
+
+/* Slider Navigation Arrows */
+.slider-arrow {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: clamp(40px, 8vmin, 56px);
+    height: clamp(40px, 8vmin, 56px);
+    border-radius: 50%;
+    background: rgba(20, 20, 25, 0.9);
+    border: 1px solid var(--glass-border);
+    color: var(--accent-gold);
+    font-size: clamp(18px, 4vmin, 24px);
+    cursor: pointer;
+    z-index: 10;
+    transition: var(--transition);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    backdrop-filter: blur(10px);
+}
+
+.slider-arrow:hover {
+    background: rgba(212, 175, 55, 0.2);
+    border-color: var(--accent-gold);
+    transform: translateY(-50%) scale(1.1);
+}
+
+.slider-arrow.prev {
+    left: clamp(8px, 2vw, 20px);
+}
+
+.slider-arrow.next {
+    right: clamp(8px, 2vw, 20px);
+}
+
+.slider-arrow svg {
+    width: 24px;
+    height: 24px;
+    stroke: currentColor;
+    stroke-width: 2;
+    fill: none;
+}
+
+/* Universe Card - Circular (Larger) */
 .card-universe {
-    width: clamp(120px, 25vmin, 180px);
-    height: clamp(120px, 25vmin, 180px);
+    width: clamp(180px, 40vmin, 280px);
+    height: clamp(180px, 40vmin, 280px);
     border-radius: 50%;
     overflow: hidden;
     position: relative;
     cursor: pointer;
     transition: var(--transition);
-    border: 2px solid var(--glass-border);
+    border: 3px solid var(--glass-border);
     background: var(--bg-tertiary);
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4),
+                inset 0 0 60px rgba(0, 0, 0, 0.3);
 }
 
 .card-universe:hover {
-    transform: translateY(-8px) scale(1.05);
-    box-shadow: var(--shadow-glow), 0 8px 30px rgba(212, 175, 55, 0.2);
+    transform: translateY(-12px) scale(1.08);
+    box-shadow: var(--shadow-glow),
+                0 16px 48px rgba(212, 175, 55, 0.25),
+                inset 0 0 60px rgba(0, 0, 0, 0.3);
     border-color: var(--accent-gold);
 }
 
 .card-universe .card-overlay {
-    background: radial-gradient(circle at center, transparent 20%, rgba(10, 10, 15, 0.7) 70%, rgba(10, 10, 15, 0.95) 100%);
+    background: radial-gradient(circle at center, transparent 25%, rgba(10, 10, 15, 0.6) 60%, rgba(10, 10, 15, 0.9) 100%);
 }
 
 .card-universe .card-content {
@@ -261,27 +336,35 @@ html, body {
     align-items: center;
     justify-content: center;
     text-align: center;
-    padding: clamp(8px, 2vmin, 16px);
+    padding: clamp(16px, 4vmin, 32px);
     z-index: 2;
 }
 
 .card-universe .card-title {
-    font-size: clamp(11px, 2.5vmin, 16px);
-    margin-bottom: clamp(2px, 0.5vmin, 4px);
+    font-size: clamp(14px, 3.5vmin, 22px);
+    margin-bottom: clamp(4px, 1vmin, 8px);
     white-space: normal;
     text-align: center;
-    line-height: 1.2;
+    line-height: 1.3;
+    font-weight: 600;
 }
 
 .card-universe .card-desc {
-    font-size: clamp(9px, 1.8vmin, 11px);
-    -webkit-line-clamp: 2;
+    font-size: clamp(11px, 2.2vmin, 14px);
+    -webkit-line-clamp: 3;
     text-align: center;
+    line-height: 1.4;
 }
 
 .card-universe.add-card {
-    border: 2px dashed var(--glass-border);
+    border: 3px dashed var(--glass-border);
     background: transparent;
+    box-shadow: none;
+}
+
+.card-universe.add-card:hover {
+    border-color: var(--accent-gold);
+    box-shadow: 0 0 30px rgba(212, 175, 55, 0.2);
 }
 
 .card-bg {

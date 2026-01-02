@@ -345,7 +345,7 @@ async function renderUniverses() {
         const card = document.createElement('div');
         card.className = 'card-universe';
         card.onclick = () => openUniverse(i);
-        card.innerHTML = `${await getCardBackground(universe.mediaId)}<div class="card-content"><div class="card-title">${universe.name}</div><div class="card-desc">${universe.description || ''}</div></div>`;
+        card.innerHTML = `${await getCardBackground(universe.mediaId)}<div class="card-overlay"></div><div class="card-content"><div class="card-title">${universe.name}</div><div class="card-desc">${universe.description || ''}</div></div>`;
         grid.appendChild(card);
     }
 
@@ -354,6 +354,14 @@ async function renderUniverses() {
     addCard.onclick = () => openCreateModal('universe');
     addCard.innerHTML = '<div class="add-icon">+</div><span class="add-text">Nouvel Univers</span>';
     grid.appendChild(addCard);
+}
+
+function slideUniverses(direction) {
+    const track = document.getElementById('universesGrid');
+    const cardWidth = track.querySelector('.card-universe')?.offsetWidth || 280;
+    const gap = 40;
+    const scrollAmount = (cardWidth + gap) * direction;
+    track.scrollBy({ left: scrollAmount, behavior: 'smooth' });
 }
 
 async function openUniverse(index) {
