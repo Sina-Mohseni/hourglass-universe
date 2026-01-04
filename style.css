@@ -1085,6 +1085,29 @@ html, body {
     background: rgba(255, 100, 100, 0.2);
 }
 
+.cycle-total {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px;
+    background: linear-gradient(135deg, rgba(212, 175, 55, 0.15), rgba(184, 115, 51, 0.1));
+    border: 1px solid rgba(212, 175, 55, 0.3);
+    border-radius: 8px;
+    margin-top: 4px;
+}
+
+.cycle-total-value {
+    font-size: clamp(16px, 4vmin, 22px);
+    font-weight: 700;
+    color: var(--accent-gold);
+    font-family: var(--font-display);
+}
+
+.cycle-total-label {
+    font-size: 13px;
+    color: var(--text-secondary);
+}
+
 .cycles-help {
     margin-top: 16px;
     padding: 12px;

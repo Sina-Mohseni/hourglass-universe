@@ -835,10 +835,12 @@ function renderNaturalCycles() {
     const container = document.getElementById('naturalCyclesList');
     container.innerHTML = '';
 
+    // Calculate cumulative values from Alpha to each cycle
+    const cumulativeFromAlpha = calculateCumulativeCycles(cycles);
+
     cycles.forEach((cycle, index) => {
         const isFirst = index === 0;
         const isLast = index === cycles.length - 1;
-        const prevCycle = index > 0 ? cycles[index - 1] : null;
 
         const div = document.createElement('div');
         div.className = 'cycle-item';
@@ -856,9 +858,27 @@ function renderNaturalCycles() {
                 <span>${cycle.name}</span> = 1 <span>${cycles[index + 1]?.name || 'cycle suivant'}</span>
             </div>
             ` : ''}
+            ${index > 0 ? `
+            <div class="cycle-total">
+                <span class="cycle-total-value">${cumulativeFromAlpha[index].toLocaleString()}</span>
+                <span class="cycle-total-label">${cycles[0].name} = 1 ${cycle.name}</span>
+            </div>
+            ` : ''}
         `;
         container.appendChild(div);
     });
+}
+
+function calculateCumulativeCycles(cycles) {
+    const cumulative = [1]; // Alpha = 1 Alpha
+
+    for (let i = 0; i < cycles.length - 1; i++) {
+        const prevCumulative = cumulative[i];
+        const unitsPerNext = cycles[i].unitsPerNext || 1;
+        cumulative.push(prevCumulative * unitsPerNext);
+    }
+
+    return cumulative;
 }
 
 function updateCycleName(index, name) {
@@ -870,6 +890,7 @@ function updateCycleName(index, name) {
 function updateCycleUnits(index, units) {
     const universe = appData.universes[appData.currentUniverse];
     universe.temporalSystem.naturalCycles[index].unitsPerNext = parseInt(units) || 1;
+    renderNaturalCycles();
 }
 
 function addNaturalCycle() {
