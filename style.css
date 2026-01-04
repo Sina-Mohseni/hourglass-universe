@@ -544,8 +544,6 @@ html, body {
     bottom: 0;
     left: 0;
     right: 0;
-    background: linear-gradient(to top, rgba(10, 10, 15, 0.95) 0%, rgba(10, 10, 15, 0.8) 80%, transparent 100%);
-    backdrop-filter: blur(20px);
     z-index: 50;
 }
 
