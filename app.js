@@ -358,9 +358,7 @@ async function renderUniverses() {
 
 function slideUniverses(direction) {
     const track = document.getElementById('universesGrid');
-    const cardWidth = track.querySelector('.card-universe')?.offsetWidth || 280;
-    const gap = 40;
-    const scrollAmount = (cardWidth + gap) * direction;
+    const scrollAmount = window.innerWidth * direction;
     track.scrollBy({ left: scrollAmount, behavior: 'smooth' });
 }
 
