@@ -533,12 +533,27 @@ html, body {
     letter-spacing: 0.1em;
 }
 
-/* Sub Menus - Modern Radio Style */
+/* Sub Menus - Modern Radio Style (Footer) */
 .sub-menus {
     display: flex;
     justify-content: center;
-    padding: clamp(16px, 4vmin, 24px) clamp(12px, 3vmin, 20px);
+    padding: clamp(12px, 3vmin, 20px) clamp(12px, 3vmin, 20px);
+    padding-bottom: calc(clamp(12px, 3vmin, 20px) + env(safe-area-inset-bottom, 0px));
     width: 100%;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: linear-gradient(to top, rgba(10, 10, 15, 0.95) 0%, rgba(10, 10, 15, 0.8) 80%, transparent 100%);
+    backdrop-filter: blur(20px);
+    z-index: 50;
+}
+
+/* Add padding to content for pages with footer sub-menus */
+#universePage .content,
+#eraPage .content,
+#detailPage .content {
+    padding-bottom: 140px;
 }
 
 .sub-menus-container {
