@@ -6,41 +6,11 @@ function loadTemporalSystem() {
     const universe = appData.universes[appData.currentUniverse];
     if (!universe.temporalSystem) {
         universe.temporalSystem = {
-            hasNaturalCycles: false,
-            hasArtificialCycles: false,
             naturalCycles: []
         };
     }
 
-    const ts = universe.temporalSystem;
-    document.getElementById('hasNaturalCycles').checked = ts.hasNaturalCycles;
-    document.getElementById('hasArtificialCycles').checked = ts.hasArtificialCycles;
-
-    toggleNaturalCycles();
-    toggleArtificialCycles();
     renderNaturalCycles();
-}
-
-function toggleNaturalCycles() {
-    const checked = document.getElementById('hasNaturalCycles').checked;
-    document.getElementById('naturalCyclesConfig').style.display = checked ? 'block' : 'none';
-    document.getElementById('simpleTimelineInfo').style.display = !checked ? 'block' : 'none';
-
-    if (checked) {
-        const universe = appData.universes[appData.currentUniverse];
-        if (!universe.temporalSystem.naturalCycles || universe.temporalSystem.naturalCycles.length === 0) {
-            // Add default Alpha and Omega cycles
-            universe.temporalSystem.naturalCycles = [
-                { name: 'Cycle Alpha', type: 'alpha', unitsPerNext: 1 },
-                { name: 'Cycle Omega', type: 'omega', unitsPerNext: null }
-            ];
-            renderNaturalCycles();
-        }
-    }
-}
-
-function toggleArtificialCycles() {
-    // Just for visual feedback, artificial cycles are managed in calendars
 }
 
 function renderNaturalCycles() {
@@ -50,6 +20,11 @@ function renderNaturalCycles() {
     const cycles = universe.temporalSystem.naturalCycles || [];
     const container = document.getElementById('naturalCyclesList');
     container.innerHTML = '';
+
+    if (cycles.length === 0) {
+        container.innerHTML = '<div class="empty-state"><div class="empty-icon">🌀</div><div class="empty-text">Aucun cycle naturel</div></div>';
+        return;
+    }
 
     // Calculate cumulative values from Alpha to each cycle
     const cumulativeFromAlpha = calculateCumulativeCycles(cycles);
@@ -79,7 +54,7 @@ function renderNaturalCycles() {
         div.innerHTML = `
             <div class="cycle-item-header">
                 <span class="cycle-type">${isFirst ? 'Alpha (Plus petit)' : isLast ? 'Omega (Plus grand)' : 'Intermédiaire'}</span>
-                ${!isFirst && !isLast ? `<button class="cycle-delete-btn" onclick="removeNaturalCycle(${index})">✕</button>` : ''}
+                <button class="cycle-delete-btn" onclick="removeNaturalCycle(${index})">✕</button>
             </div>
             <div class="cycle-item-row">
                 <input type="text" value="${cycle.name}" placeholder="Nom du cycle" onchange="updateCycleName(${index}, this.value)">
@@ -122,16 +97,31 @@ function updateCycleUnits(index, units) {
 
 function addNaturalCycle() {
     const universe = appData.universes[appData.currentUniverse];
+    if (!universe.temporalSystem) {
+        universe.temporalSystem = { naturalCycles: [] };
+    }
+
     const cycles = universe.temporalSystem.naturalCycles;
 
-    // Insert before the last (Omega) cycle
-    const newCycle = {
-        name: 'Nouveau cycle',
-        type: 'intermediate',
-        unitsPerNext: 1
-    };
+    if (cycles.length === 0) {
+        // First cycle - add Alpha and Omega
+        cycles.push(
+            { name: 'Cycle Alpha', type: 'alpha', unitsPerNext: 1 },
+            { name: 'Cycle Omega', type: 'omega', unitsPerNext: null }
+        );
+    } else if (cycles.length === 1) {
+        // Only one cycle - add Omega
+        cycles.push({ name: 'Cycle Omega', type: 'omega', unitsPerNext: null });
+    } else {
+        // Insert before the last (Omega) cycle
+        const newCycle = {
+            name: 'Nouveau cycle',
+            type: 'intermediate',
+            unitsPerNext: 1
+        };
+        cycles.splice(cycles.length - 1, 0, newCycle);
+    }
 
-    cycles.splice(cycles.length - 1, 0, newCycle);
     renderNaturalCycles();
 }
 
@@ -143,9 +133,6 @@ function removeNaturalCycle(index) {
 
 async function saveTemporalSystem() {
     const universe = appData.universes[appData.currentUniverse];
-    universe.temporalSystem.hasNaturalCycles = document.getElementById('hasNaturalCycles').checked;
-    universe.temporalSystem.hasArtificialCycles = document.getElementById('hasArtificialCycles').checked;
-
     await saveAppData();
-    showToast('Système temporel enregistré');
+    showToast('Cycles enregistrés');
 }

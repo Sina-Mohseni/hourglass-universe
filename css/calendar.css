@@ -72,6 +72,15 @@
     color: var(--accent-amber);
 }
 
+.calendar-cycle-info {
+    padding: 8px 16px;
+    background: rgba(212, 175, 55, 0.1);
+    font-size: clamp(11px, 2.5vmin, 13px);
+    color: var(--accent-gold);
+    text-align: center;
+    border-bottom: 1px solid var(--glass-border);
+}
+
 .calendar-grid {
     display: grid;
     gap: 1px;

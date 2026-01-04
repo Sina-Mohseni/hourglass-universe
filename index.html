@@ -147,40 +147,17 @@
             <!-- Timeline Section (Temporal System) -->
             <div id="universeTimeline" style="display:none">
                 <div class="temporal-system-container">
-                    <h3 class="temporal-title">Système Temporel</h3>
+                    <h3 class="temporal-title">Cycles Naturels</h3>
+                    <p class="temporal-desc">Définissez les cycles naturels de votre univers (rotations, orbites, phénomènes astronomiques). Ces cycles pourront être utilisés comme base pour les calendriers.</p>
 
-                    <!-- Toggle for cycle types -->
-                    <div class="temporal-toggles">
-                        <label class="temporal-toggle">
-                            <input type="checkbox" id="hasNaturalCycles" onchange="toggleNaturalCycles()">
-                            <span class="toggle-label">Cycles Naturels</span>
-                            <span class="toggle-desc">Rotations, orbites, phénomènes astronomiques</span>
-                        </label>
-                        <label class="temporal-toggle">
-                            <input type="checkbox" id="hasArtificialCycles" onchange="toggleArtificialCycles()">
-                            <span class="toggle-label">Cycles Artificiels</span>
-                            <span class="toggle-desc">Heures, semaines, mois (définis dans les calendriers)</span>
-                        </label>
-                    </div>
-
-                    <!-- Natural Cycles Configuration -->
-                    <div id="naturalCyclesConfig" style="display:none">
-                        <div class="cycles-header">
-                            <h4>Cycles Naturels</h4>
-                            <button class="btn btn-small" onclick="addNaturalCycle()">+ Ajouter un cycle</button>
-                        </div>
+                    <!-- Natural Cycles List -->
+                    <div id="naturalCyclesConfig">
                         <div class="cycles-list" id="naturalCyclesList"></div>
+                        <button class="btn btn-secondary" onclick="addNaturalCycle()" style="margin-top:15px;width:100%">+ Ajouter un cycle naturel</button>
                         <p class="cycles-help">Le cycle Alpha est le plus petit (ex: rotation planétaire). Le cycle Omega est le plus grand (ex: orbite stellaire).</p>
                     </div>
 
-                    <!-- Simple Timeline Info -->
-                    <div id="simpleTimelineInfo" style="display:none">
-                        <div class="simple-timeline-box">
-                            <p>Sans cycles naturels, une ligne de temps simple sera utilisée dans les calendriers des époques.</p>
-                        </div>
-                    </div>
-
-                    <button class="btn btn-primary" onclick="saveTemporalSystem()" style="margin-top:20px;width:100%">Enregistrer le système temporel</button>
+                    <button class="btn btn-primary" onclick="saveTemporalSystem()" style="margin-top:20px;width:100%">Enregistrer les cycles</button>
                 </div>
             </div>
         </div>
@@ -549,6 +526,13 @@
                 <div class="form-group">
                     <label class="form-label">Nom</label>
                     <input type="text" class="form-input" id="calendarName" placeholder="Nom du calendrier">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Cycle naturel de base</label>
+                    <select class="form-input" id="calendarNaturalCycle">
+                        <option value="">Aucun (cycles artificiels uniquement)</option>
+                    </select>
+                    <p class="form-help" id="calendarCycleHelp"></p>
                 </div>
                 <div class="form-group">
                     <label class="form-label">Nom années</label>

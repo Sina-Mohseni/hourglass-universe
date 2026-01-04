@@ -38,6 +38,13 @@
     resize: vertical;
 }
 
+.form-help {
+    font-size: clamp(10px, 2vmin, 12px);
+    color: var(--text-muted);
+    line-height: 1.4;
+    margin-top: 4px;
+}
+
 /* File Upload */
 .file-upload {
     position: relative;

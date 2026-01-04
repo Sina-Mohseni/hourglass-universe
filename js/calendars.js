@@ -51,6 +51,18 @@ function createCalendarElement(cal, index, parentType) {
         dayHeaders += `<div class="calendar-day">${j}</div>`;
     }
 
+    // Get natural cycle info if set
+    let cycleInfo = '';
+    if (cal.naturalCycleIndex !== undefined && cal.naturalCycleIndex !== null && cal.naturalCycleIndex !== '') {
+        const universe = appData.universes[appData.currentUniverse];
+        if (universe.temporalSystem && universe.temporalSystem.naturalCycles) {
+            const cycle = universe.temporalSystem.naturalCycles[cal.naturalCycleIndex];
+            if (cycle) {
+                cycleInfo = `<div class="calendar-cycle-info">Basé sur: ${cycle.name}</div>`;
+            }
+        }
+    }
+
     div.innerHTML = `
         <div class="calendar-header">
             <div class="calendar-nav">
@@ -61,6 +73,7 @@ function createCalendarElement(cal, index, parentType) {
                 <button class="itemline-item-btn delete" onclick="deleteCalendar('${parentType}',${index})">✕</button>
             </div>
         </div>
+        ${cycleInfo}
         <div class="calendar-grid" style="grid-template-columns:repeat(${cal.daysPerWeek},1fr)">${dayHeaders}</div>
         <div class="calendar-customize">
             <div class="calendar-setting"><span class="calendar-setting-label">${cal.dayName || 'Jours'}/${cal.weekName || 'sem'}</span><span>${cal.daysPerWeek}</span></div>
@@ -71,6 +84,36 @@ function createCalendarElement(cal, index, parentType) {
     `;
 
     return div;
+}
+
+function populateNaturalCycleSelector(selectedIndex = '') {
+    const select = document.getElementById('calendarNaturalCycle');
+    const helpText = document.getElementById('calendarCycleHelp');
+
+    // Reset options
+    select.innerHTML = '<option value="">Aucun (cycles artificiels uniquement)</option>';
+
+    const universe = appData.universes[appData.currentUniverse];
+    if (universe.temporalSystem && universe.temporalSystem.naturalCycles) {
+        const cycles = universe.temporalSystem.naturalCycles;
+        cycles.forEach((cycle, index) => {
+            const option = document.createElement('option');
+            option.value = index;
+            option.textContent = cycle.name;
+            if (selectedIndex !== '' && parseInt(selectedIndex) === index) {
+                option.selected = true;
+            }
+            select.appendChild(option);
+        });
+
+        if (cycles.length === 0) {
+            helpText.textContent = 'Aucun cycle naturel défini. Créez-en dans la timeline de l\'univers.';
+        } else {
+            helpText.textContent = 'Choisissez un cycle naturel comme base ou laissez vide pour un calendrier purement artificiel.';
+        }
+    } else {
+        helpText.textContent = 'Aucun cycle naturel défini. Créez-en dans la timeline de l\'univers.';
+    }
 }
 
 function openCalendarModal(parent = 'era') {
@@ -84,6 +127,9 @@ function openCalendarModal(parent = 'era') {
     document.getElementById('weeksPerMonth').value = 4;
     document.getElementById('monthsPerYear').value = 12;
     document.getElementById('hoursPerDay').value = 24;
+
+    populateNaturalCycleSelector();
+
     document.getElementById('calendarModal').classList.add('active');
 }
 
@@ -114,6 +160,9 @@ function editCalendar(parent, index) {
     document.getElementById('weeksPerMonth').value = cal.weeksPerMonth || 4;
     document.getElementById('monthsPerYear').value = cal.monthsPerYear || 12;
     document.getElementById('hoursPerDay').value = cal.hoursPerDay || 24;
+
+    populateNaturalCycleSelector(cal.naturalCycleIndex !== undefined ? cal.naturalCycleIndex : '');
+
     document.getElementById('calendarModal').classList.add('active');
 }
 
@@ -125,8 +174,11 @@ async function saveCalendar() {
         return;
     }
 
+    const naturalCycleValue = document.getElementById('calendarNaturalCycle').value;
+
     const cal = {
         name: name,
+        naturalCycleIndex: naturalCycleValue !== '' ? parseInt(naturalCycleValue) : null,
         yearName: document.getElementById('calendarYearName').value.trim() || 'Année',
         monthName: document.getElementById('calendarMonthName').value.trim() || 'Mois',
         weekName: document.getElementById('calendarWeekName').value.trim() || 'Semaine',
