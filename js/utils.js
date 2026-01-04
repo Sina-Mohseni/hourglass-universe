@@ -25,7 +25,8 @@ function restoreActiveSection(pageType) {
     const section = activeSections[pageType];
     if (section) {
         const pageSelector = pageType === 'universe' ? '#universePage' :
-                            pageType === 'era' ? '#eraPage' : '#detailPage';
+                            pageType === 'era' ? '#eraPage' :
+                            pageType === 'saga' ? '#sagaPage' : '#detailPage';
         setActiveButton(pageSelector, section);
     }
 }

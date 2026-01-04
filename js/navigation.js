@@ -14,18 +14,25 @@ function goBack() {
     if (page === 'home') {
         appData.currentUniverse = null;
         appData.currentEra = null;
+        appData.currentSaga = null;
         appData.currentDetail = null;
         navigateTo('homePage');
         renderUniverses();
     } else if (page === 'universe') {
         appData.currentEra = null;
+        appData.currentSaga = null;
         appData.currentDetail = null;
         renderUniversePage();
         navigateTo('universePage');
     } else if (page === 'era') {
+        appData.currentSaga = null;
         appData.currentDetail = null;
         renderEraPage();
         navigateTo('eraPage');
+    } else if (page === 'saga') {
+        appData.currentDetail = null;
+        renderSagaPage();
+        navigateTo('sagaPage');
     }
 
     closeAudioPlayer();

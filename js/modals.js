@@ -50,10 +50,17 @@ async function openEditModal(type) {
     } else if (type === 'era') {
         entity = appData.universes[appData.currentUniverse].eras[appData.currentEra];
         modalState.editIndex = appData.currentEra;
-    } else {
+    } else if (type === 'saga') {
         const universe = appData.universes[appData.currentUniverse];
         const era = universe.eras[appData.currentEra];
-        entity = era[appData.currentDetailType][appData.currentDetail];
+        entity = era.sagas[appData.currentSaga];
+        modalState.editIndex = appData.currentSaga;
+    } else {
+        // Detail (histoires, sujets, elements)
+        const universe = appData.universes[appData.currentUniverse];
+        const era = universe.eras[appData.currentEra];
+        const saga = era.sagas[appData.currentSaga];
+        entity = saga[appData.currentDetailType][appData.currentDetail];
         modalState.editIndex = appData.currentDetail;
         modalState.type = appData.currentDetailType;
     }

@@ -7,6 +7,7 @@ let appData = {
     universes: [],
     currentUniverse: null,
     currentEra: null,
+    currentSaga: null,
     currentDetail: null,
     currentDetailType: null,
     navStack: ['home']
@@ -32,14 +33,15 @@ let audioState = { tracks: [], currentIndex: 0, isPlaying: false };
 let activeSections = {
     universe: null,
     era: null,
+    saga: null,
     detail: null
 };
 
-// Era crossline state
-let currentEraCrosslineType = 'lieux';
+// Saga crossline state
+let currentSagaCrosslineType = 'histoires';
 
 // Detail crossline state
-let currentDetailCrosslineType = 'lieux';
+let currentDetailCrosslineType = 'histoires';
 
 // Universe crossline state
 let universeCrosslineState = { editIndex: null };

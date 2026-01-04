@@ -17,10 +17,15 @@ function editItemline(parent, index) {
         item = appData.universes[appData.currentUniverse].itemline[index];
     } else if (parent === 'era') {
         item = appData.universes[appData.currentUniverse].eras[appData.currentEra].itemline[index];
+    } else if (parent === 'saga') {
+        const universe = appData.universes[appData.currentUniverse];
+        const era = universe.eras[appData.currentEra];
+        item = era.sagas[appData.currentSaga].itemline[index];
     } else {
         const universe = appData.universes[appData.currentUniverse];
         const era = universe.eras[appData.currentEra];
-        item = era[appData.currentDetailType][appData.currentDetail].itemline[index];
+        const saga = era.sagas[appData.currentSaga];
+        item = saga[appData.currentDetailType][appData.currentDetail].itemline[index];
     }
 
     document.getElementById('itemlineTitle').value = item.title;
@@ -64,10 +69,15 @@ async function saveItemline() {
         target = appData.universes[appData.currentUniverse];
     } else if (itemlineState.parentType === 'era') {
         target = appData.universes[appData.currentUniverse].eras[appData.currentEra];
+    } else if (itemlineState.parentType === 'saga') {
+        const universe = appData.universes[appData.currentUniverse];
+        const era = universe.eras[appData.currentEra];
+        target = era.sagas[appData.currentSaga];
     } else {
         const universe = appData.universes[appData.currentUniverse];
         const era = universe.eras[appData.currentEra];
-        target = era[appData.currentDetailType][appData.currentDetail];
+        const saga = era.sagas[appData.currentSaga];
+        target = saga[appData.currentDetailType][appData.currentDetail];
     }
 
     if (!target.itemline) target.itemline = [];
@@ -88,6 +98,9 @@ async function saveItemline() {
     } else if (itemlineState.parentType === 'era') {
         renderEraItemline();
         restoreActiveSection('era');
+    } else if (itemlineState.parentType === 'saga') {
+        renderSagaItemline();
+        restoreActiveSection('saga');
     } else {
         renderDetailItemline();
         restoreActiveSection('detail');
@@ -101,10 +114,15 @@ async function deleteItemline(parent, index) {
         target = appData.universes[appData.currentUniverse];
     } else if (parent === 'era') {
         target = appData.universes[appData.currentUniverse].eras[appData.currentEra];
+    } else if (parent === 'saga') {
+        const universe = appData.universes[appData.currentUniverse];
+        const era = universe.eras[appData.currentEra];
+        target = era.sagas[appData.currentSaga];
     } else {
         const universe = appData.universes[appData.currentUniverse];
         const era = universe.eras[appData.currentEra];
-        target = era[appData.currentDetailType][appData.currentDetail];
+        const saga = era.sagas[appData.currentSaga];
+        target = saga[appData.currentDetailType][appData.currentDetail];
     }
 
     target.itemline.splice(index, 1);
@@ -117,6 +135,9 @@ async function deleteItemline(parent, index) {
     } else if (parent === 'era') {
         renderEraItemline();
         restoreActiveSection('era');
+    } else if (parent === 'saga') {
+        renderSagaItemline();
+        restoreActiveSection('saga');
     } else {
         renderDetailItemline();
         restoreActiveSection('detail');

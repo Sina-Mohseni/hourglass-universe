@@ -21,7 +21,8 @@ function renderEraCalendars() {
 function renderDetailCalendars() {
     const universe = appData.universes[appData.currentUniverse];
     const era = universe.eras[appData.currentEra];
-    const detail = era[appData.currentDetailType][appData.currentDetail];
+    const saga = era.sagas[appData.currentSaga];
+    const detail = saga[appData.currentDetailType][appData.currentDetail];
     const container = document.getElementById('detailCalendarsContainer');
     container.innerHTML = '';
 
@@ -92,10 +93,15 @@ function editCalendar(parent, index) {
     let cal;
     if (parent === 'era') {
         cal = appData.universes[appData.currentUniverse].eras[appData.currentEra].calendars[index];
+    } else if (parent === 'saga') {
+        const universe = appData.universes[appData.currentUniverse];
+        const era = universe.eras[appData.currentEra];
+        cal = era.sagas[appData.currentSaga].calendars[index];
     } else {
         const universe = appData.universes[appData.currentUniverse];
         const era = universe.eras[appData.currentEra];
-        cal = era[appData.currentDetailType][appData.currentDetail].calendars[index];
+        const saga = era.sagas[appData.currentSaga];
+        cal = saga[appData.currentDetailType][appData.currentDetail].calendars[index];
     }
 
     document.getElementById('calendarName').value = cal.name || '';
@@ -135,10 +141,15 @@ async function saveCalendar() {
     let target;
     if (calendarState.parentType === 'era') {
         target = appData.universes[appData.currentUniverse].eras[appData.currentEra];
+    } else if (calendarState.parentType === 'saga') {
+        const universe = appData.universes[appData.currentUniverse];
+        const era = universe.eras[appData.currentEra];
+        target = era.sagas[appData.currentSaga];
     } else {
         const universe = appData.universes[appData.currentUniverse];
         const era = universe.eras[appData.currentEra];
-        target = era[appData.currentDetailType][appData.currentDetail];
+        const saga = era.sagas[appData.currentSaga];
+        target = saga[appData.currentDetailType][appData.currentDetail];
     }
 
     if (!target.calendars) target.calendars = [];
@@ -156,6 +167,9 @@ async function saveCalendar() {
     if (calendarState.parentType === 'era') {
         renderEraCalendars();
         restoreActiveSection('era');
+    } else if (calendarState.parentType === 'saga') {
+        renderSagaCalendars();
+        restoreActiveSection('saga');
     } else {
         renderDetailCalendars();
         restoreActiveSection('detail');
@@ -167,10 +181,15 @@ async function deleteCalendar(parent, index) {
 
     if (parent === 'era') {
         target = appData.universes[appData.currentUniverse].eras[appData.currentEra];
+    } else if (parent === 'saga') {
+        const universe = appData.universes[appData.currentUniverse];
+        const era = universe.eras[appData.currentEra];
+        target = era.sagas[appData.currentSaga];
     } else {
         const universe = appData.universes[appData.currentUniverse];
         const era = universe.eras[appData.currentEra];
-        target = era[appData.currentDetailType][appData.currentDetail];
+        const saga = era.sagas[appData.currentSaga];
+        target = saga[appData.currentDetailType][appData.currentDetail];
     }
 
     target.calendars.splice(index, 1);
@@ -180,6 +199,9 @@ async function deleteCalendar(parent, index) {
     if (parent === 'era') {
         renderEraCalendars();
         restoreActiveSection('era');
+    } else if (parent === 'saga') {
+        renderSagaCalendars();
+        restoreActiveSection('saga');
     } else {
         renderDetailCalendars();
         restoreActiveSection('detail');

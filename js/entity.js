@@ -62,26 +62,38 @@ async function saveEntity() {
                     await deleteMedia(existing.mediaId);
                 }
                 entity.itemline = existing.itemline || [];
-                entity.lieux = existing.lieux || [];
                 entity.sagas = existing.sagas || [];
-                entity.elements = existing.elements || [];
                 entity.calendars = existing.calendars || [];
                 universe.eras[modalState.editIndex] = entity;
                 await saveAppData();
                 await renderEraPage();
-            } else {
+            } else if (modalState.type === 'saga') {
                 const universe = appData.universes[appData.currentUniverse];
                 const era = universe.eras[appData.currentEra];
-                const existing = era[modalState.type][modalState.editIndex];
+                const existing = era.sagas[modalState.editIndex];
                 if (existing.mediaId && existing.mediaId !== mediaId) {
                     await deleteMedia(existing.mediaId);
                 }
                 entity.itemline = existing.itemline || [];
-                entity.lieux = existing.lieux || [];
-                entity.sagas = existing.sagas || [];
+                entity.histoires = existing.histoires || [];
+                entity.sujets = existing.sujets || [];
                 entity.elements = existing.elements || [];
                 entity.calendars = existing.calendars || [];
-                era[modalState.type][modalState.editIndex] = entity;
+                era.sagas[modalState.editIndex] = entity;
+                await saveAppData();
+                await renderSagaPage();
+            } else {
+                // Detail edit (histoires, sujets, elements)
+                const universe = appData.universes[appData.currentUniverse];
+                const era = universe.eras[appData.currentEra];
+                const saga = era.sagas[appData.currentSaga];
+                const existing = saga[modalState.type][modalState.editIndex];
+                if (existing.mediaId && existing.mediaId !== mediaId) {
+                    await deleteMedia(existing.mediaId);
+                }
+                entity.itemline = existing.itemline || [];
+                entity.calendars = existing.calendars || [];
+                saga[modalState.type][modalState.editIndex] = entity;
                 await saveAppData();
                 await renderDetailPage();
             }
@@ -94,33 +106,38 @@ async function saveEntity() {
             } else if (modalState.type === 'era') {
                 const universe = appData.universes[appData.currentUniverse];
                 if (!universe.eras) universe.eras = [];
-                entity.lieux = [];
                 entity.sagas = [];
-                entity.elements = [];
                 universe.eras.push(entity);
                 await saveAppData();
                 await renderEras();
+            } else if (modalState.type === 'saga') {
+                const universe = appData.universes[appData.currentUniverse];
+                const era = universe.eras[appData.currentEra];
+                if (!era.sagas) era.sagas = [];
+                entity.histoires = [];
+                entity.sujets = [];
+                entity.elements = [];
+                era.sagas.push(entity);
+                await saveAppData();
+                await renderSagas();
+            } else if (modalState.parentType === 'saga') {
+                // Create detail from saga page (histoires, sujets, elements)
+                const universe = appData.universes[appData.currentUniverse];
+                const era = universe.eras[appData.currentEra];
+                const saga = era.sagas[appData.currentSaga];
+                if (!saga[modalState.type]) saga[modalState.type] = [];
+                saga[modalState.type].push(entity);
+                await saveAppData();
+                await renderSagaCrossline(modalState.type);
             } else if (modalState.parentType === 'detail') {
                 const universe = appData.universes[appData.currentUniverse];
                 const era = universe.eras[appData.currentEra];
-                const detail = era[appData.currentDetailType][appData.currentDetail];
+                const saga = era.sagas[appData.currentSaga];
+                const detail = saga[appData.currentDetailType][appData.currentDetail];
                 if (!detail[modalState.type]) detail[modalState.type] = [];
-                entity.lieux = [];
-                entity.sagas = [];
-                entity.elements = [];
                 detail[modalState.type].push(entity);
                 await saveAppData();
                 await renderDetailCrossline(modalState.type);
-            } else {
-                const universe = appData.universes[appData.currentUniverse];
-                const era = universe.eras[appData.currentEra];
-                if (!era[modalState.type]) era[modalState.type] = [];
-                entity.lieux = [];
-                entity.sagas = [];
-                entity.elements = [];
-                era[modalState.type].push(entity);
-                await saveAppData();
-                await renderEraCrossline(modalState.type);
             }
         }
 
@@ -162,15 +179,29 @@ async function confirmDelete() {
         appData.currentEra = null;
         await saveAppData();
         goBack();
-    } else {
+    } else if (deleteState.type === 'saga') {
         const universe = appData.universes[appData.currentUniverse];
         const era = universe.eras[appData.currentEra];
-        const detail = era[appData.currentDetailType][appData.currentDetail];
+        const saga = era.sagas[appData.currentSaga];
+        if (saga.mediaId) await deleteMedia(saga.mediaId);
+        if (saga.audioIds) {
+            for (const id of saga.audioIds) await deleteMedia(id);
+        }
+        era.sagas.splice(appData.currentSaga, 1);
+        appData.currentSaga = null;
+        await saveAppData();
+        goBack();
+    } else {
+        // Delete detail (histoires, sujets, elements)
+        const universe = appData.universes[appData.currentUniverse];
+        const era = universe.eras[appData.currentEra];
+        const saga = era.sagas[appData.currentSaga];
+        const detail = saga[appData.currentDetailType][appData.currentDetail];
         if (detail.mediaId) await deleteMedia(detail.mediaId);
         if (detail.audioIds) {
             for (const id of detail.audioIds) await deleteMedia(id);
         }
-        era[appData.currentDetailType].splice(appData.currentDetail, 1);
+        saga[appData.currentDetailType].splice(appData.currentDetail, 1);
         appData.currentDetail = null;
         await saveAppData();
         goBack();

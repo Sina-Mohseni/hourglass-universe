@@ -72,7 +72,7 @@ async function showEraSection(section) {
     if (section === 'itemline') {
         renderEraItemline();
     } else if (section === 'crossline') {
-        await renderEraCrossline('lieux');
+        await renderSagas();
     } else if (section === 'timeline') {
         renderEraCalendars();
     }
@@ -106,34 +106,3 @@ function renderEraItemline() {
     });
 }
 
-// Era Crossline
-async function showEraCrosslineType(type) {
-    currentEraCrosslineType = type;
-    document.querySelectorAll('#eraCrossline .sub-crossline-btn').forEach(b => b.classList.remove('active'));
-    event.target.classList.add('active');
-    await renderEraCrossline(type);
-}
-
-async function renderEraCrossline(type) {
-    const universe = appData.universes[appData.currentUniverse];
-    const era = universe.eras[appData.currentEra];
-    const grid = document.getElementById('eraCrosslineGrid');
-    grid.innerHTML = '';
-
-    if (!era[type]) era[type] = [];
-
-    for (let i = 0; i < era[type].length; i++) {
-        const item = era[type][i];
-        const card = document.createElement('div');
-        card.className = 'card-crossline';
-        card.onclick = () => openDetail(i, type);
-        card.innerHTML = `${await getCardBackground(item.mediaId)}<div class="card-overlay"></div><div class="card-content"><div class="card-title">${item.name}</div><div class="card-desc">${item.description || ''}</div></div>`;
-        grid.appendChild(card);
-    }
-
-    const addCard = document.createElement('div');
-    addCard.className = 'card-crossline add-card';
-    addCard.onclick = () => openCreateModal(type);
-    addCard.innerHTML = '<div class="add-icon">+</div><span class="add-text">Nouveau</span>';
-    grid.appendChild(addCard);
-}

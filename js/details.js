@@ -14,7 +14,8 @@ async function openDetail(index, type) {
 async function renderDetailPage() {
     const universe = appData.universes[appData.currentUniverse];
     const era = universe.eras[appData.currentEra];
-    const detail = era[appData.currentDetailType][appData.currentDetail];
+    const saga = era.sagas[appData.currentSaga];
+    const detail = saga[appData.currentDetailType][appData.currentDetail];
     if (!detail) return;
 
     document.getElementById('detailTitle').textContent = detail.name;
@@ -50,7 +51,7 @@ async function showDetailSection(section) {
     if (section === 'itemline') {
         renderDetailItemline();
     } else if (section === 'crossline') {
-        await renderDetailCrossline('lieux');
+        await renderDetailCrossline('histoires');
     } else if (section === 'timeline') {
         renderDetailCalendars();
     }
@@ -59,7 +60,8 @@ async function showDetailSection(section) {
 function renderDetailItemline() {
     const universe = appData.universes[appData.currentUniverse];
     const era = universe.eras[appData.currentEra];
-    const detail = era[appData.currentDetailType][appData.currentDetail];
+    const saga = era.sagas[appData.currentSaga];
+    const detail = saga[appData.currentDetailType][appData.currentDetail];
     const container = document.getElementById('detailItemlineList');
     container.innerHTML = '';
 
@@ -96,7 +98,8 @@ async function showDetailCrosslineType(type) {
 async function renderDetailCrossline(type) {
     const universe = appData.universes[appData.currentUniverse];
     const era = universe.eras[appData.currentEra];
-    const detail = era[appData.currentDetailType][appData.currentDetail];
+    const saga = era.sagas[appData.currentSaga];
+    const detail = saga[appData.currentDetailType][appData.currentDetail];
     const grid = document.getElementById('detailCrosslineGrid');
     grid.innerHTML = '';
 

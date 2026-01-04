@@ -264,20 +264,111 @@
                 <button class="btn btn-secondary" onclick="openItemlineModal('era')" style="margin-top:20px;width:100%">+ Ajouter une info</button>
             </div>
             
-            <!-- Crossline Section -->
+            <!-- Crossline Section (Sagas) -->
             <div id="eraCrossline" style="display:none">
-                <div class="sub-crossline-menus">
-                    <button class="sub-crossline-btn active" onclick="showEraCrosslineType('lieux')">Lieux</button>
-                    <button class="sub-crossline-btn" onclick="showEraCrosslineType('sagas')">Sagas</button>
-                    <button class="sub-crossline-btn" onclick="showEraCrosslineType('elements')">Éléments</button>
-                </div>
-                <div class="cards-grid" id="eraCrosslineGrid"></div>
+                <div class="cards-grid" id="sagasGrid"></div>
             </div>
             
             <!-- Timeline Section (Calendars) -->
             <div id="eraTimeline" style="display:none">
                 <div id="calendarsContainer"></div>
                 <button class="btn btn-secondary" onclick="openCalendarModal()" style="margin-top:20px;width:100%">+ Créer un calendrier</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- SAGA PAGE -->
+    <!-- ========================================== -->
+    <div class="page" id="sagaPage">
+        <div class="page-background" id="sagaBackground"></div>
+        <header class="header">
+            <div class="header-left">
+                <button class="icon-btn" onclick="goBack()">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M19 12H5M12 19l-7-7 7-7"/>
+                    </svg>
+                </button>
+                <div class="logo">
+                    <span id="sagaTitle"></span>
+                </div>
+            </div>
+            <div class="header-right">
+                <button class="icon-btn" id="sagaMusicBtn" style="display:none" onclick="toggleAudioPlayer()">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M9 18V5l12-2v13"/>
+                        <circle cx="6" cy="18" r="3"/>
+                        <circle cx="18" cy="16" r="3"/>
+                    </svg>
+                </button>
+                <button class="icon-btn" onclick="openEditModal('saga')">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/>
+                        <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                    </svg>
+                </button>
+                <button class="icon-btn" onclick="openDeleteConfirm('saga')">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="3 6 5 6 21 6"/>
+                        <path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/>
+                    </svg>
+                </button>
+            </div>
+        </header>
+        <div class="content">
+            <p class="page-subtitle" id="sagaDesc"></p>
+            <div class="parent-context" id="sagaParentContext"></div>
+            <div class="sub-menus">
+                <div class="sub-menus-container" id="sagaSubMenus" data-active="0">
+                    <button class="sub-menu-btn" onclick="showSagaSection('itemline')" data-section="itemline">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                            <path d="M4 5h16M4 5v14l8 3 8-3V5M4 5l8 3 8-3"/>
+                            <line x1="12" y1="8" x2="12" y2="22"/>
+                            <circle cx="12" cy="12" r="2" fill="currentColor"/>
+                        </svg>
+                        <span>Item</span>
+                    </button>
+                    <button class="sub-menu-btn" onclick="showSagaSection('crossline')" data-section="crossline">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                            <circle cx="12" cy="5" r="2"/><circle cx="5" cy="12" r="2"/><circle cx="19" cy="12" r="2"/>
+                            <circle cx="12" cy="19" r="2"/><circle cx="12" cy="12" r="3"/>
+                            <line x1="12" y1="7" x2="12" y2="9"/><line x1="12" y1="15" x2="12" y2="17"/>
+                            <line x1="7" y1="12" x2="9" y2="12"/><line x1="15" y1="12" x2="17" y2="12"/>
+                        </svg>
+                        <span>Cross</span>
+                    </button>
+                    <button class="sub-menu-btn" onclick="showSagaSection('timeline')" data-section="timeline">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                            <polygon points="12,2 22,8.5 22,15.5 12,22 2,15.5 2,8.5"/>
+                            <line x1="12" y1="12" x2="12" y2="6"/>
+                            <line x1="12" y1="12" x2="16" y2="14"/>
+                            <circle cx="12" cy="12" r="2" fill="currentColor"/>
+                        </svg>
+                        <span>Time</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Itemline Section -->
+            <div id="sagaItemline" style="display:none">
+                <div class="itemline-container" id="sagaItemlineList"></div>
+                <button class="btn btn-secondary" onclick="openItemlineModal('saga')" style="margin-top:20px;width:100%">+ Ajouter une info</button>
+            </div>
+
+            <!-- Crossline Section -->
+            <div id="sagaCrossline" style="display:none">
+                <div class="sub-crossline-menus">
+                    <button class="sub-crossline-btn active" onclick="showSagaCrosslineType('histoires')">Histoires</button>
+                    <button class="sub-crossline-btn" onclick="showSagaCrosslineType('sujets')">Sujets</button>
+                    <button class="sub-crossline-btn" onclick="showSagaCrosslineType('elements')">Éléments</button>
+                </div>
+                <div class="cards-grid" id="sagaCrosslineGrid"></div>
+            </div>
+
+            <!-- Timeline Section (Calendars) -->
+            <div id="sagaTimeline" style="display:none">
+                <div id="sagaCalendarsContainer"></div>
+                <button class="btn btn-secondary" onclick="openCalendarModal('saga')" style="margin-top:20px;width:100%">+ Créer un calendrier</button>
             </div>
         </div>
     </div>
@@ -362,8 +453,8 @@
             <!-- Crossline Section -->
             <div id="detailCrossline" style="display:none">
                 <div class="sub-crossline-menus">
-                    <button class="sub-crossline-btn active" onclick="showDetailCrosslineType('lieux')">Lieux</button>
-                    <button class="sub-crossline-btn" onclick="showDetailCrosslineType('sagas')">Sagas</button>
+                    <button class="sub-crossline-btn active" onclick="showDetailCrosslineType('histoires')">Histoires</button>
+                    <button class="sub-crossline-btn" onclick="showDetailCrosslineType('sujets')">Sujets</button>
                     <button class="sub-crossline-btn" onclick="showDetailCrosslineType('elements')">Éléments</button>
                 </div>
                 <div class="cards-grid" id="detailCrosslineGrid"></div>
@@ -570,6 +661,7 @@
 <script src="js/navigation.js"></script>
 <script src="js/universes.js"></script>
 <script src="js/eras.js"></script>
+<script src="js/sagas.js"></script>
 <script src="js/details.js"></script>
 <script src="js/temporal.js"></script>
 <script src="js/calendars.js"></script>
