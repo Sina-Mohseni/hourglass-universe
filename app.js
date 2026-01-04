@@ -842,6 +842,22 @@ function renderNaturalCycles() {
         const isFirst = index === 0;
         const isLast = index === cycles.length - 1;
 
+        // Generate all conversions for this cycle
+        let conversionsHtml = '';
+        if (index > 0) {
+            const conversions = [];
+            for (let i = 0; i < index; i++) {
+                const ratio = cumulativeFromAlpha[index] / cumulativeFromAlpha[i];
+                conversions.push(`<span class="conversion-item"><span class="conversion-value">${ratio.toLocaleString()}</span> ${cycles[i].name}</span>`);
+            }
+            conversionsHtml = `
+            <div class="cycle-total">
+                <div class="cycle-total-header">= 1 ${cycle.name}</div>
+                <div class="cycle-conversions">${conversions.join('')}</div>
+            </div>
+            `;
+        }
+
         const div = document.createElement('div');
         div.className = 'cycle-item';
         div.innerHTML = `
@@ -858,12 +874,7 @@ function renderNaturalCycles() {
                 <span>${cycle.name}</span> = 1 <span>${cycles[index + 1]?.name || 'cycle suivant'}</span>
             </div>
             ` : ''}
-            ${index > 0 ? `
-            <div class="cycle-total">
-                <span class="cycle-total-value">${cumulativeFromAlpha[index].toLocaleString()}</span>
-                <span class="cycle-total-label">${cycles[0].name} = 1 ${cycle.name}</span>
-            </div>
-            ` : ''}
+            ${conversionsHtml}
         `;
         container.appendChild(div);
     });

@@ -1087,25 +1087,48 @@ html, body {
 
 .cycle-total {
     display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 12px;
+    flex-direction: column;
+    gap: 10px;
+    padding: 14px;
     background: linear-gradient(135deg, rgba(212, 175, 55, 0.15), rgba(184, 115, 51, 0.1));
     border: 1px solid rgba(212, 175, 55, 0.3);
     border-radius: 8px;
     margin-top: 4px;
 }
 
-.cycle-total-value {
-    font-size: clamp(16px, 4vmin, 22px);
-    font-weight: 700;
+.cycle-total-header {
+    font-size: clamp(14px, 3vmin, 18px);
+    font-weight: 600;
     color: var(--accent-gold);
     font-family: var(--font-display);
+    text-align: center;
+    padding-bottom: 8px;
+    border-bottom: 1px solid rgba(212, 175, 55, 0.2);
 }
 
-.cycle-total-label {
+.cycle-conversions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    justify-content: center;
+}
+
+.conversion-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 12px;
+    background: rgba(10, 10, 15, 0.4);
+    border-radius: 6px;
     font-size: 13px;
     color: var(--text-secondary);
+}
+
+.conversion-value {
+    font-weight: 700;
+    color: var(--accent-amber);
+    font-family: var(--font-display);
+    font-size: 15px;
 }
 
 .cycles-help {
