@@ -218,11 +218,31 @@ let activeSections = {
 // INITIALIZATION
 // =============================================
 document.addEventListener('DOMContentLoaded', async () => {
-    await initDB();
-    await loadAppData();
-    await renderUniverses();
-    createParticles();
-    console.log('Application initialisée');
+    try {
+        await initDB();
+        await loadAppData();
+
+        // Defensive: ensure appData has all required properties
+        if (!appData.universes) appData.universes = [];
+        if (!appData.navStack) appData.navStack = ['home'];
+
+        await renderUniverses();
+        createParticles();
+        console.log('Application initialisée');
+    } catch (error) {
+        console.error('Erreur initialisation:', error);
+        // Fallback: reset appData if corrupted
+        appData = {
+            id: 'main',
+            universes: [],
+            currentUniverse: null,
+            currentEra: null,
+            currentDetail: null,
+            currentDetailType: null,
+            navStack: ['home']
+        };
+        await renderUniverses();
+    }
 });
 
 // =============================================
@@ -337,23 +357,37 @@ async function getCardBackground(mediaId) {
 // UNIVERSES
 // =============================================
 async function renderUniverses() {
-    const grid = document.getElementById('universesGrid');
-    grid.innerHTML = '';
+    try {
+        const grid = document.getElementById('universesGrid');
+        if (!grid) {
+            console.error('universesGrid element not found');
+            return;
+        }
+        grid.innerHTML = '';
 
-    for (let i = 0; i < appData.universes.length; i++) {
-        const universe = appData.universes[i];
-        const card = document.createElement('div');
-        card.className = 'card-universe';
-        card.onclick = () => openUniverse(i);
-        card.innerHTML = `${await getCardBackground(universe.mediaId)}<div class="card-overlay"></div><div class="card-content"><div class="card-title">${universe.name}</div><div class="card-desc">${universe.description || ''}</div></div>`;
-        grid.appendChild(card);
+        // Defensive: ensure universes is an array
+        if (!Array.isArray(appData.universes)) {
+            appData.universes = [];
+        }
+
+        for (let i = 0; i < appData.universes.length; i++) {
+            const universe = appData.universes[i];
+            if (!universe) continue;
+            const card = document.createElement('div');
+            card.className = 'card-universe';
+            card.onclick = () => openUniverse(i);
+            card.innerHTML = `${await getCardBackground(universe.mediaId)}<div class="card-overlay"></div><div class="card-content"><div class="card-title">${universe.name || ''}</div><div class="card-desc">${universe.description || ''}</div></div>`;
+            grid.appendChild(card);
+        }
+
+        const addCard = document.createElement('div');
+        addCard.className = 'card-universe add-card';
+        addCard.onclick = () => openCreateModal('universe');
+        addCard.innerHTML = '<div class="add-icon">+</div><span class="add-text">Nouvel Univers</span>';
+        grid.appendChild(addCard);
+    } catch (error) {
+        console.error('Erreur renderUniverses:', error);
     }
-
-    const addCard = document.createElement('div');
-    addCard.className = 'card-universe add-card';
-    addCard.onclick = () => openCreateModal('universe');
-    addCard.innerHTML = '<div class="add-icon">+</div><span class="add-text">Nouvel Univers</span>';
-    grid.appendChild(addCard);
 }
 
 function slideUniverses(direction) {
@@ -1024,20 +1058,26 @@ function resetModalState() {
 }
 
 function openCreateModal(type, parent = null) {
-    resetModalState();
-    modalState.type = type;
-    modalState.mode = 'create';
-    modalState.parentType = parent;
+    try {
+        console.log('Opening create modal for:', type);
+        resetModalState();
+        modalState.type = type;
+        modalState.mode = 'create';
+        modalState.parentType = parent;
 
-    document.getElementById('modalTitle').textContent = 'Créer';
-    document.getElementById('modalSaveBtn').textContent = 'Créer';
-    document.getElementById('inputName').value = '';
-    document.getElementById('inputDesc').value = '';
-    document.getElementById('mediaPreview').innerHTML = '';
-    document.getElementById('mediaPreview').classList.remove('active');
-    document.getElementById('audioList').innerHTML = '';
-    document.getElementById('audioList').style.display = 'none';
-    document.getElementById('createModal').classList.add('active');
+        document.getElementById('modalTitle').textContent = 'Créer';
+        document.getElementById('modalSaveBtn').textContent = 'Créer';
+        document.getElementById('inputName').value = '';
+        document.getElementById('inputDesc').value = '';
+        document.getElementById('mediaPreview').innerHTML = '';
+        document.getElementById('mediaPreview').classList.remove('active');
+        document.getElementById('audioList').innerHTML = '';
+        document.getElementById('audioList').style.display = 'none';
+        document.getElementById('createModal').classList.add('active');
+    } catch (error) {
+        console.error('Erreur openCreateModal:', error);
+        showToast('Erreur ouverture formulaire');
+    }
 }
 
 async function openEditModal(type) {
@@ -1202,11 +1242,13 @@ async function removeAudioModal(index) {
 // SAVE ENTITY
 // =============================================
 async function saveEntity() {
-    const name = document.getElementById('inputName').value.trim();
-    if (!name) {
-        showToast('Entrez un nom');
-        return;
-    }
+    try {
+        console.log('Saving entity, mode:', modalState.mode, 'type:', modalState.type);
+        const name = document.getElementById('inputName').value.trim();
+        if (!name) {
+            showToast('Entrez un nom');
+            return;
+        }
 
     let mediaId = modalState.mediaId;
 
@@ -1321,8 +1363,12 @@ async function saveEntity() {
         }
     }
 
-    showToast('Enregistré');
-    closeModal('createModal');
+        showToast('Enregistré');
+        closeModal('createModal');
+    } catch (error) {
+        console.error('Erreur saveEntity:', error);
+        showToast('Erreur lors de la sauvegarde');
+    }
 }
 
 // =============================================
