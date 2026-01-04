@@ -588,14 +588,44 @@
                 <button class="modal-close" onclick="closeCycleModal()">✕</button>
             </div>
             <div class="modal-body">
-                <div class="form-group">
-                    <label class="form-label">Nom du cycle</label>
-                    <input type="text" class="form-input" id="cycleName" placeholder="Ex: Rotation, Orbite, Révolution...">
+                <!-- First creation: Alpha + Omega pair -->
+                <div id="cycleFirstCreation">
+                    <p class="form-help" style="margin-bottom:16px">Créez votre premier couple de cycles : Alpha (le plus petit) et Omega (le plus grand).</p>
+                    <div class="form-group">
+                        <label class="form-label">Nom du cycle Alpha (plus petit)</label>
+                        <input type="text" class="form-input" id="cycleAlphaName" placeholder="Ex: Rotation, Jour, Pulsation...">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Nom du cycle Omega (plus grand)</label>
+                        <input type="text" class="form-input" id="cycleOmegaName" placeholder="Ex: Orbite, Année, Révolution...">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Combien d'Alpha font 1 Omega ?</label>
+                        <input type="number" class="form-input" id="cycleAlphaPerOmega" value="365" min="1">
+                    </div>
                 </div>
-                <div class="form-group" id="cycleUnitsRow">
-                    <label class="form-label">Unités pour le cycle suivant</label>
-                    <input type="number" class="form-input" id="cycleUnitsPerNext" value="1" min="1">
-                    <p class="form-help">Combien de ce cycle font 1 cycle du niveau supérieur</p>
+                <!-- Subsequent creation: Intermediate cycle -->
+                <div id="cycleIntermediateCreation" style="display:none">
+                    <p class="form-help" style="margin-bottom:16px">Ajoutez un cycle intermédiaire entre Alpha et Omega.</p>
+                    <div class="form-group">
+                        <label class="form-label">Nom du cycle intermédiaire</label>
+                        <input type="text" class="form-input" id="cycleName" placeholder="Ex: Lunaison, Saison, Semaine...">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" id="cycleUnitsLabel">Combien d'Alpha font 1 de ce cycle ?</label>
+                        <input type="number" class="form-input" id="cycleUnitsPerNext" value="1" min="1">
+                    </div>
+                </div>
+                <!-- Edit mode -->
+                <div id="cycleEditMode" style="display:none">
+                    <div class="form-group">
+                        <label class="form-label">Nom du cycle</label>
+                        <input type="text" class="form-input" id="cycleEditName" placeholder="Nom du cycle...">
+                    </div>
+                    <div class="form-group" id="cycleEditUnitsRow">
+                        <label class="form-label" id="cycleEditUnitsLabel">Unités pour le cycle suivant</label>
+                        <input type="number" class="form-input" id="cycleEditUnitsPerNext" value="1" min="1">
+                    </div>
                 </div>
             </div>
             <div class="modal-footer">

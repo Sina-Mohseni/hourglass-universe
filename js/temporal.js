@@ -97,18 +97,45 @@ function calculateCumulativeCycles(cycles) {
 
 // Modal state for cycle editing
 let cycleModalState = {
-    mode: 'create',
+    mode: 'first', // 'first', 'intermediate', 'edit'
     editIndex: null
 };
 
-function openCreateCycleModal() {
-    cycleModalState = { mode: 'create', editIndex: null };
+function addNaturalCycle() {
+    const universe = appData.universes[appData.currentUniverse];
+    if (!universe.temporalSystem) {
+        universe.temporalSystem = { naturalCycles: [] };
+    }
 
-    document.getElementById('cycleModalTitle').textContent = 'Nouveau cycle naturel';
-    document.getElementById('cycleName').value = '';
-    document.getElementById('cycleUnitsPerNext').value = '1';
-    document.getElementById('cycleUnitsRow').style.display = 'block';
-    document.getElementById('cycleSaveBtn').textContent = 'Créer';
+    const cycles = universe.temporalSystem.naturalCycles;
+
+    // Hide all sections first
+    document.getElementById('cycleFirstCreation').style.display = 'none';
+    document.getElementById('cycleIntermediateCreation').style.display = 'none';
+    document.getElementById('cycleEditMode').style.display = 'none';
+
+    if (cycles.length === 0) {
+        // First creation: Alpha + Omega pair
+        cycleModalState = { mode: 'first', editIndex: null };
+        document.getElementById('cycleModalTitle').textContent = 'Créer les cycles Alpha et Omega';
+        document.getElementById('cycleFirstCreation').style.display = 'block';
+        document.getElementById('cycleAlphaName').value = '';
+        document.getElementById('cycleOmegaName').value = '';
+        document.getElementById('cycleAlphaPerOmega').value = '365';
+        document.getElementById('cycleSaveBtn').textContent = 'Créer';
+    } else {
+        // Intermediate creation
+        cycleModalState = { mode: 'intermediate', editIndex: null };
+        document.getElementById('cycleModalTitle').textContent = 'Ajouter un cycle intermédiaire';
+        document.getElementById('cycleIntermediateCreation').style.display = 'block';
+        document.getElementById('cycleName').value = '';
+        document.getElementById('cycleUnitsPerNext').value = '1';
+
+        // Update label to show Alpha name
+        const alphaName = cycles[0].name;
+        document.getElementById('cycleUnitsLabel').textContent = `Combien de ${alphaName} font 1 de ce cycle ?`;
+        document.getElementById('cycleSaveBtn').textContent = 'Ajouter';
+    }
 
     document.getElementById('cycleModal').classList.add('active');
 }
@@ -121,15 +148,26 @@ function openEditCycleModal(index) {
 
     cycleModalState = { mode: 'edit', editIndex: index };
 
-    document.getElementById('cycleModalTitle').textContent = 'Modifier le cycle';
-    document.getElementById('cycleName').value = cycle.name;
-    document.getElementById('cycleUnitsPerNext').value = cycle.unitsPerNext || 1;
+    // Hide all sections first
+    document.getElementById('cycleFirstCreation').style.display = 'none';
+    document.getElementById('cycleIntermediateCreation').style.display = 'none';
+    document.getElementById('cycleEditMode').style.display = 'block';
 
-    // Hide units field for the last cycle (Omega)
+    document.getElementById('cycleModalTitle').textContent = 'Modifier le cycle';
+    document.getElementById('cycleEditName').value = cycle.name;
+    document.getElementById('cycleEditUnitsPerNext').value = cycle.unitsPerNext || 1;
+
+    // Hide units field for the last cycle (Omega) if more than one cycle
     if (isLast && cycles.length > 1) {
-        document.getElementById('cycleUnitsRow').style.display = 'none';
+        document.getElementById('cycleEditUnitsRow').style.display = 'none';
     } else {
-        document.getElementById('cycleUnitsRow').style.display = 'block';
+        document.getElementById('cycleEditUnitsRow').style.display = 'block';
+        // Update label
+        if (index < cycles.length - 1) {
+            document.getElementById('cycleEditUnitsLabel').textContent = `Combien de ${cycle.name} font 1 ${cycles[index + 1].name} ?`;
+        } else {
+            document.getElementById('cycleEditUnitsLabel').textContent = 'Unités pour le cycle suivant';
+        }
     }
 
     document.getElementById('cycleSaveBtn').textContent = 'Enregistrer';
@@ -142,14 +180,6 @@ function closeCycleModal() {
 }
 
 function saveCycle() {
-    const name = document.getElementById('cycleName').value.trim();
-    const unitsPerNext = parseInt(document.getElementById('cycleUnitsPerNext').value) || 1;
-
-    if (!name) {
-        showToast('Entrez un nom pour le cycle');
-        return;
-    }
-
     const universe = appData.universes[appData.currentUniverse];
     if (!universe.temporalSystem) {
         universe.temporalSystem = { naturalCycles: [] };
@@ -157,23 +187,87 @@ function saveCycle() {
 
     const cycles = universe.temporalSystem.naturalCycles;
 
-    if (cycleModalState.mode === 'create') {
-        const newCycle = {
-            name: name,
-            unitsPerNext: unitsPerNext
-        };
+    if (cycleModalState.mode === 'first') {
+        // Creating Alpha + Omega pair
+        const alphaName = document.getElementById('cycleAlphaName').value.trim();
+        const omegaName = document.getElementById('cycleOmegaName').value.trim();
+        const alphaPerOmega = parseInt(document.getElementById('cycleAlphaPerOmega').value) || 1;
 
-        // Add at the end (becomes the new Omega)
-        cycles.push(newCycle);
-    } else {
-        // Edit existing
+        if (!alphaName) {
+            showToast('Entrez un nom pour le cycle Alpha');
+            return;
+        }
+        if (!omegaName) {
+            showToast('Entrez un nom pour le cycle Omega');
+            return;
+        }
+
+        // Add Alpha (index 0)
+        cycles.push({
+            name: alphaName,
+            unitsPerNext: alphaPerOmega
+        });
+
+        // Add Omega (index 1)
+        cycles.push({
+            name: omegaName,
+            unitsPerNext: 1 // Omega has no next
+        });
+
+        showToast('Cycles Alpha et Omega créés');
+
+    } else if (cycleModalState.mode === 'intermediate') {
+        // Adding intermediate cycle
+        const name = document.getElementById('cycleName').value.trim();
+        const unitsFromAlpha = parseInt(document.getElementById('cycleUnitsPerNext').value) || 1;
+
+        if (!name) {
+            showToast('Entrez un nom pour le cycle');
+            return;
+        }
+
+        // Insert before Omega (last element)
+        // We need to calculate how many of this cycle make one Omega
+        // Current: Alpha.unitsPerNext = how many Alpha per Omega
+        // New: Alpha.unitsPerNext = unitsFromAlpha (how many Alpha per New)
+        //      New.unitsPerNext = oldAlphaPerOmega / unitsFromAlpha (how many New per Omega)
+
+        const omegaIndex = cycles.length - 1;
+        const previousCycle = cycles[omegaIndex - 1];
+        const oldUnitsPerOmega = previousCycle.unitsPerNext;
+
+        // Calculate how many of the new cycle fit in one Omega
+        const newUnitsPerOmega = Math.max(1, Math.round(oldUnitsPerOmega / unitsFromAlpha));
+
+        // Update previous cycle to point to new cycle
+        previousCycle.unitsPerNext = unitsFromAlpha;
+
+        // Insert new intermediate cycle before Omega
+        cycles.splice(omegaIndex, 0, {
+            name: name,
+            unitsPerNext: newUnitsPerOmega
+        });
+
+        showToast('Cycle intermédiaire ajouté');
+
+    } else if (cycleModalState.mode === 'edit') {
+        // Editing existing cycle
+        const name = document.getElementById('cycleEditName').value.trim();
+        const unitsPerNext = parseInt(document.getElementById('cycleEditUnitsPerNext').value) || 1;
+
+        if (!name) {
+            showToast('Entrez un nom pour le cycle');
+            return;
+        }
+
         cycles[cycleModalState.editIndex].name = name;
         cycles[cycleModalState.editIndex].unitsPerNext = unitsPerNext;
+
+        showToast('Cycle modifié');
     }
 
     closeCycleModal();
     renderNaturalCycles();
-    showToast('Cycle enregistré');
 }
 
 function confirmDeleteCycle(index) {
@@ -187,14 +281,36 @@ function confirmDeleteCycle(index) {
 
 function removeNaturalCycle(index) {
     const universe = appData.universes[appData.currentUniverse];
-    universe.temporalSystem.naturalCycles.splice(index, 1);
+    const cycles = universe.temporalSystem.naturalCycles;
+
+    // If deleting Alpha or Omega and there are only 2 cycles, delete both
+    if (cycles.length === 2) {
+        cycles.length = 0; // Clear array
+        showToast('Cycles supprimés');
+    } else if (index === 0) {
+        // Deleting Alpha: next cycle becomes new Alpha
+        cycles.splice(0, 1);
+        showToast('Cycle Alpha supprimé');
+    } else if (index === cycles.length - 1) {
+        // Deleting Omega: previous becomes new Omega
+        cycles.splice(index, 1);
+        showToast('Cycle Omega supprimé');
+    } else {
+        // Deleting intermediate: recalculate units
+        const prevCycle = cycles[index - 1];
+        const deletedCycle = cycles[index];
+        // Merge the units: prev now goes directly to what deleted pointed to
+        prevCycle.unitsPerNext = prevCycle.unitsPerNext * deletedCycle.unitsPerNext;
+        cycles.splice(index, 1);
+        showToast('Cycle supprimé');
+    }
+
     renderNaturalCycles();
-    showToast('Cycle supprimé');
 }
 
 // Keep for backwards compatibility
-function addNaturalCycle() {
-    openCreateCycleModal();
+function openCreateCycleModal() {
+    addNaturalCycle();
 }
 
 async function saveTemporalSystem() {
