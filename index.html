@@ -133,10 +133,44 @@
                 <div class="cards-grid" id="erasGrid"></div>
             </div>
 
-            <!-- Timeline Section (Itemline style) -->
+            <!-- Timeline Section (Temporal System) -->
             <div id="universeTimeline" style="display:none">
-                <div class="itemline-container" id="universeCrosslineList"></div>
-                <button class="btn btn-secondary" onclick="openUniverseCrosslineModal()" style="margin-top:20px;width:100%">+ Ajouter un élément</button>
+                <div class="temporal-system-container">
+                    <h3 class="temporal-title">Système Temporel</h3>
+
+                    <!-- Toggle for cycle types -->
+                    <div class="temporal-toggles">
+                        <label class="temporal-toggle">
+                            <input type="checkbox" id="hasNaturalCycles" onchange="toggleNaturalCycles()">
+                            <span class="toggle-label">Cycles Naturels</span>
+                            <span class="toggle-desc">Rotations, orbites, phénomènes astronomiques</span>
+                        </label>
+                        <label class="temporal-toggle">
+                            <input type="checkbox" id="hasArtificialCycles" onchange="toggleArtificialCycles()">
+                            <span class="toggle-label">Cycles Artificiels</span>
+                            <span class="toggle-desc">Heures, semaines, mois (définis dans les calendriers)</span>
+                        </label>
+                    </div>
+
+                    <!-- Natural Cycles Configuration -->
+                    <div id="naturalCyclesConfig" style="display:none">
+                        <div class="cycles-header">
+                            <h4>Cycles Naturels</h4>
+                            <button class="btn btn-small" onclick="addNaturalCycle()">+ Ajouter un cycle</button>
+                        </div>
+                        <div class="cycles-list" id="naturalCyclesList"></div>
+                        <p class="cycles-help">Le cycle Alpha est le plus petit (ex: rotation planétaire). Le cycle Omega est le plus grand (ex: orbite stellaire).</p>
+                    </div>
+
+                    <!-- Simple Timeline Info -->
+                    <div id="simpleTimelineInfo" style="display:none">
+                        <div class="simple-timeline-box">
+                            <p>Sans cycles naturels, une ligne de temps simple sera utilisée dans les calendriers des époques.</p>
+                        </div>
+                    </div>
+
+                    <button class="btn btn-primary" onclick="saveTemporalSystem()" style="margin-top:20px;width:100%">Enregistrer le système temporel</button>
+                </div>
             </div>
         </div>
     </div>

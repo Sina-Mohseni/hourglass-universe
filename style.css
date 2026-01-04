@@ -900,6 +900,215 @@ html, body {
     background: rgba(255, 100, 100, 0.2);
 }
 
+.btn-small {
+    padding: 8px 16px;
+    font-size: 12px;
+}
+
+/* Temporal System */
+.temporal-system-container {
+    padding: clamp(16px, 4vmin, 24px);
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.temporal-title {
+    font-family: var(--font-display);
+    font-size: clamp(18px, 4vmin, 24px);
+    color: var(--accent-gold);
+    text-align: center;
+    margin-bottom: clamp(20px, 5vmin, 32px);
+}
+
+.temporal-toggles {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    margin-bottom: 24px;
+}
+
+.temporal-toggle {
+    display: flex;
+    flex-direction: column;
+    padding: 16px;
+    background: var(--bg-tertiary);
+    border: 1px solid var(--glass-border);
+    border-radius: 12px;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.temporal-toggle:hover {
+    border-color: var(--accent-gold);
+}
+
+.temporal-toggle input[type="checkbox"] {
+    display: none;
+}
+
+.temporal-toggle input[type="checkbox"]:checked + .toggle-label {
+    color: var(--accent-gold);
+}
+
+.temporal-toggle input[type="checkbox"]:checked ~ .toggle-desc {
+    color: var(--text-primary);
+}
+
+.toggle-label {
+    font-size: clamp(14px, 3vmin, 18px);
+    font-weight: 600;
+    color: var(--text-secondary);
+    margin-bottom: 4px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.toggle-label::before {
+    content: '';
+    width: 20px;
+    height: 20px;
+    border: 2px solid var(--glass-border);
+    border-radius: 4px;
+    transition: var(--transition);
+}
+
+.temporal-toggle input[type="checkbox"]:checked + .toggle-label::before {
+    background: var(--accent-gold);
+    border-color: var(--accent-gold);
+}
+
+.toggle-desc {
+    font-size: clamp(11px, 2.5vmin, 13px);
+    color: var(--text-muted);
+    margin-left: 30px;
+}
+
+.cycles-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+}
+
+.cycles-header h4 {
+    font-family: var(--font-display);
+    font-size: clamp(14px, 3vmin, 18px);
+    color: var(--accent-amber);
+}
+
+.cycles-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.cycle-item {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 16px;
+    background: var(--bg-secondary);
+    border: 1px solid var(--glass-border);
+    border-radius: 12px;
+}
+
+.cycle-item-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.cycle-type {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--accent-gold);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.cycle-item-row {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+}
+
+.cycle-item-row input {
+    flex: 1;
+    padding: 10px 12px;
+    background: var(--bg-tertiary);
+    border: 1px solid var(--glass-border);
+    border-radius: 8px;
+    color: var(--text-primary);
+    font-size: 14px;
+}
+
+.cycle-item-row input:focus {
+    outline: none;
+    border-color: var(--accent-gold);
+}
+
+.cycle-item-row input[type="number"] {
+    width: 100px;
+    flex: none;
+}
+
+.cycle-relation {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px;
+    background: rgba(212, 175, 55, 0.1);
+    border-radius: 8px;
+    font-size: 13px;
+    color: var(--text-secondary);
+}
+
+.cycle-relation span {
+    color: var(--accent-gold);
+    font-weight: 600;
+}
+
+.cycle-delete-btn {
+    background: rgba(255, 100, 100, 0.1);
+    border: none;
+    color: #ff6b6b;
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: var(--transition);
+}
+
+.cycle-delete-btn:hover {
+    background: rgba(255, 100, 100, 0.2);
+}
+
+.cycles-help {
+    margin-top: 16px;
+    padding: 12px;
+    background: rgba(212, 175, 55, 0.1);
+    border-radius: 8px;
+    font-size: 12px;
+    color: var(--text-secondary);
+    line-height: 1.5;
+}
+
+.simple-timeline-box {
+    padding: 24px;
+    background: var(--bg-tertiary);
+    border: 1px dashed var(--glass-border);
+    border-radius: 12px;
+    text-align: center;
+}
+
+.simple-timeline-box p {
+    color: var(--text-secondary);
+    font-size: 14px;
+    line-height: 1.6;
+}
+
 /* Page Background */
 .page-background {
     position: absolute;
