@@ -408,9 +408,9 @@ async function showUniverseSection(section) {
     if (section === 'itemline') {
         renderUniverseItemline();
     } else if (section === 'crossline') {
-        renderUniverseCrossline();
-    } else if (section === 'timeline') {
         await renderEras();
+    } else if (section === 'timeline') {
+        renderUniverseCrossline();
     }
 }
 
