@@ -1,0 +1,414 @@
+/* =============================================
+   COMPONENTS - Cards, Buttons, Forms, etc.
+   ============================================= */
+
+/* Cards Grid */
+.cards-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: clamp(12px, 3vmin, 24px);
+    justify-content: center;
+    padding: clamp(8px, 2vmin, 16px) 0;
+}
+
+/* Universe Slider */
+.universe-slider {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+}
+
+.universe-slider-track {
+    display: flex;
+    align-items: stretch;
+    justify-content: flex-start;
+    gap: 0;
+    overflow-x: auto;
+    overflow-y: hidden;
+    scroll-behavior: smooth;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    width: 100%;
+    height: 100%;
+    touch-action: pan-x;
+}
+
+.universe-slider-track::-webkit-scrollbar {
+    display: none;
+}
+
+.universe-slider-track > * {
+    scroll-snap-align: start;
+    flex-shrink: 0;
+}
+
+/* Slider Navigation Arrows */
+.slider-arrow {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: clamp(40px, 8vmin, 56px);
+    height: clamp(40px, 8vmin, 56px);
+    border-radius: 50%;
+    background: rgba(20, 20, 25, 0.9);
+    border: 1px solid var(--glass-border);
+    color: var(--accent-gold);
+    font-size: clamp(18px, 4vmin, 24px);
+    cursor: pointer;
+    z-index: 10;
+    transition: var(--transition);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    backdrop-filter: blur(10px);
+}
+
+.slider-arrow:hover {
+    background: rgba(212, 175, 55, 0.2);
+    border-color: var(--accent-gold);
+    transform: translateY(-50%) scale(1.1);
+}
+
+.slider-arrow.prev {
+    left: clamp(8px, 2vw, 20px);
+}
+
+.slider-arrow.next {
+    right: clamp(8px, 2vw, 20px);
+}
+
+.slider-arrow svg {
+    width: 24px;
+    height: 24px;
+    stroke: currentColor;
+    stroke-width: 2;
+    fill: none;
+}
+
+/* Universe Card - Fullscreen */
+.card-universe {
+    width: 100vw;
+    height: 100%;
+    overflow: hidden;
+    position: relative;
+    cursor: pointer;
+    background: var(--bg-tertiary);
+}
+
+.card-universe .card-overlay {
+    background: linear-gradient(to top, rgba(10, 10, 15, 0.8) 0%, rgba(10, 10, 15, 0.3) 40%, transparent 100%);
+}
+
+.card-universe .card-content {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-end;
+    text-align: center;
+    padding: clamp(40px, 10vmin, 80px);
+    z-index: 2;
+}
+
+.card-universe .card-title {
+    font-size: clamp(28px, 8vmin, 56px);
+    margin-bottom: clamp(8px, 2vmin, 16px);
+    white-space: normal;
+    text-align: center;
+    line-height: 1.2;
+    font-weight: 600;
+    text-shadow: 0 2px 20px rgba(0, 0, 0, 0.5);
+}
+
+.card-universe .card-desc {
+    font-size: clamp(14px, 3vmin, 22px);
+    -webkit-line-clamp: 3;
+    text-align: center;
+    line-height: 1.5;
+    max-width: 600px;
+    text-shadow: 0 1px 10px rgba(0, 0, 0, 0.5);
+}
+
+.card-universe.add-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: var(--bg-secondary);
+    border: none;
+}
+
+.card-universe.add-card .add-icon {
+    font-size: clamp(48px, 12vmin, 80px);
+    color: var(--accent-gold);
+    margin-bottom: 16px;
+}
+
+.card-universe.add-card .add-text {
+    font-size: clamp(18px, 4vmin, 28px);
+    color: var(--text-secondary);
+}
+
+.card-bg {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    z-index: 0;
+}
+
+.card-overlay {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(to top, rgba(10, 10, 15, 0.95) 0%, rgba(10, 10, 15, 0.3) 50%, transparent 100%);
+    z-index: 1;
+}
+
+.card-content {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: clamp(12px, 3vmin, 20px);
+    z-index: 2;
+}
+
+.card-title {
+    font-family: var(--font-display);
+    font-size: clamp(12px, 2.8vmin, 18px);
+    font-weight: 600;
+    color: var(--accent-amber);
+    margin-bottom: clamp(4px, 1vmin, 8px);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.card-desc {
+    font-size: clamp(10px, 2vmin, 13px);
+    color: var(--text-secondary);
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    line-height: 1.4;
+}
+
+/* Crossline Card - Portrait (lieux, sagas, elements) */
+.card-crossline {
+    width: clamp(140px, 28vmin, 200px);
+    height: clamp(200px, 40vmin, 300px);
+    border-radius: 16px;
+    overflow: hidden;
+    position: relative;
+    cursor: pointer;
+    transition: var(--transition);
+    border: 1px solid var(--glass-border);
+    background: var(--bg-tertiary);
+}
+
+.card-crossline:hover {
+    transform: translateY(-8px) scale(1.02);
+    box-shadow: var(--shadow-glow);
+    border-color: var(--accent-gold);
+}
+
+.card-crossline.add-card {
+    border: 2px dashed var(--glass-border);
+    background: transparent;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Era Card */
+.card-era {
+    width: 100%;
+    max-width: clamp(280px, 80vmin, 500px);
+    height: clamp(100px, 20vmin, 150px);
+    border-radius: 16px;
+    overflow: hidden;
+    position: relative;
+    cursor: pointer;
+    transition: var(--transition);
+    border: 1px solid var(--glass-border);
+    background: var(--bg-tertiary);
+}
+
+.card-era:hover {
+    transform: translateX(8px) scale(1.02);
+    box-shadow: var(--shadow-glow);
+    border-color: var(--accent-gold);
+}
+
+.card-era .card-content {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    height: 100%;
+    padding-left: clamp(16px, 4vmin, 32px);
+}
+
+/* Add Card */
+.add-card {
+    border: 2px dashed var(--glass-border);
+    background: transparent;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: clamp(8px, 2vmin, 16px);
+}
+
+.add-card:hover {
+    border-color: var(--accent-gold);
+    background: rgba(212, 168, 83, 0.05);
+}
+
+.add-icon {
+    width: clamp(40px, 8vmin, 60px);
+    height: clamp(40px, 8vmin, 60px);
+    border: 2px solid var(--accent-gold);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--accent-gold);
+    font-size: clamp(24px, 5vmin, 36px);
+    font-weight: 300;
+    transition: var(--transition);
+}
+
+.add-card:hover .add-icon {
+    background: var(--accent-gold);
+    color: var(--bg-primary);
+    transform: rotate(90deg);
+}
+
+.add-text {
+    font-size: clamp(11px, 2.5vmin, 14px);
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+}
+
+/* Buttons */
+.btn {
+    padding: clamp(14px, 3.5vmin, 18px) clamp(24px, 6vmin, 40px);
+    border: none;
+    border-radius: 12px;
+    font-family: var(--font-display);
+    font-size: clamp(13px, 3vmin, 16px);
+    font-weight: 600;
+    cursor: pointer;
+    transition: var(--transition);
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, var(--accent-gold), var(--accent-copper));
+    color: var(--bg-primary);
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 30px rgba(212, 168, 83, 0.3);
+}
+
+.btn-secondary {
+    background: transparent;
+    border: 1px solid var(--glass-border);
+    color: var(--text-secondary);
+}
+
+.btn-secondary:hover {
+    border-color: var(--accent-gold);
+    color: var(--accent-gold);
+}
+
+.btn-danger {
+    background: rgba(255, 100, 100, 0.1);
+    color: #ff6b6b;
+}
+
+.btn-danger:hover {
+    background: rgba(255, 100, 100, 0.2);
+}
+
+.btn-small {
+    padding: 8px 16px;
+    font-size: 12px;
+}
+
+/* Empty State */
+.empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: clamp(40px, 10vmin, 80px);
+    text-align: center;
+}
+
+.empty-icon {
+    font-size: clamp(48px, 12vmin, 80px);
+    color: var(--text-muted);
+    margin-bottom: clamp(16px, 4vmin, 24px);
+}
+
+.empty-text {
+    font-size: clamp(14px, 3vmin, 18px);
+    color: var(--text-secondary);
+}
+
+/* Toast */
+.toast {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%) translateY(100px);
+    background: var(--bg-secondary);
+    border: 1px solid var(--accent-gold);
+    border-radius: 12px;
+    padding: clamp(12px, 3vmin, 16px) clamp(20px, 5vmin, 32px);
+    color: var(--accent-amber);
+    font-size: clamp(12px, 2.5vmin, 14px);
+    z-index: 2000;
+    transition: transform 0.3s;
+    box-shadow: var(--shadow-glow);
+}
+
+.toast.show {
+    transform: translateX(-50%) translateY(0);
+}
+
+/* Sand Particles */
+.sand-particles {
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: -1;
+    overflow: hidden;
+}
+
+.sand-particle {
+    position: absolute;
+    width: 2px;
+    height: 2px;
+    background: var(--accent-gold);
+    border-radius: 50%;
+    opacity: 0.3;
+    animation: fall linear infinite;
+}

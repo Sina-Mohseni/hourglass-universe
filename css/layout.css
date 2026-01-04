@@ -1,0 +1,188 @@
+/* =============================================
+   LAYOUT - Pages, Header, Content
+   ============================================= */
+
+/* Pages */
+.page {
+    display: none;
+    width: 100%;
+    height: 100%;
+    flex-direction: column;
+    overflow: hidden;
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+
+.page.active {
+    display: flex;
+    animation: pageFadeIn 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Header */
+.header {
+    width: 100%;
+    min-height: clamp(50px, 8vh, 70px);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: clamp(8px, 2vmin, 16px) clamp(12px, 3vmin, 24px);
+    background: var(--glass-bg);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--glass-border);
+    z-index: 10;
+    flex-shrink: 0;
+    position: relative;
+}
+
+.header-left, .header-right {
+    display: flex;
+    align-items: center;
+    gap: clamp(8px, 2vmin, 16px);
+}
+
+.logo {
+    font-family: var(--font-display);
+    font-size: clamp(14px, 3.5vmin, 24px);
+    font-weight: 600;
+    color: var(--accent-gold);
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    display: flex;
+    align-items: center;
+    gap: clamp(6px, 1.5vmin, 12px);
+}
+
+.icon-btn {
+    width: clamp(36px, 7vmin, 48px);
+    height: clamp(36px, 7vmin, 48px);
+    border: 1px solid var(--glass-border);
+    background: rgba(212, 168, 83, 0.05);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: var(--transition);
+    color: var(--text-secondary);
+}
+
+.icon-btn:hover {
+    background: rgba(212, 168, 83, 0.15);
+    border-color: var(--accent-gold);
+    color: var(--accent-gold);
+    transform: scale(1.05);
+}
+
+.icon-btn svg {
+    width: clamp(18px, 4vmin, 24px);
+    height: clamp(18px, 4vmin, 24px);
+}
+
+/* Content */
+.content {
+    flex: 1;
+    width: 100%;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding: clamp(12px, 3vmin, 24px);
+    display: flex;
+    flex-direction: column;
+    gap: clamp(16px, 4vmin, 32px);
+    position: relative;
+    z-index: 5;
+}
+
+.content::-webkit-scrollbar {
+    width: 6px;
+}
+
+.content::-webkit-scrollbar-thumb {
+    background: var(--accent-gold);
+    border-radius: 3px;
+}
+
+.page-title {
+    font-family: var(--font-display);
+    font-size: clamp(20px, 5vmin, 36px);
+    font-weight: 600;
+    color: var(--accent-gold);
+    text-align: center;
+    letter-spacing: 0.1em;
+    margin-bottom: clamp(8px, 2vmin, 16px);
+}
+
+.page-subtitle {
+    font-size: clamp(12px, 2.5vmin, 16px);
+    color: var(--text-secondary);
+    text-align: center;
+    max-width: 80%;
+    margin: 0 auto;
+    line-height: 1.6;
+}
+
+.parent-context {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 12px 20px;
+    margin: 15px auto;
+    font-size: clamp(11px, 2.2vmin, 14px);
+    color: var(--accent-gold);
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    font-weight: 500;
+    background: linear-gradient(135deg, rgba(212, 175, 55, 0.1), rgba(184, 115, 51, 0.1));
+    border: 1px solid rgba(212, 175, 55, 0.3);
+    border-radius: 25px;
+    backdrop-filter: blur(10px);
+}
+
+.parent-context::before {
+    content: '◈';
+    margin-right: 10px;
+    font-size: 0.9em;
+    opacity: 0.7;
+}
+
+.parent-context::after {
+    content: '◈';
+    margin-left: 10px;
+    font-size: 0.9em;
+    opacity: 0.7;
+}
+
+.parent-context:empty {
+    display: none;
+}
+
+/* Page Background */
+.page-background {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 0;
+    overflow: hidden;
+}
+
+.page-background img, .page-background video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* Home page content centering */
+#homePage .content {
+    position: relative;
+    padding: 0;
+    overflow: hidden;
+}
+
+/* Add padding to content for pages with footer sub-menus */
+#universePage .content,
+#eraPage .content,
+#detailPage .content {
+    padding-bottom: 140px;
+}

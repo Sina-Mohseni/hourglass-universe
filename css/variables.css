@@ -1,0 +1,45 @@
+/* =============================================
+   CSS VARIABLES & BASE STYLES
+   ============================================= */
+
+:root {
+    --bg-primary: #0a0a0f;
+    --bg-secondary: #12121a;
+    --bg-tertiary: #1a1a25;
+    --accent-gold: #d4a853;
+    --accent-amber: #f0c674;
+    --accent-copper: #b87333;
+    --text-primary: #e8e6e3;
+    --text-secondary: #9a9a9a;
+    --text-muted: #5a5a6a;
+    --glass-bg: rgba(20, 20, 30, 0.85);
+    --glass-border: rgba(212, 168, 83, 0.2);
+    --shadow-glow: 0 0 30px rgba(212, 168, 83, 0.15);
+    --transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    --font-display: 'Cinzel', serif;
+    --font-body: 'Rajdhani', sans-serif;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html, body {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    font-family: var(--font-body);
+    background: var(--bg-primary);
+    color: var(--text-primary);
+}
+
+#app {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    position: relative;
+}

@@ -1,0 +1,156 @@
+/* =============================================
+   SUB MENUS - Footer Navigation
+   ============================================= */
+
+.sub-menus {
+    display: flex;
+    justify-content: center;
+    padding: clamp(12px, 3vmin, 20px) clamp(12px, 3vmin, 20px);
+    padding-bottom: calc(clamp(12px, 3vmin, 20px) + env(safe-area-inset-bottom, 0px));
+    width: 100%;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 50;
+}
+
+.sub-menus-container {
+    display: flex;
+    align-items: stretch;
+    justify-content: center;
+    background: var(--bg-tertiary);
+    border: 1px solid var(--glass-border);
+    border-radius: 16px;
+    padding: 8px;
+    position: relative;
+    gap: 0;
+    width: 100%;
+    max-width: 500px;
+}
+
+.sub-menus-container::before {
+    content: '';
+    position: absolute;
+    top: 8px;
+    bottom: 8px;
+    width: calc(33.333% - 6px);
+    background: linear-gradient(135deg, var(--accent-gold), var(--accent-copper));
+    border-radius: 10px;
+    transition: left 0.35s cubic-bezier(0.4, 0, 0.2, 1),
+                right 0.35s cubic-bezier(0.4, 0, 0.2, 1),
+                opacity 0.25s ease;
+    box-shadow: 0 4px 20px rgba(212, 168, 83, 0.5),
+                0 0 30px rgba(212, 168, 83, 0.15),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2);
+    z-index: 0;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.sub-menus-container[data-active="1"]::before,
+.sub-menus-container[data-active="2"]::before,
+.sub-menus-container[data-active="3"]::before {
+    opacity: 1;
+}
+
+.sub-menus-container[data-active="1"]::before {
+    left: 8px;
+    right: calc(66.666% + 2px);
+}
+
+.sub-menus-container[data-active="2"]::before {
+    left: calc(33.333% + 3px);
+    right: calc(33.333% + 3px);
+}
+
+.sub-menus-container[data-active="3"]::before {
+    left: calc(66.666% + 2px);
+    right: 8px;
+}
+
+.sub-menu-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: clamp(6px, 1.5vmin, 10px);
+    padding: clamp(14px, 3vmin, 20px) 0;
+    background: transparent;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: transform 0.2s ease;
+    position: relative;
+    z-index: 1;
+    flex: 1;
+    min-height: clamp(70px, 15vmin, 90px);
+}
+
+.sub-menu-btn svg {
+    width: clamp(24px, 6vmin, 32px);
+    height: clamp(24px, 6vmin, 32px);
+    color: var(--text-muted);
+    transition: color 0.3s ease, filter 0.3s ease;
+    flex-shrink: 0;
+}
+
+.sub-menu-btn span {
+    font-family: var(--font-body);
+    font-size: clamp(9px, 2vmin, 11px);
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    transition: color 0.3s ease, font-weight 0.3s ease;
+    white-space: nowrap;
+    font-weight: 500;
+}
+
+.sub-menu-btn:hover svg {
+    color: var(--text-secondary);
+}
+
+.sub-menu-btn:hover span {
+    color: var(--text-secondary);
+}
+
+.sub-menu-btn:active {
+    transform: scale(0.96);
+}
+
+.sub-menu-btn.active svg {
+    color: var(--bg-primary);
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.4));
+}
+
+.sub-menu-btn.active span {
+    color: var(--bg-primary);
+    font-weight: 600;
+}
+
+/* Sub Crossline */
+.sub-crossline-menus {
+    display: flex;
+    justify-content: center;
+    gap: clamp(8px, 2vmin, 16px);
+    margin-bottom: clamp(16px, 4vmin, 24px);
+}
+
+.sub-crossline-btn {
+    padding: clamp(8px, 2vmin, 12px) clamp(16px, 4vmin, 24px);
+    background: var(--bg-tertiary);
+    border: 1px solid var(--glass-border);
+    border-radius: 8px;
+    font-size: clamp(11px, 2.2vmin, 13px);
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: var(--transition);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+}
+
+.sub-crossline-btn:hover, .sub-crossline-btn.active {
+    background: rgba(212, 168, 83, 0.1);
+    border-color: var(--accent-gold);
+    color: var(--accent-gold);
+}

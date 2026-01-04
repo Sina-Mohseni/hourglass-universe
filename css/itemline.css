@@ -1,0 +1,69 @@
+/* =============================================
+   ITEMLINE
+   ============================================= */
+
+.itemline-container {
+    display: flex;
+    flex-direction: column;
+    gap: clamp(12px, 3vmin, 20px);
+}
+
+.itemline-item {
+    background: var(--bg-tertiary);
+    border: 1px solid var(--glass-border);
+    border-radius: 12px;
+    padding: clamp(16px, 4vmin, 24px);
+    transition: var(--transition);
+}
+
+.itemline-item:hover {
+    border-color: var(--accent-gold);
+}
+
+.itemline-item-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: clamp(8px, 2vmin, 12px);
+}
+
+.itemline-item-title {
+    font-family: var(--font-display);
+    font-size: clamp(14px, 3vmin, 18px);
+    color: var(--accent-amber);
+}
+
+.itemline-item-actions {
+    display: flex;
+    gap: clamp(8px, 2vmin, 12px);
+}
+
+.itemline-item-btn {
+    width: clamp(28px, 5vmin, 36px);
+    height: clamp(28px, 5vmin, 36px);
+    border: 1px solid var(--glass-border);
+    background: transparent;
+    border-radius: 8px;
+    color: var(--text-muted);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: var(--transition);
+}
+
+.itemline-item-btn:hover {
+    border-color: var(--accent-gold);
+    color: var(--accent-gold);
+}
+
+.itemline-item-btn.delete:hover {
+    border-color: #ff6b6b;
+    color: #ff6b6b;
+}
+
+.itemline-item-content {
+    font-size: clamp(12px, 2.5vmin, 14px);
+    color: var(--text-secondary);
+    line-height: 1.6;
+}
