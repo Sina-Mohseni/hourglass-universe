@@ -32,6 +32,17 @@ function renderNaturalCycles() {
     cycles.forEach((cycle, index) => {
         const isFirst = index === 0;
         const isLast = index === cycles.length - 1;
+        const isSingle = cycles.length === 1;
+
+        // Determine cycle type label
+        let typeLabel = 'Intermédiaire';
+        if (isSingle) {
+            typeLabel = 'Cycle unique';
+        } else if (isFirst) {
+            typeLabel = 'Alpha (Plus petit)';
+        } else if (isLast) {
+            typeLabel = 'Omega (Plus grand)';
+        }
 
         // Generate all conversions for this cycle
         let conversionsHtml = '';
@@ -53,15 +64,16 @@ function renderNaturalCycles() {
         div.className = 'cycle-item';
         div.innerHTML = `
             <div class="cycle-item-header">
-                <span class="cycle-type">${isFirst ? 'Alpha (Plus petit)' : isLast ? 'Omega (Plus grand)' : 'Intermédiaire'}</span>
-                <button class="cycle-delete-btn" onclick="removeNaturalCycle(${index})">✕</button>
+                <span class="cycle-type">${typeLabel}</span>
+                <div class="cycle-actions">
+                    <button class="cycle-action-btn edit" onclick="openEditCycleModal(${index})" title="Modifier">✎</button>
+                    <button class="cycle-action-btn delete" onclick="confirmDeleteCycle(${index})" title="Supprimer">✕</button>
+                </div>
             </div>
-            <div class="cycle-item-row">
-                <input type="text" value="${cycle.name}" placeholder="Nom du cycle" onchange="updateCycleName(${index}, this.value)">
-            </div>
-            ${!isLast ? `
+            <div class="cycle-name">${cycle.name}</div>
+            ${!isLast && cycles.length > 1 ? `
             <div class="cycle-relation">
-                <input type="number" value="${cycle.unitsPerNext || 1}" min="1" onchange="updateCycleUnits(${index}, this.value)" style="width:80px">
+                <span class="cycle-relation-value">${cycle.unitsPerNext || 1}</span>
                 <span>${cycle.name}</span> = 1 <span>${cycles[index + 1]?.name || 'cycle suivant'}</span>
             </div>
             ` : ''}
@@ -83,19 +95,61 @@ function calculateCumulativeCycles(cycles) {
     return cumulative;
 }
 
-function updateCycleName(index, name) {
-    const universe = appData.universes[appData.currentUniverse];
-    universe.temporalSystem.naturalCycles[index].name = name;
-    renderNaturalCycles();
+// Modal state for cycle editing
+let cycleModalState = {
+    mode: 'create',
+    editIndex: null
+};
+
+function openCreateCycleModal() {
+    cycleModalState = { mode: 'create', editIndex: null };
+
+    document.getElementById('cycleModalTitle').textContent = 'Nouveau cycle naturel';
+    document.getElementById('cycleName').value = '';
+    document.getElementById('cycleUnitsPerNext').value = '1';
+    document.getElementById('cycleUnitsRow').style.display = 'block';
+    document.getElementById('cycleSaveBtn').textContent = 'Créer';
+
+    document.getElementById('cycleModal').classList.add('active');
 }
 
-function updateCycleUnits(index, units) {
+function openEditCycleModal(index) {
     const universe = appData.universes[appData.currentUniverse];
-    universe.temporalSystem.naturalCycles[index].unitsPerNext = parseInt(units) || 1;
-    renderNaturalCycles();
+    const cycle = universe.temporalSystem.naturalCycles[index];
+    const cycles = universe.temporalSystem.naturalCycles;
+    const isLast = index === cycles.length - 1;
+
+    cycleModalState = { mode: 'edit', editIndex: index };
+
+    document.getElementById('cycleModalTitle').textContent = 'Modifier le cycle';
+    document.getElementById('cycleName').value = cycle.name;
+    document.getElementById('cycleUnitsPerNext').value = cycle.unitsPerNext || 1;
+
+    // Hide units field for the last cycle (Omega)
+    if (isLast && cycles.length > 1) {
+        document.getElementById('cycleUnitsRow').style.display = 'none';
+    } else {
+        document.getElementById('cycleUnitsRow').style.display = 'block';
+    }
+
+    document.getElementById('cycleSaveBtn').textContent = 'Enregistrer';
+
+    document.getElementById('cycleModal').classList.add('active');
 }
 
-function addNaturalCycle() {
+function closeCycleModal() {
+    document.getElementById('cycleModal').classList.remove('active');
+}
+
+function saveCycle() {
+    const name = document.getElementById('cycleName').value.trim();
+    const unitsPerNext = parseInt(document.getElementById('cycleUnitsPerNext').value) || 1;
+
+    if (!name) {
+        showToast('Entrez un nom pour le cycle');
+        return;
+    }
+
     const universe = appData.universes[appData.currentUniverse];
     if (!universe.temporalSystem) {
         universe.temporalSystem = { naturalCycles: [] };
@@ -103,32 +157,44 @@ function addNaturalCycle() {
 
     const cycles = universe.temporalSystem.naturalCycles;
 
-    if (cycles.length === 0) {
-        // First cycle - add Alpha and Omega
-        cycles.push(
-            { name: 'Cycle Alpha', type: 'alpha', unitsPerNext: 1 },
-            { name: 'Cycle Omega', type: 'omega', unitsPerNext: null }
-        );
-    } else if (cycles.length === 1) {
-        // Only one cycle - add Omega
-        cycles.push({ name: 'Cycle Omega', type: 'omega', unitsPerNext: null });
-    } else {
-        // Insert before the last (Omega) cycle
+    if (cycleModalState.mode === 'create') {
         const newCycle = {
-            name: 'Nouveau cycle',
-            type: 'intermediate',
-            unitsPerNext: 1
+            name: name,
+            unitsPerNext: unitsPerNext
         };
-        cycles.splice(cycles.length - 1, 0, newCycle);
+
+        // Add at the end (becomes the new Omega)
+        cycles.push(newCycle);
+    } else {
+        // Edit existing
+        cycles[cycleModalState.editIndex].name = name;
+        cycles[cycleModalState.editIndex].unitsPerNext = unitsPerNext;
     }
 
+    closeCycleModal();
     renderNaturalCycles();
+    showToast('Cycle enregistré');
+}
+
+function confirmDeleteCycle(index) {
+    const universe = appData.universes[appData.currentUniverse];
+    const cycle = universe.temporalSystem.naturalCycles[index];
+
+    if (confirm(`Supprimer le cycle "${cycle.name}" ?`)) {
+        removeNaturalCycle(index);
+    }
 }
 
 function removeNaturalCycle(index) {
     const universe = appData.universes[appData.currentUniverse];
     universe.temporalSystem.naturalCycles.splice(index, 1);
     renderNaturalCycles();
+    showToast('Cycle supprimé');
+}
+
+// Keep for backwards compatibility
+function addNaturalCycle() {
+    openCreateCycleModal();
 }
 
 async function saveTemporalSystem() {

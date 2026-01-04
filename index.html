@@ -580,6 +580,31 @@
         </div>
     </div>
 
+    <!-- Cycle Modal -->
+    <div class="modal-overlay" id="cycleModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h2 class="modal-title" id="cycleModalTitle">Nouveau cycle naturel</h2>
+                <button class="modal-close" onclick="closeCycleModal()">✕</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label class="form-label">Nom du cycle</label>
+                    <input type="text" class="form-input" id="cycleName" placeholder="Ex: Rotation, Orbite, Révolution...">
+                </div>
+                <div class="form-group" id="cycleUnitsRow">
+                    <label class="form-label">Unités pour le cycle suivant</label>
+                    <input type="number" class="form-input" id="cycleUnitsPerNext" value="1" min="1">
+                    <p class="form-help">Combien de ce cycle font 1 cycle du niveau supérieur</p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeCycleModal()">Annuler</button>
+                <button class="btn btn-primary" id="cycleSaveBtn" onclick="saveCycle()">Créer</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Delete Confirmation Modal -->
     <div class="modal-overlay" id="deleteModal">
         <div class="modal confirm-modal">
