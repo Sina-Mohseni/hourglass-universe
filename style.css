@@ -906,18 +906,6 @@ html, body {
     object-fit: cover;
 }
 
-.page-background::after {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(to bottom, rgba(10, 10, 15, 0.7) 0%, rgba(10, 10, 15, 0.9) 100%);
-    pointer-events: none;
-    z-index: 1;
-}
-
 /* Empty State */
 .empty-state {
     display: flex;
