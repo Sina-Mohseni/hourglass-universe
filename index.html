@@ -144,21 +144,17 @@
                 <div class="cards-grid" id="erasGrid"></div>
             </div>
 
-            <!-- Timeline Section (Temporal System) -->
+            <!-- Timeline Section (Temporal Systems) -->
             <div id="universeTimeline" style="display:none">
                 <div class="temporal-system-container">
-                    <h3 class="temporal-title">Cycles Naturels</h3>
-                    <p class="temporal-desc">Définissez les cycles naturels de votre univers. Ces cycles pourront être utilisés comme base pour les calendriers.</p>
+                    <h3 class="temporal-title">Systèmes Temporels</h3>
+                    <p class="temporal-desc">Créez différents systèmes de cycles naturels pour votre univers. Ces cycles pourront être utilisés comme base pour les calendriers.</p>
 
-                    <!-- Single clickable block for temporal system -->
-                    <div id="temporalSystemBlock" class="temporal-block" onclick="openTemporalModal()">
-                        <div class="temporal-block-content" id="temporalBlockContent">
-                            <div class="temporal-block-empty">
-                                <span class="temporal-block-icon">🌀</span>
-                                <span>Cliquez pour créer votre système temporel</span>
-                            </div>
-                        </div>
-                    </div>
+                    <!-- List of temporal systems -->
+                    <div id="temporalSystemsList" class="temporal-systems-list"></div>
+
+                    <!-- Add new system button -->
+                    <button class="btn btn-secondary" onclick="openTemporalModal()" style="margin-top:15px;width:100%">+ Ajouter un système temporel</button>
                 </div>
             </div>
         </div>
@@ -529,10 +525,14 @@
                     <input type="text" class="form-input" id="calendarName" placeholder="Nom du calendrier">
                 </div>
                 <div class="form-group">
-                    <label class="form-label">Cycle naturel de base</label>
-                    <select class="form-input" id="calendarNaturalCycle">
+                    <label class="form-label">Système temporel</label>
+                    <select class="form-input" id="calendarTemporalSystem" onchange="updateCycleSelector()">
                         <option value="">Aucun (cycles artificiels uniquement)</option>
                     </select>
+                </div>
+                <div class="form-group" id="calendarCycleGroup" style="display:none">
+                    <label class="form-label">Cycle de base</label>
+                    <select class="form-input" id="calendarNaturalCycle"></select>
                     <p class="form-help" id="calendarCycleHelp"></p>
                 </div>
                 <div class="form-group">
@@ -585,17 +585,33 @@
     <div class="modal-overlay" id="temporalModal">
         <div class="modal modal-large">
             <div class="modal-header">
-                <h2 class="modal-title">Système Temporel</h2>
+                <h2 class="modal-title" id="temporalModalTitle">Nouveau Système Temporel</h2>
                 <button class="modal-close" onclick="closeTemporalModal()">✕</button>
             </div>
             <div class="modal-body">
-                <p class="form-help" style="margin-bottom:16px">Définissez vos cycles du plus petit (Alpha) au plus grand (Omega). Ajoutez des cycles intermédiaires entre eux.</p>
+                <!-- System name -->
+                <div class="form-group">
+                    <label class="form-label">Nom du système</label>
+                    <input type="text" class="form-input" id="temporalSystemName" placeholder="Ex: Système solaire, Cycle lunaire...">
+                </div>
+
+                <p class="form-help" style="margin-bottom:16px">Définissez vos cycles du plus petit (Alpha) au plus grand (Omega).</p>
 
                 <!-- Cycles list with inline editing -->
                 <div id="temporalCyclesList" class="temporal-cycles-editor"></div>
 
                 <!-- Add intermediate cycle button -->
-                <button class="btn btn-secondary" id="addIntermediateBtn" onclick="addIntermediateCycle()" style="margin-top:15px;width:100%;display:none">+ Ajouter un cycle intermédiaire</button>
+                <button class="btn btn-secondary" id="addIntermediateBtn" onclick="addIntermediateCycle()" style="margin-top:15px;width:100%">+ Ajouter un cycle intermédiaire</button>
+
+                <!-- Conversions display -->
+                <div id="cycleConversions" class="cycle-conversions-section" style="display:none">
+                    <h4 class="conversions-title">Conversions</h4>
+                    <div class="conversions-selector">
+                        <label>Calculer pour 1</label>
+                        <select id="conversionCycleSelect" onchange="updateConversions()"></select>
+                    </div>
+                    <div id="conversionResults" class="conversion-results"></div>
+                </div>
             </div>
             <div class="modal-footer">
                 <button class="btn btn-danger" id="deleteTemporalBtn" onclick="deleteTemporalSystem()" style="display:none">Supprimer</button>
