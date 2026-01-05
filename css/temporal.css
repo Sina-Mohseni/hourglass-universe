@@ -658,3 +658,70 @@
     font-size: 40px;
     margin-bottom: 12px;
 }
+
+/* Cycle Type Icons */
+.cycle-type-icon {
+    margin-right: 6px;
+    font-size: 14px;
+}
+
+.temporal-cycle-tag .cycle-type-icon {
+    font-size: 12px;
+    margin-right: 4px;
+    opacity: 0.8;
+}
+
+/* Internal vs External cycle visual distinction */
+.temporal-cycle-tag.internal {
+    border-style: solid;
+}
+
+.temporal-cycle-tag.external {
+    border-style: dashed;
+}
+
+/* Cycle Type Selector in Modal */
+.cycle-type-selector {
+    display: flex;
+    gap: 10px;
+    margin-top: 4px;
+}
+
+.cycle-type-btn {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 10px 14px;
+    background: var(--bg-secondary);
+    border: 1px solid var(--glass-border);
+    border-radius: 8px;
+    color: var(--text-secondary);
+    font-size: 13px;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.cycle-type-btn:hover {
+    border-color: var(--accent-gold);
+    color: var(--text-primary);
+}
+
+.cycle-type-btn.active {
+    background: rgba(212, 175, 55, 0.15);
+    border-color: var(--accent-gold);
+    color: var(--accent-gold);
+}
+
+.cycle-type-btn .cycle-type-icon {
+    font-size: 16px;
+    margin-right: 0;
+}
+
+/* External type specific styling */
+.cycle-type-btn:last-child.active {
+    background: rgba(184, 115, 51, 0.15);
+    border-color: var(--accent-amber);
+    color: var(--accent-amber);
+}

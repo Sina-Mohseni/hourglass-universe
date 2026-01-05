@@ -2,6 +2,12 @@
    TEMPORAL SYSTEM - Multiple Systems Support
    ============================================= */
 
+// Cycle types
+const CYCLE_TYPES = {
+    INTERNAL: 'internal',  // Rotation sur soi-même
+    EXTERNAL: 'external'   // Orbite autour d'un autre corps
+};
+
 // Temporary state for editing in modal
 let tempCycles = [];
 let tempSystemName = '';
@@ -36,6 +42,16 @@ function calculateCumulativeFromAlpha(cycles) {
     return cumulative;
 }
 
+// Get cycle type icon
+function getCycleTypeIcon(type) {
+    return type === CYCLE_TYPES.EXTERNAL ? '◎' : '⟳';
+}
+
+// Get cycle type label
+function getCycleTypeLabel(type) {
+    return type === CYCLE_TYPES.EXTERNAL ? 'Extérieur' : 'Intérieur';
+}
+
 // Render all temporal systems as clickable cards
 function renderTemporalSystems() {
     const universe = appData.universes[appData.currentUniverse];
@@ -57,24 +73,28 @@ function renderTemporalSystems() {
         const cycles = system.cycles || [];
         const cumulative = calculateCumulativeFromAlpha(cycles);
 
-        // Build cycles chain
+        // Build cycles chain with type icons
         let cyclesHtml = '';
         cycles.forEach((cycle, i) => {
             const isFirst = i === 0;
             const isLast = i === cycles.length - 1;
-            let typeClass = 'intermediate';
-            if (isFirst) typeClass = 'alpha';
-            else if (isLast) typeClass = 'omega';
+            let posClass = 'intermediate';
+            if (isFirst) posClass = 'alpha';
+            else if (isLast) posClass = 'omega';
+
+            const typeClass = cycle.type === CYCLE_TYPES.EXTERNAL ? 'external' : 'internal';
+            const typeIcon = getCycleTypeIcon(cycle.type);
 
             if (i > 0) cyclesHtml += '<span class="temporal-arrow">→</span>';
-            cyclesHtml += `<span class="temporal-cycle-tag ${typeClass}">${cycle.name}</span>`;
+            cyclesHtml += `<span class="temporal-cycle-tag ${posClass} ${typeClass}"><span class="cycle-type-icon">${typeIcon}</span>${cycle.name}</span>`;
         });
 
         // Build conversions (show how many Alpha make each cycle)
         let conversionsHtml = '';
         if (cycles.length >= 2) {
             for (let i = 1; i < cycles.length; i++) {
-                conversionsHtml += `<span class="temporal-conversion-tag"><strong>${cumulative[i].toLocaleString()}</strong> ${cycles[0].name} = 1 ${cycles[i].name}</span>`;
+                const typeIcon = getCycleTypeIcon(cycles[i].type);
+                conversionsHtml += `<span class="temporal-conversion-tag"><strong>${cumulative[i].toLocaleString()}</strong> ${cycles[0].name} = 1 ${typeIcon} ${cycles[i].name}</span>`;
             }
         }
 
@@ -106,8 +126,8 @@ function openTemporalModal(index = null) {
         // Creating new system
         tempSystemName = '';
         tempCycles = [
-            { name: '', unitsPerNext: 365 },
-            { name: '', unitsPerNext: 1 }
+            { name: '', unitsPerNext: 365, type: CYCLE_TYPES.INTERNAL },
+            { name: '', unitsPerNext: 1, type: CYCLE_TYPES.EXTERNAL }
         ];
         document.getElementById('temporalModalTitle').textContent = 'Nouveau Système Temporel';
         document.getElementById('deleteTemporalBtn').style.display = 'none';
@@ -137,24 +157,25 @@ function renderModalCycles() {
         const isLast = index === tempCycles.length - 1;
         const isIntermediate = !isFirst && !isLast;
 
-        let typeClass = 'intermediate';
-        let typeLabel = 'Intermédiaire';
+        let posClass = 'intermediate';
+        let posLabel = 'Intermédiaire';
         if (tempCycles.length === 2) {
-            typeClass = isFirst ? 'alpha' : 'omega';
-            typeLabel = isFirst ? 'Alpha (plus petit)' : 'Omega (plus grand)';
+            posClass = isFirst ? 'alpha' : 'omega';
+            posLabel = isFirst ? 'Alpha (plus petit)' : 'Omega (plus grand)';
         } else {
-            if (isFirst) { typeClass = 'alpha'; typeLabel = 'Alpha (plus petit)'; }
-            else if (isLast) { typeClass = 'omega'; typeLabel = 'Omega (plus grand)'; }
+            if (isFirst) { posClass = 'alpha'; posLabel = 'Alpha (plus petit)'; }
+            else if (isLast) { posClass = 'omega'; posLabel = 'Omega (plus grand)'; }
         }
 
         const showDelete = isIntermediate && tempCycles.length > 2;
         const showUnits = !isLast;
+        const cycleType = cycle.type || CYCLE_TYPES.INTERNAL;
 
         const div = document.createElement('div');
-        div.className = `cycle-editor-item ${typeClass}`;
+        div.className = `cycle-editor-item ${posClass}`;
         div.innerHTML = `
             <div class="cycle-editor-header">
-                <span class="cycle-editor-label">${typeLabel}</span>
+                <span class="cycle-editor-label">${posLabel}</span>
                 ${showDelete ? `<button class="cycle-editor-delete" onclick="removeIntermediateCycle(${index})">✕</button>` : ''}
             </div>
             <div class="cycle-editor-row">
@@ -163,6 +184,18 @@ function renderModalCycles() {
                     placeholder="${isFirst ? 'Ex: Rotation, Jour...' : isLast ? 'Ex: Orbite, Année...' : 'Ex: Lunaison, Saison...'}"
                     onchange="updateCycleName(${index}, this.value)"
                     oninput="updateCycleNameLive(${index}, this.value)">
+            </div>
+            <div class="cycle-type-selector">
+                <button class="cycle-type-btn ${cycleType === CYCLE_TYPES.INTERNAL ? 'active' : ''}"
+                    onclick="updateCycleType(${index}, '${CYCLE_TYPES.INTERNAL}')" title="Rotation sur soi-même">
+                    <span class="cycle-type-icon">⟳</span>
+                    <span>Intérieur</span>
+                </button>
+                <button class="cycle-type-btn ${cycleType === CYCLE_TYPES.EXTERNAL ? 'active' : ''}"
+                    onclick="updateCycleType(${index}, '${CYCLE_TYPES.EXTERNAL}')" title="Orbite autour d'un astre">
+                    <span class="cycle-type-icon">◎</span>
+                    <span>Extérieur</span>
+                </button>
             </div>
             ${showUnits ? `
             <div class="cycle-editor-units">
@@ -195,10 +228,15 @@ function updateCycleUnits(index, value) {
     updateConversionsSection();
 }
 
+function updateCycleType(index, type) {
+    tempCycles[index].type = type;
+    renderModalCycles();
+}
+
 function addIntermediateCycle() {
     if (tempCycles.length < 2) return;
     const omegaIndex = tempCycles.length - 1;
-    tempCycles.splice(omegaIndex, 0, { name: '', unitsPerNext: 1 });
+    tempCycles.splice(omegaIndex, 0, { name: '', unitsPerNext: 1, type: CYCLE_TYPES.INTERNAL });
     renderModalCycles();
 }
 
@@ -228,9 +266,10 @@ function updateConversionsSection() {
     select.innerHTML = '';
     tempCycles.forEach((cycle, i) => {
         if (i > 0 && cycle.name) {
+            const typeIcon = getCycleTypeIcon(cycle.type);
             const option = document.createElement('option');
             option.value = i;
-            option.textContent = cycle.name;
+            option.textContent = `${typeIcon} ${cycle.name}`;
             select.appendChild(option);
         }
     });
@@ -265,10 +304,11 @@ function updateConversions() {
         if (!cycle.name) continue;
 
         const ratio = cumulative[selectedIndex] / cumulative[i];
+        const typeIcon = getCycleTypeIcon(cycle.type);
         html += `
             <div class="conversion-result-item">
                 <span class="conversion-result-value">${ratio.toLocaleString()}</span>
-                <span class="conversion-result-label"><span>${cycle.name}</span> = 1 ${selectedCycle.name}</span>
+                <span class="conversion-result-label"><span>${typeIcon} ${cycle.name}</span> = 1 ${selectedCycle.name}</span>
             </div>
         `;
     }
