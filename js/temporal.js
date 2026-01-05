@@ -2,319 +2,216 @@
    TEMPORAL SYSTEM
    ============================================= */
 
+// Temporary state for editing in modal
+let tempCycles = [];
+
 function loadTemporalSystem() {
     const universe = appData.universes[appData.currentUniverse];
     if (!universe.temporalSystem) {
-        universe.temporalSystem = {
-            naturalCycles: []
-        };
+        universe.temporalSystem = { naturalCycles: [] };
     }
-
-    renderNaturalCycles();
+    renderTemporalBlock();
 }
 
-function renderNaturalCycles() {
+// Render the single clickable block in the main view
+function renderTemporalBlock() {
     const universe = appData.universes[appData.currentUniverse];
-    if (!universe.temporalSystem) return;
-
-    const cycles = universe.temporalSystem.naturalCycles || [];
-    const container = document.getElementById('naturalCyclesList');
-    container.innerHTML = '';
+    const cycles = universe.temporalSystem?.naturalCycles || [];
+    const container = document.getElementById('temporalBlockContent');
 
     if (cycles.length === 0) {
-        container.innerHTML = '<div class="empty-state"><div class="empty-icon">🌀</div><div class="empty-text">Aucun cycle naturel</div></div>';
-        return;
+        container.innerHTML = `
+            <div class="temporal-block-empty">
+                <span class="temporal-block-icon">🌀</span>
+                <span>Cliquez pour créer votre système temporel</span>
+            </div>
+        `;
+    } else {
+        // Show summary with cycle tags
+        let cyclesHtml = '';
+        cycles.forEach((cycle, i) => {
+            const isFirst = i === 0;
+            const isLast = i === cycles.length - 1;
+            let typeClass = 'intermediate';
+            if (isFirst) typeClass = 'alpha';
+            else if (isLast) typeClass = 'omega';
+
+            if (i > 0) {
+                cyclesHtml += '<span class="temporal-arrow">→</span>';
+            }
+            cyclesHtml += `<span class="temporal-cycle-tag ${typeClass}">${cycle.name}</span>`;
+        });
+
+        container.innerHTML = `
+            <div class="temporal-block-summary">
+                <div class="temporal-block-title">Système Temporel</div>
+                <div class="temporal-block-cycles">${cyclesHtml}</div>
+                <div class="temporal-block-hint">Cliquez pour modifier</div>
+            </div>
+        `;
+    }
+}
+
+// Open the temporal modal
+function openTemporalModal() {
+    const universe = appData.universes[appData.currentUniverse];
+    const cycles = universe.temporalSystem?.naturalCycles || [];
+
+    // Copy cycles to temp state for editing
+    if (cycles.length === 0) {
+        // Initialize with Alpha and Omega
+        tempCycles = [
+            { name: '', unitsPerNext: 365 },
+            { name: '', unitsPerNext: 1 }
+        ];
+    } else {
+        tempCycles = cycles.map(c => ({ ...c }));
     }
 
-    // Calculate cumulative values from Alpha to each cycle
-    const cumulativeFromAlpha = calculateCumulativeCycles(cycles);
+    renderModalCycles();
 
-    cycles.forEach((cycle, index) => {
+    // Show/hide buttons based on state
+    document.getElementById('addIntermediateBtn').style.display = 'block';
+    document.getElementById('deleteTemporalBtn').style.display = cycles.length > 0 ? 'block' : 'none';
+
+    document.getElementById('temporalModal').classList.add('active');
+}
+
+function closeTemporalModal() {
+    document.getElementById('temporalModal').classList.remove('active');
+    tempCycles = [];
+}
+
+// Render cycles in the modal editor
+function renderModalCycles() {
+    const container = document.getElementById('temporalCyclesList');
+    container.innerHTML = '';
+
+    tempCycles.forEach((cycle, index) => {
         const isFirst = index === 0;
-        const isLast = index === cycles.length - 1;
-        const isSingle = cycles.length === 1;
+        const isLast = index === tempCycles.length - 1;
+        const isIntermediate = !isFirst && !isLast;
 
-        // Determine cycle type label
+        let typeClass = 'intermediate';
         let typeLabel = 'Intermédiaire';
-        if (isSingle) {
-            typeLabel = 'Cycle unique';
-        } else if (isFirst) {
-            typeLabel = 'Alpha (Plus petit)';
-        } else if (isLast) {
-            typeLabel = 'Omega (Plus grand)';
+        if (tempCycles.length === 2) {
+            if (isFirst) {
+                typeClass = 'alpha';
+                typeLabel = 'Alpha (plus petit)';
+            } else {
+                typeClass = 'omega';
+                typeLabel = 'Omega (plus grand)';
+            }
+        } else {
+            if (isFirst) {
+                typeClass = 'alpha';
+                typeLabel = 'Alpha (plus petit)';
+            } else if (isLast) {
+                typeClass = 'omega';
+                typeLabel = 'Omega (plus grand)';
+            }
         }
 
-        // Generate all conversions for this cycle
-        let conversionsHtml = '';
-        if (index > 0) {
-            const conversions = [];
-            for (let i = 0; i < index; i++) {
-                const ratio = cumulativeFromAlpha[index] / cumulativeFromAlpha[i];
-                conversions.push(`<span class="conversion-item"><span class="conversion-value">${ratio.toLocaleString()}</span> ${cycles[i].name}</span>`);
-            }
-            conversionsHtml = `
-            <div class="cycle-total">
-                <div class="cycle-total-header">= 1 ${cycle.name}</div>
-                <div class="cycle-conversions">${conversions.join('')}</div>
-            </div>
-            `;
-        }
+        const showDelete = isIntermediate && tempCycles.length > 2;
+        const showUnits = !isLast; // Don't show units for Omega
 
         const div = document.createElement('div');
-        div.className = 'cycle-item';
+        div.className = `cycle-editor-item ${typeClass}`;
         div.innerHTML = `
-            <div class="cycle-item-header">
-                <span class="cycle-type">${typeLabel}</span>
-                <div class="cycle-actions">
-                    <button class="cycle-action-btn edit" onclick="openEditCycleModal(${index})" title="Modifier">✎</button>
-                    <button class="cycle-action-btn delete" onclick="confirmDeleteCycle(${index})" title="Supprimer">✕</button>
-                </div>
+            <div class="cycle-editor-header">
+                <span class="cycle-editor-label">${typeLabel}</span>
+                ${showDelete ? `<button class="cycle-editor-delete" onclick="removeIntermediateCycle(${index})">✕</button>` : ''}
             </div>
-            <div class="cycle-name">${cycle.name}</div>
-            ${!isLast && cycles.length > 1 ? `
-            <div class="cycle-relation">
-                <span class="cycle-relation-value">${cycle.unitsPerNext || 1}</span>
-                <span>${cycle.name}</span> = 1 <span>${cycles[index + 1]?.name || 'cycle suivant'}</span>
+            <div class="cycle-editor-row">
+                <input type="text"
+                    value="${cycle.name}"
+                    placeholder="${isFirst ? 'Ex: Rotation, Jour...' : isLast ? 'Ex: Orbite, Année...' : 'Ex: Lunaison, Saison...'}"
+                    onchange="updateCycleName(${index}, this.value)">
+            </div>
+            ${showUnits ? `
+            <div class="cycle-editor-units">
+                <input type="number"
+                    value="${cycle.unitsPerNext || 1}"
+                    min="1"
+                    onchange="updateCycleUnits(${index}, this.value)">
+                <span>${cycle.name || (isFirst ? 'Alpha' : 'ce cycle')}</span> = 1 <span>${tempCycles[index + 1]?.name || (isLast ? 'Omega' : 'cycle suivant')}</span>
             </div>
             ` : ''}
-            ${conversionsHtml}
         `;
         container.appendChild(div);
     });
 }
 
-function calculateCumulativeCycles(cycles) {
-    const cumulative = [1]; // Alpha = 1 Alpha
-
-    for (let i = 0; i < cycles.length - 1; i++) {
-        const prevCumulative = cumulative[i];
-        const unitsPerNext = cycles[i].unitsPerNext || 1;
-        cumulative.push(prevCumulative * unitsPerNext);
-    }
-
-    return cumulative;
+function updateCycleName(index, value) {
+    tempCycles[index].name = value.trim();
+    // Re-render to update the unit labels
+    renderModalCycles();
 }
 
-// Modal state for cycle editing
-let cycleModalState = {
-    mode: 'first', // 'first', 'intermediate', 'edit'
-    editIndex: null
-};
-
-function addNaturalCycle() {
-    const universe = appData.universes[appData.currentUniverse];
-    if (!universe.temporalSystem) {
-        universe.temporalSystem = { naturalCycles: [] };
-    }
-
-    const cycles = universe.temporalSystem.naturalCycles;
-
-    // Hide all sections first
-    document.getElementById('cycleFirstCreation').style.display = 'none';
-    document.getElementById('cycleIntermediateCreation').style.display = 'none';
-    document.getElementById('cycleEditMode').style.display = 'none';
-
-    if (cycles.length === 0) {
-        // First creation: Alpha + Omega pair
-        cycleModalState = { mode: 'first', editIndex: null };
-        document.getElementById('cycleModalTitle').textContent = 'Créer les cycles Alpha et Omega';
-        document.getElementById('cycleFirstCreation').style.display = 'block';
-        document.getElementById('cycleAlphaName').value = '';
-        document.getElementById('cycleOmegaName').value = '';
-        document.getElementById('cycleAlphaPerOmega').value = '365';
-        document.getElementById('cycleSaveBtn').textContent = 'Créer';
-    } else {
-        // Intermediate creation
-        cycleModalState = { mode: 'intermediate', editIndex: null };
-        document.getElementById('cycleModalTitle').textContent = 'Ajouter un cycle intermédiaire';
-        document.getElementById('cycleIntermediateCreation').style.display = 'block';
-        document.getElementById('cycleName').value = '';
-        document.getElementById('cycleUnitsPerNext').value = '1';
-
-        // Update label to show Alpha name
-        const alphaName = cycles[0].name;
-        document.getElementById('cycleUnitsLabel').textContent = `Combien de ${alphaName} font 1 de ce cycle ?`;
-        document.getElementById('cycleSaveBtn').textContent = 'Ajouter';
-    }
-
-    document.getElementById('cycleModal').classList.add('active');
+function updateCycleUnits(index, value) {
+    tempCycles[index].unitsPerNext = parseInt(value) || 1;
 }
 
-function openEditCycleModal(index) {
-    const universe = appData.universes[appData.currentUniverse];
-    const cycle = universe.temporalSystem.naturalCycles[index];
-    const cycles = universe.temporalSystem.naturalCycles;
-    const isLast = index === cycles.length - 1;
+function addIntermediateCycle() {
+    if (tempCycles.length < 2) return;
 
-    cycleModalState = { mode: 'edit', editIndex: index };
+    // Insert before Omega (last element)
+    const omegaIndex = tempCycles.length - 1;
+    tempCycles.splice(omegaIndex, 0, {
+        name: '',
+        unitsPerNext: 1
+    });
 
-    // Hide all sections first
-    document.getElementById('cycleFirstCreation').style.display = 'none';
-    document.getElementById('cycleIntermediateCreation').style.display = 'none';
-    document.getElementById('cycleEditMode').style.display = 'block';
-
-    document.getElementById('cycleModalTitle').textContent = 'Modifier le cycle';
-    document.getElementById('cycleEditName').value = cycle.name;
-    document.getElementById('cycleEditUnitsPerNext').value = cycle.unitsPerNext || 1;
-
-    // Hide units field for the last cycle (Omega) if more than one cycle
-    if (isLast && cycles.length > 1) {
-        document.getElementById('cycleEditUnitsRow').style.display = 'none';
-    } else {
-        document.getElementById('cycleEditUnitsRow').style.display = 'block';
-        // Update label
-        if (index < cycles.length - 1) {
-            document.getElementById('cycleEditUnitsLabel').textContent = `Combien de ${cycle.name} font 1 ${cycles[index + 1].name} ?`;
-        } else {
-            document.getElementById('cycleEditUnitsLabel').textContent = 'Unités pour le cycle suivant';
-        }
-    }
-
-    document.getElementById('cycleSaveBtn').textContent = 'Enregistrer';
-
-    document.getElementById('cycleModal').classList.add('active');
+    renderModalCycles();
 }
 
-function closeCycleModal() {
-    document.getElementById('cycleModal').classList.remove('active');
-}
-
-function saveCycle() {
-    const universe = appData.universes[appData.currentUniverse];
-    if (!universe.temporalSystem) {
-        universe.temporalSystem = { naturalCycles: [] };
+function removeIntermediateCycle(index) {
+    if (index > 0 && index < tempCycles.length - 1) {
+        tempCycles.splice(index, 1);
+        renderModalCycles();
     }
-
-    const cycles = universe.temporalSystem.naturalCycles;
-
-    if (cycleModalState.mode === 'first') {
-        // Creating Alpha + Omega pair
-        const alphaName = document.getElementById('cycleAlphaName').value.trim();
-        const omegaName = document.getElementById('cycleOmegaName').value.trim();
-        const alphaPerOmega = parseInt(document.getElementById('cycleAlphaPerOmega').value) || 1;
-
-        if (!alphaName) {
-            showToast('Entrez un nom pour le cycle Alpha');
-            return;
-        }
-        if (!omegaName) {
-            showToast('Entrez un nom pour le cycle Omega');
-            return;
-        }
-
-        // Add Alpha (index 0)
-        cycles.push({
-            name: alphaName,
-            unitsPerNext: alphaPerOmega
-        });
-
-        // Add Omega (index 1)
-        cycles.push({
-            name: omegaName,
-            unitsPerNext: 1 // Omega has no next
-        });
-
-        showToast('Cycles Alpha et Omega créés');
-
-    } else if (cycleModalState.mode === 'intermediate') {
-        // Adding intermediate cycle
-        const name = document.getElementById('cycleName').value.trim();
-        const unitsFromAlpha = parseInt(document.getElementById('cycleUnitsPerNext').value) || 1;
-
-        if (!name) {
-            showToast('Entrez un nom pour le cycle');
-            return;
-        }
-
-        // Insert before Omega (last element)
-        // We need to calculate how many of this cycle make one Omega
-        // Current: Alpha.unitsPerNext = how many Alpha per Omega
-        // New: Alpha.unitsPerNext = unitsFromAlpha (how many Alpha per New)
-        //      New.unitsPerNext = oldAlphaPerOmega / unitsFromAlpha (how many New per Omega)
-
-        const omegaIndex = cycles.length - 1;
-        const previousCycle = cycles[omegaIndex - 1];
-        const oldUnitsPerOmega = previousCycle.unitsPerNext;
-
-        // Calculate how many of the new cycle fit in one Omega
-        const newUnitsPerOmega = Math.max(1, Math.round(oldUnitsPerOmega / unitsFromAlpha));
-
-        // Update previous cycle to point to new cycle
-        previousCycle.unitsPerNext = unitsFromAlpha;
-
-        // Insert new intermediate cycle before Omega
-        cycles.splice(omegaIndex, 0, {
-            name: name,
-            unitsPerNext: newUnitsPerOmega
-        });
-
-        showToast('Cycle intermédiaire ajouté');
-
-    } else if (cycleModalState.mode === 'edit') {
-        // Editing existing cycle
-        const name = document.getElementById('cycleEditName').value.trim();
-        const unitsPerNext = parseInt(document.getElementById('cycleEditUnitsPerNext').value) || 1;
-
-        if (!name) {
-            showToast('Entrez un nom pour le cycle');
-            return;
-        }
-
-        cycles[cycleModalState.editIndex].name = name;
-        cycles[cycleModalState.editIndex].unitsPerNext = unitsPerNext;
-
-        showToast('Cycle modifié');
-    }
-
-    closeCycleModal();
-    renderNaturalCycles();
-}
-
-function confirmDeleteCycle(index) {
-    const universe = appData.universes[appData.currentUniverse];
-    const cycle = universe.temporalSystem.naturalCycles[index];
-
-    if (confirm(`Supprimer le cycle "${cycle.name}" ?`)) {
-        removeNaturalCycle(index);
-    }
-}
-
-function removeNaturalCycle(index) {
-    const universe = appData.universes[appData.currentUniverse];
-    const cycles = universe.temporalSystem.naturalCycles;
-
-    // If deleting Alpha or Omega and there are only 2 cycles, delete both
-    if (cycles.length === 2) {
-        cycles.length = 0; // Clear array
-        showToast('Cycles supprimés');
-    } else if (index === 0) {
-        // Deleting Alpha: next cycle becomes new Alpha
-        cycles.splice(0, 1);
-        showToast('Cycle Alpha supprimé');
-    } else if (index === cycles.length - 1) {
-        // Deleting Omega: previous becomes new Omega
-        cycles.splice(index, 1);
-        showToast('Cycle Omega supprimé');
-    } else {
-        // Deleting intermediate: recalculate units
-        const prevCycle = cycles[index - 1];
-        const deletedCycle = cycles[index];
-        // Merge the units: prev now goes directly to what deleted pointed to
-        prevCycle.unitsPerNext = prevCycle.unitsPerNext * deletedCycle.unitsPerNext;
-        cycles.splice(index, 1);
-        showToast('Cycle supprimé');
-    }
-
-    renderNaturalCycles();
-}
-
-// Keep for backwards compatibility
-function openCreateCycleModal() {
-    addNaturalCycle();
 }
 
 async function saveTemporalSystem() {
+    // Validate that all cycles have names
+    for (let i = 0; i < tempCycles.length; i++) {
+        if (!tempCycles[i].name) {
+            const isFirst = i === 0;
+            const isLast = i === tempCycles.length - 1;
+            const label = isFirst ? 'Alpha' : isLast ? 'Omega' : 'intermédiaire';
+            showToast(`Entrez un nom pour le cycle ${label}`);
+            return;
+        }
+    }
+
     const universe = appData.universes[appData.currentUniverse];
+    universe.temporalSystem.naturalCycles = tempCycles.map(c => ({ ...c }));
+
     await saveAppData();
-    showToast('Cycles enregistrés');
+    closeTemporalModal();
+    renderTemporalBlock();
+    showToast('Système temporel enregistré');
+}
+
+async function deleteTemporalSystem() {
+    if (!confirm('Supprimer le système temporel complet ?')) {
+        return;
+    }
+
+    const universe = appData.universes[appData.currentUniverse];
+    universe.temporalSystem.naturalCycles = [];
+
+    await saveAppData();
+    closeTemporalModal();
+    renderTemporalBlock();
+    showToast('Système temporel supprimé');
+}
+
+// Legacy function names for compatibility
+function renderNaturalCycles() {
+    renderTemporalBlock();
+}
+
+function addNaturalCycle() {
+    openTemporalModal();
 }

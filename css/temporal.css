@@ -309,3 +309,203 @@
     font-size: 14px;
     line-height: 1.6;
 }
+
+/* Temporal Block - Single clickable block */
+.temporal-block {
+    padding: clamp(20px, 4vmin, 32px);
+    background: var(--bg-secondary);
+    border: 2px dashed var(--glass-border);
+    border-radius: 16px;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.temporal-block:hover {
+    border-color: var(--accent-gold);
+    background: var(--bg-tertiary);
+}
+
+.temporal-block-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    color: var(--text-secondary);
+}
+
+.temporal-block-icon {
+    font-size: 32px;
+}
+
+.temporal-block-summary {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.temporal-block-title {
+    font-family: var(--font-display);
+    font-size: clamp(16px, 3.5vmin, 20px);
+    color: var(--accent-gold);
+    text-align: center;
+}
+
+.temporal-block-cycles {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.temporal-cycle-tag {
+    padding: 8px 16px;
+    background: var(--bg-tertiary);
+    border: 1px solid var(--glass-border);
+    border-radius: 20px;
+    font-size: 14px;
+    color: var(--text-primary);
+}
+
+.temporal-cycle-tag.alpha {
+    border-color: var(--accent-gold);
+    color: var(--accent-gold);
+}
+
+.temporal-cycle-tag.omega {
+    border-color: var(--accent-amber);
+    color: var(--accent-amber);
+}
+
+.temporal-arrow {
+    color: var(--text-muted);
+    font-size: 18px;
+}
+
+.temporal-block-hint {
+    font-size: 12px;
+    color: var(--text-muted);
+    text-align: center;
+    margin-top: 8px;
+}
+
+/* Temporal Modal - Cycles Editor */
+.temporal-cycles-editor {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.cycle-editor-item {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 16px;
+    background: var(--bg-tertiary);
+    border: 1px solid var(--glass-border);
+    border-radius: 12px;
+    position: relative;
+}
+
+.cycle-editor-item.alpha {
+    border-color: var(--accent-gold);
+}
+
+.cycle-editor-item.omega {
+    border-color: var(--accent-amber);
+}
+
+.cycle-editor-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.cycle-editor-label {
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--accent-gold);
+}
+
+.cycle-editor-item.omega .cycle-editor-label {
+    color: var(--accent-amber);
+}
+
+.cycle-editor-item.intermediate .cycle-editor-label {
+    color: var(--text-secondary);
+}
+
+.cycle-editor-delete {
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    cursor: pointer;
+    font-size: 18px;
+    padding: 4px;
+    transition: var(--transition);
+}
+
+.cycle-editor-delete:hover {
+    color: #ff6b6b;
+}
+
+.cycle-editor-row {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+}
+
+.cycle-editor-row input[type="text"] {
+    flex: 1;
+    padding: 12px 14px;
+    background: var(--bg-secondary);
+    border: 1px solid var(--glass-border);
+    border-radius: 8px;
+    color: var(--text-primary);
+    font-size: 15px;
+    font-family: var(--font-display);
+}
+
+.cycle-editor-row input[type="text"]:focus {
+    outline: none;
+    border-color: var(--accent-gold);
+}
+
+.cycle-editor-units {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 14px;
+    background: rgba(212, 175, 55, 0.1);
+    border-radius: 8px;
+    font-size: 14px;
+    color: var(--text-secondary);
+}
+
+.cycle-editor-units input[type="number"] {
+    width: 80px;
+    padding: 8px 10px;
+    background: var(--bg-secondary);
+    border: 1px solid var(--glass-border);
+    border-radius: 6px;
+    color: var(--accent-amber);
+    font-size: 16px;
+    font-weight: 700;
+    text-align: center;
+}
+
+.cycle-editor-units input[type="number"]:focus {
+    outline: none;
+    border-color: var(--accent-gold);
+}
+
+.cycle-editor-units span {
+    color: var(--accent-gold);
+}
+
+/* Modal large variant */
+.modal.modal-large {
+    max-width: 550px;
+}

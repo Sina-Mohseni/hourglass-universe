@@ -148,16 +148,17 @@
             <div id="universeTimeline" style="display:none">
                 <div class="temporal-system-container">
                     <h3 class="temporal-title">Cycles Naturels</h3>
-                    <p class="temporal-desc">Définissez les cycles naturels de votre univers (rotations, orbites, phénomènes astronomiques). Ces cycles pourront être utilisés comme base pour les calendriers.</p>
+                    <p class="temporal-desc">Définissez les cycles naturels de votre univers. Ces cycles pourront être utilisés comme base pour les calendriers.</p>
 
-                    <!-- Natural Cycles List -->
-                    <div id="naturalCyclesConfig">
-                        <div class="cycles-list" id="naturalCyclesList"></div>
-                        <button class="btn btn-secondary" onclick="addNaturalCycle()" style="margin-top:15px;width:100%">+ Ajouter un cycle naturel</button>
-                        <p class="cycles-help">Le cycle Alpha est le plus petit (ex: rotation planétaire). Le cycle Omega est le plus grand (ex: orbite stellaire).</p>
+                    <!-- Single clickable block for temporal system -->
+                    <div id="temporalSystemBlock" class="temporal-block" onclick="openTemporalModal()">
+                        <div class="temporal-block-content" id="temporalBlockContent">
+                            <div class="temporal-block-empty">
+                                <span class="temporal-block-icon">🌀</span>
+                                <span>Cliquez pour créer votre système temporel</span>
+                            </div>
+                        </div>
                     </div>
-
-                    <button class="btn btn-primary" onclick="saveTemporalSystem()" style="margin-top:20px;width:100%">Enregistrer les cycles</button>
                 </div>
             </div>
         </div>
@@ -580,57 +581,26 @@
         </div>
     </div>
 
-    <!-- Cycle Modal -->
-    <div class="modal-overlay" id="cycleModal">
-        <div class="modal">
+    <!-- Temporal System Modal -->
+    <div class="modal-overlay" id="temporalModal">
+        <div class="modal modal-large">
             <div class="modal-header">
-                <h2 class="modal-title" id="cycleModalTitle">Nouveau cycle naturel</h2>
-                <button class="modal-close" onclick="closeCycleModal()">✕</button>
+                <h2 class="modal-title">Système Temporel</h2>
+                <button class="modal-close" onclick="closeTemporalModal()">✕</button>
             </div>
             <div class="modal-body">
-                <!-- First creation: Alpha + Omega pair -->
-                <div id="cycleFirstCreation">
-                    <p class="form-help" style="margin-bottom:16px">Créez votre premier couple de cycles : Alpha (le plus petit) et Omega (le plus grand).</p>
-                    <div class="form-group">
-                        <label class="form-label">Nom du cycle Alpha (plus petit)</label>
-                        <input type="text" class="form-input" id="cycleAlphaName" placeholder="Ex: Rotation, Jour, Pulsation...">
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Nom du cycle Omega (plus grand)</label>
-                        <input type="text" class="form-input" id="cycleOmegaName" placeholder="Ex: Orbite, Année, Révolution...">
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Combien d'Alpha font 1 Omega ?</label>
-                        <input type="number" class="form-input" id="cycleAlphaPerOmega" value="365" min="1">
-                    </div>
-                </div>
-                <!-- Subsequent creation: Intermediate cycle -->
-                <div id="cycleIntermediateCreation" style="display:none">
-                    <p class="form-help" style="margin-bottom:16px">Ajoutez un cycle intermédiaire entre Alpha et Omega.</p>
-                    <div class="form-group">
-                        <label class="form-label">Nom du cycle intermédiaire</label>
-                        <input type="text" class="form-input" id="cycleName" placeholder="Ex: Lunaison, Saison, Semaine...">
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label" id="cycleUnitsLabel">Combien d'Alpha font 1 de ce cycle ?</label>
-                        <input type="number" class="form-input" id="cycleUnitsPerNext" value="1" min="1">
-                    </div>
-                </div>
-                <!-- Edit mode -->
-                <div id="cycleEditMode" style="display:none">
-                    <div class="form-group">
-                        <label class="form-label">Nom du cycle</label>
-                        <input type="text" class="form-input" id="cycleEditName" placeholder="Nom du cycle...">
-                    </div>
-                    <div class="form-group" id="cycleEditUnitsRow">
-                        <label class="form-label" id="cycleEditUnitsLabel">Unités pour le cycle suivant</label>
-                        <input type="number" class="form-input" id="cycleEditUnitsPerNext" value="1" min="1">
-                    </div>
-                </div>
+                <p class="form-help" style="margin-bottom:16px">Définissez vos cycles du plus petit (Alpha) au plus grand (Omega). Ajoutez des cycles intermédiaires entre eux.</p>
+
+                <!-- Cycles list with inline editing -->
+                <div id="temporalCyclesList" class="temporal-cycles-editor"></div>
+
+                <!-- Add intermediate cycle button -->
+                <button class="btn btn-secondary" id="addIntermediateBtn" onclick="addIntermediateCycle()" style="margin-top:15px;width:100%;display:none">+ Ajouter un cycle intermédiaire</button>
             </div>
             <div class="modal-footer">
-                <button class="btn btn-secondary" onclick="closeCycleModal()">Annuler</button>
-                <button class="btn btn-primary" id="cycleSaveBtn" onclick="saveCycle()">Créer</button>
+                <button class="btn btn-danger" id="deleteTemporalBtn" onclick="deleteTemporalSystem()" style="display:none">Supprimer</button>
+                <button class="btn btn-secondary" onclick="closeTemporalModal()">Annuler</button>
+                <button class="btn btn-primary" onclick="saveTemporalSystem()">Enregistrer</button>
             </div>
         </div>
     </div>
