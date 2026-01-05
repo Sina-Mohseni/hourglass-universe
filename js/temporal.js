@@ -1,31 +1,34 @@
 /* =============================================
-   TEMPORAL SYSTEM - Multiple Systems Support
+   TEMPORAL SYSTEM - Celestial Bodies with Internal/External Cycles
    ============================================= */
 
-// Cycle types
-const CYCLE_TYPES = {
-    INTERNAL: 'internal',  // Rotation sur soi-même
-    EXTERNAL: 'external'   // Orbite autour d'un autre corps
-};
-
 // Temporary state for editing in modal
-let tempCycles = [];
+let tempBodies = [];
 let tempSystemName = '';
 let editingSystemIndex = null;
 
 function loadTemporalSystem() {
     const universe = appData.universes[appData.currentUniverse];
-    // Migrate old single system to new array format
+    // Migrate old formats
     if (universe.temporalSystem && !universe.temporalSystems) {
         if (universe.temporalSystem.naturalCycles && universe.temporalSystem.naturalCycles.length > 0) {
             universe.temporalSystems = [{
                 name: 'Système principal',
-                cycles: universe.temporalSystem.naturalCycles
+                bodies: migrateOldCyclesToBodies(universe.temporalSystem.naturalCycles)
             }];
         } else {
             universe.temporalSystems = [];
         }
         delete universe.temporalSystem;
+    }
+    // Migrate from cycles to bodies format
+    if (universe.temporalSystems) {
+        universe.temporalSystems.forEach(system => {
+            if (system.cycles && !system.bodies) {
+                system.bodies = migrateOldCyclesToBodies(system.cycles);
+                delete system.cycles;
+            }
+        });
     }
     if (!universe.temporalSystems) {
         universe.temporalSystems = [];
@@ -33,23 +36,60 @@ function loadTemporalSystem() {
     renderTemporalSystems();
 }
 
-// Calculate cumulative values from Alpha
-function calculateCumulativeFromAlpha(cycles) {
-    const cumulative = [1];
-    for (let i = 0; i < cycles.length - 1; i++) {
-        cumulative.push(cumulative[i] * (cycles[i].unitsPerNext || 1));
-    }
-    return cumulative;
+function migrateOldCyclesToBodies(cycles) {
+    return cycles.map((cycle, i) => ({
+        name: cycle.name,
+        internalName: cycle.name,
+        externalName: i < cycles.length - 1 ? `Orbite ${cycle.name}` : '',
+        internalPerExternal: cycle.unitsPerNext || 1,
+        externalPerNextInternal: 1
+    }));
 }
 
-// Get cycle type icon
-function getCycleTypeIcon(type) {
-    return type === CYCLE_TYPES.EXTERNAL ? '◎' : '⟳';
+// Get all cycles as a flat list for conversions
+function getAllCycles(bodies) {
+    const cycles = [];
+    bodies.forEach((body, i) => {
+        cycles.push({
+            name: body.internalName || body.name,
+            type: 'internal',
+            bodyIndex: i,
+            bodyName: body.name
+        });
+        if (i < bodies.length - 1 && body.externalName) {
+            cycles.push({
+                name: body.externalName,
+                type: 'external',
+                bodyIndex: i,
+                bodyName: body.name
+            });
+        }
+    });
+    return cycles;
 }
 
-// Get cycle type label
-function getCycleTypeLabel(type) {
-    return type === CYCLE_TYPES.EXTERNAL ? 'Extérieur' : 'Intérieur';
+// Calculate cumulative values from the smallest unit (first body's internal)
+function calculateAllConversions(bodies) {
+    const conversions = {};
+    let cumulative = 1;
+
+    bodies.forEach((body, i) => {
+        // Internal cycle of this body
+        const intKey = `${i}-internal`;
+        conversions[intKey] = cumulative;
+
+        // External cycle of this body (if not last)
+        if (i < bodies.length - 1) {
+            cumulative *= body.internalPerExternal || 1;
+            const extKey = `${i}-external`;
+            conversions[extKey] = cumulative;
+
+            // Transition to next body's internal
+            cumulative *= body.externalPerNextInternal || 1;
+        }
+    });
+
+    return conversions;
 }
 
 // Render all temporal systems as clickable cards
@@ -70,32 +110,39 @@ function renderTemporalSystems() {
 
     container.innerHTML = '';
     systems.forEach((system, index) => {
-        const cycles = system.cycles || [];
-        const cumulative = calculateCumulativeFromAlpha(cycles);
+        const bodies = system.bodies || [];
+        const conversions = calculateAllConversions(bodies);
 
-        // Build cycles chain with type icons
-        let cyclesHtml = '';
-        cycles.forEach((cycle, i) => {
+        // Build bodies chain
+        let bodiesHtml = '';
+        bodies.forEach((body, i) => {
             const isFirst = i === 0;
-            const isLast = i === cycles.length - 1;
-            let posClass = 'intermediate';
-            if (isFirst) posClass = 'alpha';
-            else if (isLast) posClass = 'omega';
+            const isLast = i === bodies.length - 1;
+            let posClass = isFirst ? 'alpha' : (isLast ? 'omega' : 'intermediate');
 
-            const typeClass = cycle.type === CYCLE_TYPES.EXTERNAL ? 'external' : 'internal';
-            const typeIcon = getCycleTypeIcon(cycle.type);
-
-            if (i > 0) cyclesHtml += '<span class="temporal-arrow">→</span>';
-            cyclesHtml += `<span class="temporal-cycle-tag ${posClass} ${typeClass}"><span class="cycle-type-icon">${typeIcon}</span>${cycle.name}</span>`;
+            if (i > 0) bodiesHtml += '<span class="temporal-arrow">→</span>';
+            bodiesHtml += `
+                <span class="temporal-body-tag ${posClass}">
+                    <span class="body-name">${body.name}</span>
+                    <span class="body-cycles">
+                        <span class="cycle-badge internal" title="Cycle intérieur">⟳ ${body.internalName || body.name}</span>
+                        ${!isLast && body.externalName ? `<span class="cycle-badge external" title="Cycle extérieur">◎ ${body.externalName}</span>` : ''}
+                    </span>
+                </span>
+            `;
         });
 
-        // Build conversions (show how many Alpha make each cycle)
+        // Build conversions summary
         let conversionsHtml = '';
-        if (cycles.length >= 2) {
-            for (let i = 1; i < cycles.length; i++) {
-                const typeIcon = getCycleTypeIcon(cycles[i].type);
-                conversionsHtml += `<span class="temporal-conversion-tag"><strong>${cumulative[i].toLocaleString()}</strong> ${cycles[0].name} = 1 ${typeIcon} ${cycles[i].name}</span>`;
-            }
+        if (bodies.length >= 2) {
+            const allCycles = getAllCycles(bodies);
+            const lastCycle = allCycles[allCycles.length - 1];
+            const lastKey = `${lastCycle.bodyIndex}-${lastCycle.type}`;
+            const lastValue = conversions[lastKey];
+
+            // Show conversion from first internal to last cycle
+            const firstName = bodies[0].internalName || bodies[0].name;
+            conversionsHtml = `<span class="temporal-conversion-tag"><strong>${lastValue.toLocaleString()}</strong> ⟳ ${firstName} = 1 ${lastCycle.type === 'internal' ? '⟳' : '◎'} ${lastCycle.name}</span>`;
         }
 
         const div = document.createElement('div');
@@ -103,7 +150,7 @@ function renderTemporalSystems() {
         div.onclick = () => openTemporalModal(index);
         div.innerHTML = `
             <div class="temporal-system-name">${system.name || 'Système sans nom'}</div>
-            <div class="temporal-system-cycles">${cyclesHtml}</div>
+            <div class="temporal-system-bodies">${bodiesHtml}</div>
             ${conversionsHtml ? `<div class="temporal-system-conversions">${conversionsHtml}</div>` : ''}
         `;
         container.appendChild(div);
@@ -116,25 +163,24 @@ function openTemporalModal(index = null) {
     editingSystemIndex = index;
 
     if (index !== null) {
-        // Editing existing system
         const system = universe.temporalSystems[index];
         tempSystemName = system.name || '';
-        tempCycles = system.cycles.map(c => ({ ...c }));
+        tempBodies = system.bodies.map(b => ({ ...b }));
         document.getElementById('temporalModalTitle').textContent = 'Modifier le système';
         document.getElementById('deleteTemporalBtn').style.display = 'block';
     } else {
-        // Creating new system
         tempSystemName = '';
-        tempCycles = [
-            { name: '', unitsPerNext: 365, type: CYCLE_TYPES.INTERNAL },
-            { name: '', unitsPerNext: 1, type: CYCLE_TYPES.EXTERNAL }
+        tempBodies = [
+            { name: '', internalName: '', externalName: '', internalPerExternal: 27, externalPerNextInternal: 1 },
+            { name: '', internalName: '', externalName: '', internalPerExternal: 365, externalPerNextInternal: 1 },
+            { name: '', internalName: '', externalName: '', internalPerExternal: 1, externalPerNextInternal: 1 }
         ];
         document.getElementById('temporalModalTitle').textContent = 'Nouveau Système Temporel';
         document.getElementById('deleteTemporalBtn').style.display = 'none';
     }
 
     document.getElementById('temporalSystemName').value = tempSystemName;
-    renderModalCycles();
+    renderModalBodies();
     updateConversionsSection();
 
     document.getElementById('temporalModal').classList.add('active');
@@ -142,68 +188,93 @@ function openTemporalModal(index = null) {
 
 function closeTemporalModal() {
     document.getElementById('temporalModal').classList.remove('active');
-    tempCycles = [];
+    tempBodies = [];
     tempSystemName = '';
     editingSystemIndex = null;
 }
 
-// Render cycles in the modal editor
-function renderModalCycles() {
+// Render bodies in the modal editor
+function renderModalBodies() {
     const container = document.getElementById('temporalCyclesList');
     container.innerHTML = '';
 
-    tempCycles.forEach((cycle, index) => {
+    tempBodies.forEach((body, index) => {
         const isFirst = index === 0;
-        const isLast = index === tempCycles.length - 1;
-        const isIntermediate = !isFirst && !isLast;
+        const isLast = index === tempBodies.length - 1;
 
         let posClass = 'intermediate';
-        let posLabel = 'Intermédiaire';
-        if (tempCycles.length === 2) {
+        let posLabel = 'Corps intermédiaire';
+        if (tempBodies.length <= 2) {
             posClass = isFirst ? 'alpha' : 'omega';
-            posLabel = isFirst ? 'Alpha (plus petit)' : 'Omega (plus grand)';
+            posLabel = isFirst ? 'Corps Alpha (plus petit)' : 'Corps Omega (plus grand)';
         } else {
-            if (isFirst) { posClass = 'alpha'; posLabel = 'Alpha (plus petit)'; }
-            else if (isLast) { posClass = 'omega'; posLabel = 'Omega (plus grand)'; }
+            if (isFirst) { posClass = 'alpha'; posLabel = 'Corps Alpha (plus petit)'; }
+            else if (isLast) { posClass = 'omega'; posLabel = 'Corps Omega (plus grand)'; }
         }
 
-        const showDelete = isIntermediate && tempCycles.length > 2;
-        const showUnits = !isLast;
-        const cycleType = cycle.type || CYCLE_TYPES.INTERNAL;
+        const showDelete = !isFirst && !isLast && tempBodies.length > 2;
 
         const div = document.createElement('div');
-        div.className = `cycle-editor-item ${posClass}`;
+        div.className = `cycle-editor-item body-editor ${posClass}`;
         div.innerHTML = `
             <div class="cycle-editor-header">
                 <span class="cycle-editor-label">${posLabel}</span>
-                ${showDelete ? `<button class="cycle-editor-delete" onclick="removeIntermediateCycle(${index})">✕</button>` : ''}
+                ${showDelete ? `<button class="cycle-editor-delete" onclick="removeBody(${index})">✕</button>` : ''}
             </div>
-            <div class="cycle-editor-row">
-                <input type="text"
-                    value="${cycle.name}"
-                    placeholder="${isFirst ? 'Ex: Rotation, Jour...' : isLast ? 'Ex: Orbite, Année...' : 'Ex: Lunaison, Saison...'}"
-                    onchange="updateCycleName(${index}, this.value)"
-                    oninput="updateCycleNameLive(${index}, this.value)">
+
+            <!-- Body name -->
+            <div class="body-name-row">
+                <input type="text" class="form-input body-name-input"
+                    value="${body.name}"
+                    placeholder="Nom du corps (ex: Lune, Terre, Soleil...)"
+                    onchange="updateBodyName(${index}, this.value)">
             </div>
-            <div class="cycle-type-selector">
-                <button class="cycle-type-btn ${cycleType === CYCLE_TYPES.INTERNAL ? 'active' : ''}"
-                    onclick="updateCycleType(${index}, '${CYCLE_TYPES.INTERNAL}')" title="Rotation sur soi-même">
-                    <span class="cycle-type-icon">⟳</span>
-                    <span>Intérieur</span>
-                </button>
-                <button class="cycle-type-btn ${cycleType === CYCLE_TYPES.EXTERNAL ? 'active' : ''}"
-                    onclick="updateCycleType(${index}, '${CYCLE_TYPES.EXTERNAL}')" title="Orbite autour d'un astre">
-                    <span class="cycle-type-icon">◎</span>
-                    <span>Extérieur</span>
-                </button>
+
+            <!-- Internal cycle -->
+            <div class="body-cycle-section internal">
+                <div class="body-cycle-header">
+                    <span class="body-cycle-icon">⟳</span>
+                    <span class="body-cycle-label">Cycle intérieur (rotation)</span>
+                </div>
+                <input type="text" class="form-input"
+                    value="${body.internalName}"
+                    placeholder="Ex: Rotation lunaire, Jour..."
+                    onchange="updateBodyInternal(${index}, this.value)">
             </div>
-            ${showUnits ? `
-            <div class="cycle-editor-units">
-                <input type="number"
-                    value="${cycle.unitsPerNext || 1}"
-                    min="1"
-                    onchange="updateCycleUnits(${index}, this.value)">
-                <span>${cycle.name || (isFirst ? 'Alpha' : 'ce cycle')}</span> = 1 <span>${tempCycles[index + 1]?.name || 'suivant'}</span>
+
+            ${!isLast ? `
+            <!-- External cycle -->
+            <div class="body-cycle-section external">
+                <div class="body-cycle-header">
+                    <span class="body-cycle-icon">◎</span>
+                    <span class="body-cycle-label">Cycle extérieur (orbite)</span>
+                </div>
+                <input type="text" class="form-input"
+                    value="${body.externalName}"
+                    placeholder="Ex: Orbite lunaire, Mois..."
+                    onchange="updateBodyExternal(${index}, this.value)">
+            </div>
+
+            <!-- Ratio: Internal per External -->
+            <div class="body-ratio-section">
+                <div class="body-ratio-row">
+                    <input type="number" class="ratio-input"
+                        value="${body.internalPerExternal || 1}"
+                        min="1"
+                        onchange="updateInternalPerExternal(${index}, this.value)">
+                    <span class="ratio-text">⟳ ${body.internalName || 'intérieur'} = 1 ◎ ${body.externalName || 'extérieur'}</span>
+                </div>
+            </div>
+
+            <!-- Ratio: External to next Internal -->
+            <div class="body-ratio-section next-ratio">
+                <div class="body-ratio-row">
+                    <input type="number" class="ratio-input"
+                        value="${body.externalPerNextInternal || 1}"
+                        min="1"
+                        onchange="updateExternalPerNext(${index}, this.value)">
+                    <span class="ratio-text">◎ ${body.externalName || 'orbite'} = <span class="ratio-input-display">${body.externalPerNextInternal || 1}</span> ⟳ ${tempBodies[index + 1]?.internalName || tempBodies[index + 1]?.name || 'suivant'}</span>
+                </div>
             </div>
             ` : ''}
         `;
@@ -213,37 +284,52 @@ function renderModalCycles() {
     updateConversionsSection();
 }
 
-function updateCycleName(index, value) {
-    tempCycles[index].name = value.trim();
-    renderModalCycles();
+function updateBodyName(index, value) {
+    tempBodies[index].name = value.trim();
+    // Auto-fill internal name if empty
+    if (!tempBodies[index].internalName) {
+        tempBodies[index].internalName = value.trim();
+    }
+    renderModalBodies();
 }
 
-function updateCycleNameLive(index, value) {
-    tempCycles[index].name = value.trim();
+function updateBodyInternal(index, value) {
+    tempBodies[index].internalName = value.trim();
+    renderModalBodies();
+}
+
+function updateBodyExternal(index, value) {
+    tempBodies[index].externalName = value.trim();
+    renderModalBodies();
+}
+
+function updateInternalPerExternal(index, value) {
+    tempBodies[index].internalPerExternal = parseInt(value) || 1;
     updateConversionsSection();
 }
 
-function updateCycleUnits(index, value) {
-    tempCycles[index].unitsPerNext = parseInt(value) || 1;
+function updateExternalPerNext(index, value) {
+    tempBodies[index].externalPerNextInternal = parseInt(value) || 1;
     updateConversionsSection();
-}
-
-function updateCycleType(index, type) {
-    tempCycles[index].type = type;
-    renderModalCycles();
 }
 
 function addIntermediateCycle() {
-    if (tempCycles.length < 2) return;
-    const omegaIndex = tempCycles.length - 1;
-    tempCycles.splice(omegaIndex, 0, { name: '', unitsPerNext: 1, type: CYCLE_TYPES.INTERNAL });
-    renderModalCycles();
+    if (tempBodies.length < 2) return;
+    const lastIndex = tempBodies.length - 1;
+    tempBodies.splice(lastIndex, 0, {
+        name: '',
+        internalName: '',
+        externalName: '',
+        internalPerExternal: 1,
+        externalPerNextInternal: 1
+    });
+    renderModalBodies();
 }
 
-function removeIntermediateCycle(index) {
-    if (index > 0 && index < tempCycles.length - 1) {
-        tempCycles.splice(index, 1);
-        renderModalCycles();
+function removeBody(index) {
+    if (index > 0 && index < tempBodies.length - 1) {
+        tempBodies.splice(index, 1);
+        renderModalBodies();
     }
 }
 
@@ -252,8 +338,9 @@ function updateConversionsSection() {
     const section = document.getElementById('cycleConversions');
     const select = document.getElementById('conversionCycleSelect');
 
-    // Check if we have at least 2 named cycles
-    const namedCycles = tempCycles.filter(c => c.name);
+    const allCycles = getAllCycles(tempBodies);
+    const namedCycles = allCycles.filter(c => c.name);
+
     if (namedCycles.length < 2) {
         section.style.display = 'none';
         return;
@@ -261,24 +348,22 @@ function updateConversionsSection() {
 
     section.style.display = 'block';
 
-    // Populate select with cycles (excluding Alpha which is index 0)
     const currentValue = select.value;
     select.innerHTML = '';
-    tempCycles.forEach((cycle, i) => {
-        if (i > 0 && cycle.name) {
-            const typeIcon = getCycleTypeIcon(cycle.type);
+    namedCycles.forEach((cycle, i) => {
+        if (i > 0) { // Skip the first (smallest) cycle
+            const icon = cycle.type === 'internal' ? '⟳' : '◎';
             const option = document.createElement('option');
-            option.value = i;
-            option.textContent = `${typeIcon} ${cycle.name}`;
+            option.value = `${cycle.bodyIndex}-${cycle.type}`;
+            option.textContent = `${icon} ${cycle.name}`;
             select.appendChild(option);
         }
     });
 
-    // Restore selection or select last (Omega)
     if (currentValue && select.querySelector(`option[value="${currentValue}"]`)) {
         select.value = currentValue;
-    } else {
-        select.value = select.options[select.options.length - 1]?.value || '';
+    } else if (select.options.length > 0) {
+        select.value = select.options[select.options.length - 1].value;
     }
 
     updateConversions();
@@ -287,31 +372,41 @@ function updateConversionsSection() {
 function updateConversions() {
     const select = document.getElementById('conversionCycleSelect');
     const container = document.getElementById('conversionResults');
-    const selectedIndex = parseInt(select.value);
+    const selectedKey = select.value;
 
-    if (isNaN(selectedIndex) || selectedIndex <= 0) {
+    if (!selectedKey) {
         container.innerHTML = '';
         return;
     }
 
-    const cumulative = calculateCumulativeFromAlpha(tempCycles);
-    const selectedCycle = tempCycles[selectedIndex];
+    const conversions = calculateAllConversions(tempBodies);
+    const allCycles = getAllCycles(tempBodies);
+    const selectedValue = conversions[selectedKey];
+
+    // Find the selected cycle
+    const [bodyIdx, cycleType] = selectedKey.split('-');
+    const selectedCycle = allCycles.find(c => c.bodyIndex === parseInt(bodyIdx) && c.type === cycleType);
 
     let html = '';
-    // Show how many of each lower cycle make 1 of the selected cycle
-    for (let i = 0; i < selectedIndex; i++) {
-        const cycle = tempCycles[i];
-        if (!cycle.name) continue;
+    // Show conversions from all smaller cycles to selected
+    allCycles.forEach(cycle => {
+        const key = `${cycle.bodyIndex}-${cycle.type}`;
+        if (key === selectedKey) return;
 
-        const ratio = cumulative[selectedIndex] / cumulative[i];
-        const typeIcon = getCycleTypeIcon(cycle.type);
+        const value = conversions[key];
+        if (value >= selectedValue) return; // Skip larger cycles
+
+        const ratio = selectedValue / value;
+        const icon = cycle.type === 'internal' ? '⟳' : '◎';
+        const selectedIcon = selectedCycle.type === 'internal' ? '⟳' : '◎';
+
         html += `
             <div class="conversion-result-item">
                 <span class="conversion-result-value">${ratio.toLocaleString()}</span>
-                <span class="conversion-result-label"><span>${typeIcon} ${cycle.name}</span> = 1 ${selectedCycle.name}</span>
+                <span class="conversion-result-label">${icon} <span>${cycle.name}</span> = 1 ${selectedIcon} ${selectedCycle.name}</span>
             </div>
         `;
-    }
+    });
 
     container.innerHTML = html;
 }
@@ -324,14 +419,14 @@ async function saveTemporalSystem() {
         return;
     }
 
-    // Validate all cycles have names
-    for (let i = 0; i < tempCycles.length; i++) {
-        if (!tempCycles[i].name) {
-            const isFirst = i === 0;
-            const isLast = i === tempCycles.length - 1;
-            const label = isFirst ? 'Alpha' : isLast ? 'Omega' : 'intermédiaire';
-            showToast(`Entrez un nom pour le cycle ${label}`);
+    // Validate all bodies have names
+    for (let i = 0; i < tempBodies.length; i++) {
+        if (!tempBodies[i].name) {
+            showToast(`Entrez un nom pour le corps ${i + 1}`);
             return;
+        }
+        if (!tempBodies[i].internalName) {
+            tempBodies[i].internalName = tempBodies[i].name;
         }
     }
 
@@ -339,7 +434,7 @@ async function saveTemporalSystem() {
 
     const systemData = {
         name: name,
-        cycles: tempCycles.map(c => ({ ...c }))
+        bodies: tempBodies.map(b => ({ ...b }))
     };
 
     if (editingSystemIndex !== null) {
@@ -368,7 +463,7 @@ async function deleteTemporalSystem() {
     showToast('Système supprimé');
 }
 
-// Legacy function for compatibility
+// Legacy functions for compatibility
 function renderNaturalCycles() {
     renderTemporalSystems();
 }

@@ -55,18 +55,23 @@ function createCalendarElement(cal, index, parentType) {
     let cycleInfo = '';
     const universe = appData.universes[appData.currentUniverse];
     if (cal.temporalSystemIndex !== undefined && cal.temporalSystemIndex !== null) {
-        // New format with multiple systems
         const system = universe.temporalSystems?.[cal.temporalSystemIndex];
         if (system) {
-            const cycleName = cal.naturalCycleIndex !== undefined ? system.cycles?.[cal.naturalCycleIndex]?.name : null;
-            cycleInfo = `<div class="calendar-cycle-info">Système: ${system.name}${cycleName ? ` (${cycleName})` : ''}</div>`;
-        }
-    } else if (cal.naturalCycleIndex !== undefined && cal.naturalCycleIndex !== null && cal.naturalCycleIndex !== '') {
-        // Legacy format - single system
-        if (universe.temporalSystem && universe.temporalSystem.naturalCycles) {
-            const cycle = universe.temporalSystem.naturalCycles[cal.naturalCycleIndex];
-            if (cycle) {
-                cycleInfo = `<div class="calendar-cycle-info">Basé sur: ${cycle.name}</div>`;
+            // New bodies format
+            if (system.bodies && cal.cycleKey) {
+                const [bodyIdx, cycleType] = cal.cycleKey.split('-');
+                const body = system.bodies[parseInt(bodyIdx)];
+                if (body) {
+                    const cycleName = cycleType === 'internal' ? body.internalName : body.externalName;
+                    const icon = cycleType === 'internal' ? '⟳' : '◎';
+                    cycleInfo = `<div class="calendar-cycle-info">Système: ${system.name} (${icon} ${cycleName})</div>`;
+                }
+            } else if (system.cycles && cal.naturalCycleIndex !== undefined) {
+                // Legacy cycles format
+                const cycleName = system.cycles[cal.naturalCycleIndex]?.name;
+                cycleInfo = `<div class="calendar-cycle-info">Système: ${system.name}${cycleName ? ` (${cycleName})` : ''}</div>`;
+            } else {
+                cycleInfo = `<div class="calendar-cycle-info">Système: ${system.name}</div>`;
             }
         }
     }
@@ -122,7 +127,7 @@ function populateTemporalSystemSelector(selectedSystemIndex = '', selectedCycleI
     }
 }
 
-function updateCycleSelector(selectedCycleIndex = '') {
+function updateCycleSelector(selectedCycleKey = '') {
     const systemSelect = document.getElementById('calendarTemporalSystem');
     const cycleSelect = document.getElementById('calendarNaturalCycle');
     const cycleGroup = document.getElementById('calendarCycleGroup');
@@ -141,12 +146,38 @@ function updateCycleSelector(selectedCycleIndex = '') {
     const universe = appData.universes[appData.currentUniverse];
     const system = universe.temporalSystems?.[parseInt(systemIndex)];
 
-    if (system && system.cycles) {
+    if (system && system.bodies) {
+        // New bodies format - get all cycles
+        system.bodies.forEach((body, bodyIndex) => {
+            // Internal cycle
+            if (body.internalName) {
+                const option = document.createElement('option');
+                option.value = `${bodyIndex}-internal`;
+                option.textContent = `⟳ ${body.internalName}`;
+                if (selectedCycleKey === `${bodyIndex}-internal`) {
+                    option.selected = true;
+                }
+                cycleSelect.appendChild(option);
+            }
+            // External cycle (if not last body)
+            if (bodyIndex < system.bodies.length - 1 && body.externalName) {
+                const option = document.createElement('option');
+                option.value = `${bodyIndex}-external`;
+                option.textContent = `◎ ${body.externalName}`;
+                if (selectedCycleKey === `${bodyIndex}-external`) {
+                    option.selected = true;
+                }
+                cycleSelect.appendChild(option);
+            }
+        });
+        helpText.textContent = 'Choisissez le cycle de base pour ce calendrier.';
+    } else if (system && system.cycles) {
+        // Legacy cycles format
         system.cycles.forEach((cycle, index) => {
             const option = document.createElement('option');
             option.value = index;
             option.textContent = cycle.name;
-            if (selectedCycleIndex !== '' && parseInt(selectedCycleIndex) === index) {
+            if (selectedCycleKey !== '' && parseInt(selectedCycleKey) === index) {
                 option.selected = true;
             }
             cycleSelect.appendChild(option);
@@ -206,8 +237,9 @@ function editCalendar(parent, index) {
     document.getElementById('hoursPerDay').value = cal.hoursPerDay || 24;
 
     const systemIdx = cal.temporalSystemIndex !== undefined ? cal.temporalSystemIndex : '';
-    const cycleIdx = cal.naturalCycleIndex !== undefined ? cal.naturalCycleIndex : '';
-    populateTemporalSystemSelector(systemIdx, cycleIdx);
+    // Support both new cycleKey and legacy naturalCycleIndex
+    const cycleKey = cal.cycleKey || (cal.naturalCycleIndex !== undefined ? cal.naturalCycleIndex : '');
+    populateTemporalSystemSelector(systemIdx, cycleKey);
 
     document.getElementById('calendarModal').classList.add('active');
 }
@@ -226,7 +258,7 @@ async function saveCalendar() {
     const cal = {
         name: name,
         temporalSystemIndex: systemValue !== '' ? parseInt(systemValue) : null,
-        naturalCycleIndex: (systemValue !== '' && cycleValue !== '') ? parseInt(cycleValue) : null,
+        cycleKey: (systemValue !== '' && cycleValue !== '') ? cycleValue : null,
         yearName: document.getElementById('calendarYearName').value.trim() || 'Année',
         monthName: document.getElementById('calendarMonthName').value.trim() || 'Mois',
         weekName: document.getElementById('calendarWeekName').value.trim() || 'Semaine',

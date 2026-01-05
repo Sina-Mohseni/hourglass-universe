@@ -725,3 +725,184 @@
     border-color: var(--accent-amber);
     color: var(--accent-amber);
 }
+
+/* =============================================
+   CELESTIAL BODIES - New Structure
+   ============================================= */
+
+/* Body tags in system cards */
+.temporal-system-bodies {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    gap: 12px;
+    margin-bottom: 12px;
+}
+
+.temporal-body-tag {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding: 10px 14px;
+    background: var(--bg-tertiary);
+    border: 1px solid var(--glass-border);
+    border-radius: 12px;
+}
+
+.temporal-body-tag.alpha {
+    border-color: var(--accent-gold);
+}
+
+.temporal-body-tag.omega {
+    border-color: var(--accent-amber);
+}
+
+.temporal-body-tag .body-name {
+    font-family: var(--font-display);
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.temporal-body-tag.alpha .body-name {
+    color: var(--accent-gold);
+}
+
+.temporal-body-tag.omega .body-name {
+    color: var(--accent-amber);
+}
+
+.temporal-body-tag .body-cycles {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.cycle-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 8px;
+    border-radius: 6px;
+    font-size: 11px;
+    color: var(--text-secondary);
+}
+
+.cycle-badge.internal {
+    background: rgba(212, 175, 55, 0.15);
+}
+
+.cycle-badge.external {
+    background: rgba(184, 115, 51, 0.15);
+}
+
+/* Body Editor in Modal */
+.body-editor {
+    gap: 14px;
+}
+
+.body-name-row {
+    margin-bottom: 4px;
+}
+
+.body-name-input {
+    font-weight: 600;
+    font-size: 16px !important;
+}
+
+.body-cycle-section {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 12px;
+    border-radius: 8px;
+}
+
+.body-cycle-section.internal {
+    background: rgba(212, 175, 55, 0.08);
+    border-left: 3px solid var(--accent-gold);
+}
+
+.body-cycle-section.external {
+    background: rgba(184, 115, 51, 0.08);
+    border-left: 3px solid var(--accent-amber);
+}
+
+.body-cycle-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.body-cycle-icon {
+    font-size: 16px;
+}
+
+.body-cycle-section.internal .body-cycle-icon {
+    color: var(--accent-gold);
+}
+
+.body-cycle-section.external .body-cycle-icon {
+    color: var(--accent-amber);
+}
+
+.body-cycle-label {
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--text-secondary);
+}
+
+.body-cycle-section .form-input {
+    background: var(--bg-secondary);
+}
+
+/* Ratio sections */
+.body-ratio-section {
+    padding: 10px 12px;
+    background: rgba(212, 175, 55, 0.05);
+    border-radius: 8px;
+}
+
+.body-ratio-section.next-ratio {
+    background: rgba(100, 150, 200, 0.08);
+    border: 1px dashed rgba(100, 150, 200, 0.3);
+}
+
+.body-ratio-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.ratio-input {
+    width: 80px;
+    padding: 8px 10px;
+    background: var(--bg-secondary);
+    border: 1px solid var(--glass-border);
+    border-radius: 6px;
+    color: var(--accent-amber);
+    font-size: 16px;
+    font-weight: 700;
+    text-align: center;
+}
+
+.ratio-input:focus {
+    outline: none;
+    border-color: var(--accent-gold);
+}
+
+.ratio-text {
+    font-size: 13px;
+    color: var(--text-secondary);
+}
+
+.ratio-text span {
+    color: var(--accent-gold);
+}
+
+.ratio-input-display {
+    display: none;
+}
