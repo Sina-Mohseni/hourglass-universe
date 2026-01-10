@@ -326,23 +326,54 @@
             <!-- Itemline Section -->
             <div id="sagaItemline" style="display:none">
                 <div class="itemline-container" id="sagaItemlineList"></div>
-                <button class="btn btn-secondary" onclick="openItemlineModal('saga')" style="margin-top:20px;width:100%">+ Ajouter une info</button>
+                <button class="btn btn-secondary" onclick="openItemlineModal('saga')" style="margin-top:20px;width:100%">+ Ajouter une description</button>
             </div>
 
-            <!-- Crossline Section -->
+            <!-- Crossline Section - Restructured -->
             <div id="sagaCrossline" style="display:none">
-                <div class="sub-crossline-menus">
-                    <button class="sub-crossline-btn active" onclick="showSagaCrosslineType('histoires')">Histoires</button>
-                    <button class="sub-crossline-btn" onclick="showSagaCrosslineType('sujets')">Sujets</button>
-                    <button class="sub-crossline-btn" onclick="showSagaCrosslineType('elements')">Éléments</button>
+                <!-- Main Crossline Tabs: Scénarii / Éléments -->
+                <div class="crossline-main-tabs">
+                    <button class="crossline-main-tab active" onclick="showSagaCrosslineMain('scenarii')" data-tab="scenarii">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                            <path d="M12 3L2 9l10 6 10-6-10-6z"/>
+                            <path d="M2 17l10 6 10-6"/>
+                            <path d="M2 13l10 6 10-6"/>
+                        </svg>
+                        <span>Scénarii</span>
+                    </button>
+                    <button class="crossline-main-tab" onclick="showSagaCrosslineMain('elements')" data-tab="elements">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                            <rect x="3" y="3" width="7" height="7" rx="1"/>
+                            <rect x="14" y="3" width="7" height="7" rx="1"/>
+                            <rect x="3" y="14" width="7" height="7" rx="1"/>
+                            <rect x="14" y="14" width="7" height="7" rx="1"/>
+                        </svg>
+                        <span>Éléments</span>
+                    </button>
                 </div>
-                <div class="cards-grid" id="sagaCrosslineGrid"></div>
+
+                <!-- Scénarii Section -->
+                <div id="sagaScenariiSection" class="crossline-section">
+                    <div class="sub-crossline-menus">
+                        <button class="sub-crossline-btn active" onclick="showSagaScenarioType('histoires')">Histoires</button>
+                        <button class="sub-crossline-btn" onclick="showSagaScenarioType('sujets')">Sujets</button>
+                    </div>
+                    <p class="crossline-section-desc" id="scenariiDesc">Scénarios du point de vue d'ensemble</p>
+                    <div class="cards-grid" id="sagaScenariiGrid"></div>
+                </div>
+
+                <!-- Éléments Section -->
+                <div id="sagaElementsSection" class="crossline-section" style="display:none">
+                    <p class="crossline-section-desc">Créez des types d'éléments puis ajoutez des éléments à chaque type</p>
+                    <div id="sagaElementTypesContainer"></div>
+                    <button class="btn btn-secondary" onclick="openElementTypeModal()" style="margin-top:20px;width:100%">+ Créer un type d'élément</button>
+                </div>
             </div>
 
-            <!-- Timeline Section (Calendars) -->
+            <!-- Timeline Section - Calendar Selection -->
             <div id="sagaTimeline" style="display:none">
-                <div id="sagaCalendarsContainer"></div>
-                <button class="btn btn-secondary" onclick="openCalendarModal('saga')" style="margin-top:20px;width:100%">+ Créer un calendrier</button>
+                <p class="timeline-section-desc">Sélectionnez les calendriers créés depuis les timelines Univers et Époque</p>
+                <div id="sagaCalendarSelection" class="calendar-selection-container"></div>
             </div>
         </div>
     </div>
@@ -577,6 +608,35 @@
             <div class="modal-footer">
                 <button class="btn btn-secondary" onclick="closeModal('calendarModal')">Annuler</button>
                 <button class="btn btn-primary" onclick="saveCalendar()">Créer</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Element Type Modal -->
+    <div class="modal-overlay" id="elementTypeModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h2 class="modal-title" id="elementTypeModalTitle">Nouveau type d'élément</h2>
+                <button class="modal-close" onclick="closeModal('elementTypeModal')">✕</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label class="form-label">Nom du type</label>
+                    <input type="text" class="form-input" id="elementTypeName" placeholder="Ex: Personnages, Lieux, Objets...">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Description</label>
+                    <textarea class="form-textarea" id="elementTypeDesc" placeholder="Description du type d'élément..."></textarea>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Icône (emoji)</label>
+                    <input type="text" class="form-input" id="elementTypeIcon" placeholder="👤" maxlength="4" style="width:80px;text-align:center;font-size:24px">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-danger" id="deleteElementTypeBtn" onclick="deleteElementType()" style="display:none">Supprimer</button>
+                <button class="btn btn-secondary" onclick="closeModal('elementTypeModal')">Annuler</button>
+                <button class="btn btn-primary" onclick="saveElementType()">Enregistrer</button>
             </div>
         </div>
     </div>

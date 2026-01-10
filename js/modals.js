@@ -60,7 +60,13 @@ async function openEditModal(type) {
         const universe = appData.universes[appData.currentUniverse];
         const era = universe.eras[appData.currentEra];
         const saga = era.sagas[appData.currentSaga];
-        entity = saga[appData.currentDetailType][appData.currentDetail];
+
+        if (appData.currentDetailType === 'element' && appData.currentElementTypeIndex !== undefined) {
+            const elementType = saga.elementTypes[appData.currentElementTypeIndex];
+            entity = elementType.elements[appData.currentDetail];
+        } else {
+            entity = saga[appData.currentDetailType][appData.currentDetail];
+        }
         modalState.editIndex = appData.currentDetail;
         modalState.type = appData.currentDetailType;
     }

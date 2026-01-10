@@ -154,3 +154,373 @@
     border-color: var(--accent-gold);
     color: var(--accent-gold);
 }
+
+/* =============================================
+   SAGA CROSSLINE - Main Tabs & Sections
+   ============================================= */
+
+.crossline-main-tabs {
+    display: flex;
+    gap: clamp(8px, 2vmin, 12px);
+    margin-bottom: clamp(16px, 4vmin, 24px);
+    padding: 8px;
+    background: var(--bg-tertiary);
+    border-radius: 12px;
+    border: 1px solid var(--glass-border);
+}
+
+.crossline-main-tab {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: clamp(6px, 1.5vmin, 10px);
+    padding: clamp(12px, 3vmin, 16px);
+    background: transparent;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.crossline-main-tab svg {
+    width: clamp(18px, 4vmin, 24px);
+    height: clamp(18px, 4vmin, 24px);
+    color: var(--text-muted);
+    transition: color 0.3s ease;
+}
+
+.crossline-main-tab span {
+    font-family: var(--font-display);
+    font-size: clamp(11px, 2.5vmin, 14px);
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    transition: color 0.3s ease;
+}
+
+.crossline-main-tab:hover svg,
+.crossline-main-tab:hover span {
+    color: var(--text-secondary);
+}
+
+.crossline-main-tab.active {
+    background: linear-gradient(135deg, var(--accent-gold), var(--accent-copper));
+}
+
+.crossline-main-tab.active svg,
+.crossline-main-tab.active span {
+    color: var(--bg-primary);
+}
+
+.crossline-section {
+    animation: fadeIn 0.3s ease;
+}
+
+.crossline-section-desc {
+    font-size: clamp(11px, 2.5vmin, 13px);
+    color: var(--text-muted);
+    text-align: center;
+    margin-bottom: clamp(16px, 4vmin, 24px);
+    font-style: italic;
+}
+
+.timeline-section-desc {
+    font-size: clamp(11px, 2.5vmin, 13px);
+    color: var(--text-muted);
+    text-align: center;
+    margin-bottom: clamp(16px, 4vmin, 24px);
+    font-style: italic;
+}
+
+/* =============================================
+   ELEMENT TYPES
+   ============================================= */
+
+.element-type-block {
+    background: var(--bg-secondary);
+    border: 1px solid var(--glass-border);
+    border-radius: 12px;
+    margin-bottom: clamp(12px, 3vmin, 16px);
+    overflow: hidden;
+    transition: var(--transition);
+}
+
+.element-type-block:hover {
+    border-color: rgba(212, 168, 83, 0.3);
+}
+
+.element-type-header {
+    display: flex;
+    align-items: center;
+    gap: clamp(12px, 3vmin, 16px);
+    padding: clamp(12px, 3vmin, 16px);
+    cursor: pointer;
+    background: var(--bg-tertiary);
+    transition: var(--transition);
+}
+
+.element-type-header:hover {
+    background: rgba(212, 168, 83, 0.05);
+}
+
+.element-type-icon {
+    font-size: clamp(24px, 6vmin, 32px);
+    flex-shrink: 0;
+}
+
+.element-type-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.element-type-name {
+    font-family: var(--font-display);
+    font-size: clamp(14px, 3vmin, 16px);
+    color: var(--accent-amber);
+    margin-bottom: 2px;
+}
+
+.element-type-count {
+    font-size: clamp(10px, 2vmin, 12px);
+    color: var(--text-muted);
+}
+
+.element-type-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.element-type-btn {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    border: 1px solid var(--glass-border);
+    background: transparent;
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: var(--transition);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.element-type-btn:hover {
+    border-color: var(--accent-gold);
+    color: var(--accent-gold);
+}
+
+.element-type-chevron {
+    width: 20px;
+    height: 20px;
+    color: var(--text-muted);
+    transition: transform 0.3s ease;
+}
+
+.element-type-block.expanded .element-type-chevron {
+    transform: rotate(180deg);
+}
+
+.element-type-content {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.4s ease, padding 0.3s ease;
+}
+
+.element-type-block.expanded .element-type-content {
+    max-height: 500px;
+    padding: clamp(12px, 3vmin, 16px);
+}
+
+.element-type-elements {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(clamp(80px, 18vmin, 120px), 1fr));
+    gap: clamp(8px, 2vmin, 12px);
+}
+
+.empty-elements {
+    padding: clamp(16px, 4vmin, 24px);
+    text-align: center;
+    color: var(--text-muted);
+    font-size: clamp(11px, 2.5vmin, 13px);
+    font-style: italic;
+}
+
+.element-card {
+    aspect-ratio: 3/4;
+    background: var(--bg-tertiary);
+    border: 1px solid var(--glass-border);
+    border-radius: 10px;
+    overflow: hidden;
+    cursor: pointer;
+    transition: var(--transition);
+    position: relative;
+}
+
+.element-card:hover {
+    transform: translateY(-4px);
+    border-color: var(--accent-gold);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+}
+
+.element-card .card-bg {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.element-card-content {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: clamp(8px, 2vmin, 12px);
+    background: linear-gradient(to top, rgba(10, 10, 15, 0.9) 0%, transparent 100%);
+}
+
+.element-card-name {
+    font-size: clamp(10px, 2.2vmin, 12px);
+    color: var(--text-primary);
+    text-align: center;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* =============================================
+   CALENDAR SELECTION (Saga Timeline)
+   ============================================= */
+
+.calendar-selection-container {
+    padding: clamp(8px, 2vmin, 16px) 0;
+}
+
+.calendar-selection-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(clamp(140px, 35vmin, 200px), 1fr));
+    gap: clamp(12px, 3vmin, 16px);
+    margin-bottom: clamp(20px, 5vmin, 32px);
+}
+
+.calendar-select-card {
+    display: flex;
+    align-items: center;
+    gap: clamp(10px, 2.5vmin, 14px);
+    padding: clamp(12px, 3vmin, 16px);
+    background: var(--bg-secondary);
+    border: 2px solid var(--glass-border);
+    border-radius: 12px;
+    cursor: pointer;
+    transition: var(--transition);
+    position: relative;
+}
+
+.calendar-select-card:hover {
+    border-color: rgba(212, 168, 83, 0.5);
+    background: rgba(212, 168, 83, 0.05);
+}
+
+.calendar-select-card.selected {
+    border-color: var(--accent-gold);
+    background: rgba(212, 168, 83, 0.1);
+}
+
+.calendar-select-check {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: var(--accent-gold);
+    color: var(--bg-primary);
+    font-size: 12px;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transform: scale(0.5);
+    transition: var(--transition);
+}
+
+.calendar-select-card.selected .calendar-select-check {
+    opacity: 1;
+    transform: scale(1);
+}
+
+.calendar-select-icon {
+    font-size: clamp(24px, 6vmin, 32px);
+}
+
+.calendar-select-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.calendar-select-name {
+    font-family: var(--font-display);
+    font-size: clamp(12px, 2.8vmin, 14px);
+    color: var(--accent-amber);
+    margin-bottom: 2px;
+}
+
+.calendar-select-source {
+    font-size: clamp(9px, 2vmin, 11px);
+    color: var(--text-muted);
+}
+
+.selected-calendars-section {
+    margin-top: clamp(20px, 5vmin, 32px);
+    padding-top: clamp(16px, 4vmin, 24px);
+    border-top: 1px solid var(--glass-border);
+}
+
+.selected-calendars-title {
+    font-family: var(--font-display);
+    font-size: clamp(12px, 2.8vmin, 14px);
+    color: var(--accent-gold);
+    margin-bottom: clamp(12px, 3vmin, 16px);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+}
+
+.selected-calendars-list {
+    display: flex;
+    flex-direction: column;
+    gap: clamp(10px, 2.5vmin, 14px);
+}
+
+.calendar-display-item {
+    padding: clamp(12px, 3vmin, 16px);
+    background: var(--bg-tertiary);
+    border: 1px solid var(--glass-border);
+    border-radius: 10px;
+}
+
+.calendar-display-name {
+    font-family: var(--font-display);
+    font-size: clamp(13px, 3vmin, 15px);
+    color: var(--accent-amber);
+    margin-bottom: 8px;
+}
+
+.calendar-display-structure {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: clamp(6px, 1.5vmin, 10px);
+    font-size: clamp(10px, 2.2vmin, 12px);
+    color: var(--text-muted);
+}
+
+.calendar-display-structure span {
+    color: var(--text-secondary);
+}
+
+.calendar-display-total {
+    color: var(--accent-gold) !important;
+    font-weight: 600;
+}

@@ -11,11 +11,22 @@ async function openDetail(index, type) {
     saveAppData();
 }
 
-async function renderDetailPage() {
+// Helper function to get the current detail object
+function getCurrentDetail() {
     const universe = appData.universes[appData.currentUniverse];
     const era = universe.eras[appData.currentEra];
     const saga = era.sagas[appData.currentSaga];
-    const detail = saga[appData.currentDetailType][appData.currentDetail];
+
+    if (appData.currentDetailType === 'element' && appData.currentElementTypeIndex !== undefined) {
+        const elementType = saga.elementTypes[appData.currentElementTypeIndex];
+        return elementType.elements[appData.currentDetail];
+    }
+
+    return saga[appData.currentDetailType][appData.currentDetail];
+}
+
+async function renderDetailPage() {
+    const detail = getCurrentDetail();
     if (!detail) return;
 
     document.getElementById('detailTitle').textContent = detail.name;
@@ -58,14 +69,11 @@ async function showDetailSection(section) {
 }
 
 function renderDetailItemline() {
-    const universe = appData.universes[appData.currentUniverse];
-    const era = universe.eras[appData.currentEra];
-    const saga = era.sagas[appData.currentSaga];
-    const detail = saga[appData.currentDetailType][appData.currentDetail];
+    const detail = getCurrentDetail();
     const container = document.getElementById('detailItemlineList');
     container.innerHTML = '';
 
-    if (!detail.itemline || !detail.itemline.length) {
+    if (!detail || !detail.itemline || !detail.itemline.length) {
         container.innerHTML = '<div class="empty-state"><div class="empty-icon">📝</div><div class="empty-text">Aucune info</div></div>';
         return;
     }
@@ -96,21 +104,22 @@ async function showDetailCrosslineType(type) {
 }
 
 async function renderDetailCrossline(type) {
-    const universe = appData.universes[appData.currentUniverse];
-    const era = universe.eras[appData.currentEra];
-    const saga = era.sagas[appData.currentSaga];
-    const detail = saga[appData.currentDetailType][appData.currentDetail];
+    const detail = getCurrentDetail();
     const grid = document.getElementById('detailCrosslineGrid');
     grid.innerHTML = '';
 
-    if (!detail[type]) detail[type] = [];
+    if (!detail || !detail[type]) {
+        if (detail) detail[type] = [];
+    }
 
-    for (let i = 0; i < detail[type].length; i++) {
-        const item = detail[type][i];
-        const card = document.createElement('div');
-        card.className = 'card-crossline';
-        card.innerHTML = `${await getCardBackground(item.mediaId)}<div class="card-overlay"></div><div class="card-content"><div class="card-title">${item.name}</div><div class="card-desc">${item.description || ''}</div></div>`;
-        grid.appendChild(card);
+    if (detail && detail[type]) {
+        for (let i = 0; i < detail[type].length; i++) {
+            const item = detail[type][i];
+            const card = document.createElement('div');
+            card.className = 'card-crossline';
+            card.innerHTML = `${await getCardBackground(item.mediaId)}<div class="card-overlay"></div><div class="card-content"><div class="card-title">${item.name}</div><div class="card-desc">${item.description || ''}</div></div>`;
+            grid.appendChild(card);
+        }
     }
 
     const addCard = document.createElement('div');
@@ -118,4 +127,20 @@ async function renderDetailCrossline(type) {
     addCard.onclick = () => openCreateModal(type, 'detail');
     addCard.innerHTML = '<div class="add-icon">+</div><span class="add-text">Nouveau</span>';
     grid.appendChild(addCard);
+}
+
+// Detail Calendars
+function renderDetailCalendars() {
+    const detail = getCurrentDetail();
+    const container = document.getElementById('detailCalendarsContainer');
+    container.innerHTML = '';
+
+    if (!detail || !detail.calendars || !detail.calendars.length) {
+        container.innerHTML = '<div class="empty-state"><div class="empty-icon">📅</div><div class="empty-text">Aucun calendrier</div></div>';
+        return;
+    }
+
+    detail.calendars.forEach((cal, index) => {
+        container.appendChild(createCalendarElement(cal, index, 'detail'));
+    });
 }
