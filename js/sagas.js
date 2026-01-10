@@ -144,58 +144,103 @@ async function showSagaCrosslineMain(mainTab) {
     document.getElementById('sagaElementsSection').style.display = mainTab === 'elements' ? 'block' : 'none';
 
     if (mainTab === 'scenarii') {
-        await showSagaScenarioType(currentSagaScenarioType);
+        await renderSagaScenariiBlocks();
     } else {
         renderSagaElementTypes();
     }
 }
 
 /* =============================================
-   SAGA SCÉNARII - Histoires & Sujets
+   SAGA SCÉNARII - Histoires & Sujets (Collapsible Blocks)
    ============================================= */
 
-async function showSagaScenarioType(type) {
-    currentSagaScenarioType = type;
+// Scenario type definitions
+const scenarioTypes = [
+    { key: 'histoires', name: 'Histoires', icon: '📖', desc: 'Scénarios du point de vue d\'ensemble' },
+    { key: 'sujets', name: 'Sujets', icon: '👤', desc: 'Scénarios du point de vue du sujet' }
+];
 
-    // Update sub buttons
-    document.querySelectorAll('#sagaScenariiSection .sub-crossline-btn').forEach(btn => {
-        btn.classList.toggle('active', btn.textContent.toLowerCase() === type);
-    });
-
-    // Update description
-    const descEl = document.getElementById('scenariiDesc');
-    if (type === 'histoires') {
-        descEl.textContent = 'Scénarios du point de vue d\'ensemble';
-    } else {
-        descEl.textContent = 'Scénarios du point de vue du sujet';
-    }
-
-    await renderSagaScenarii(type);
-}
-
-async function renderSagaScenarii(type) {
+async function renderSagaScenariiBlocks() {
     const universe = appData.universes[appData.currentUniverse];
     const era = universe.eras[appData.currentEra];
     const saga = era.sagas[appData.currentSaga];
-    const grid = document.getElementById('sagaScenariiGrid');
-    grid.innerHTML = '';
+    const container = document.getElementById('sagaScenariiContainer');
+    container.innerHTML = '';
 
-    if (!saga[type]) saga[type] = [];
+    for (const scenarioType of scenarioTypes) {
+        if (!saga[scenarioType.key]) saga[scenarioType.key] = [];
+        const count = saga[scenarioType.key].length;
 
-    for (let i = 0; i < saga[type].length; i++) {
-        const item = saga[type][i];
-        const card = document.createElement('div');
-        card.className = 'card-crossline';
-        card.onclick = () => openDetail(i, type);
-        card.innerHTML = `${await getCardBackground(item.mediaId)}<div class="card-overlay"></div><div class="card-content"><div class="card-title">${item.name}</div><div class="card-desc">${item.description || ''}</div></div>`;
-        grid.appendChild(card);
+        const block = document.createElement('div');
+        block.className = 'element-type-block scenario-type-block';
+        block.innerHTML = `
+            <div class="element-type-header" onclick="toggleScenarioTypeExpand('${scenarioType.key}')">
+                <div class="element-type-icon">${scenarioType.icon}</div>
+                <div class="element-type-info">
+                    <div class="element-type-name">${scenarioType.name}</div>
+                    <div class="element-type-count">${count} ${scenarioType.key === 'histoires' ? 'histoire' : 'sujet'}${count > 1 ? 's' : ''}</div>
+                </div>
+                <div class="element-type-actions">
+                    <svg class="element-type-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M6 9l6 6 6-6"/>
+                    </svg>
+                </div>
+            </div>
+            <div class="element-type-content" id="scenarioTypeContent_${scenarioType.key}">
+                <p class="scenario-type-desc">${scenarioType.desc}</p>
+                <div class="element-type-elements" id="scenarioTypeItems_${scenarioType.key}"></div>
+                <button class="btn btn-secondary btn-small" onclick="openCreateModal('${scenarioType.key}', 'saga')" style="margin-top:12px;width:100%">+ ${scenarioType.key === 'histoires' ? 'Nouvelle histoire' : 'Nouveau sujet'}</button>
+            </div>
+        `;
+        container.appendChild(block);
+
+        // Render items for this scenario type
+        await renderScenarioItems(scenarioType.key);
+    }
+}
+
+function toggleScenarioTypeExpand(typeKey) {
+    const content = document.getElementById(`scenarioTypeContent_${typeKey}`);
+    const block = content.parentElement;
+    block.classList.toggle('expanded');
+}
+
+async function renderScenarioItems(typeKey) {
+    const universe = appData.universes[appData.currentUniverse];
+    const era = universe.eras[appData.currentEra];
+    const saga = era.sagas[appData.currentSaga];
+    const container = document.getElementById(`scenarioTypeItems_${typeKey}`);
+    container.innerHTML = '';
+
+    if (!saga[typeKey] || saga[typeKey].length === 0) {
+        container.innerHTML = `<div class="empty-elements">Aucun${typeKey === 'histoires' ? 'e histoire' : ' sujet'}</div>`;
+        return;
     }
 
-    const addCard = document.createElement('div');
-    addCard.className = 'card-crossline add-card';
-    addCard.onclick = () => openCreateModal(type, 'saga');
-    addCard.innerHTML = `<div class="add-icon">+</div><span class="add-text">${type === 'histoires' ? 'Nouvelle histoire' : 'Nouveau sujet'}</span>`;
-    grid.appendChild(addCard);
+    for (let i = 0; i < saga[typeKey].length; i++) {
+        const item = saga[typeKey][i];
+        const card = document.createElement('div');
+        card.className = 'element-card';
+        card.onclick = () => openDetail(i, typeKey);
+
+        let bgHtml = '';
+        if (item.mediaId) {
+            bgHtml = await getCardBackground(item.mediaId);
+        }
+
+        card.innerHTML = `
+            ${bgHtml}
+            <div class="element-card-content">
+                <div class="element-card-name">${item.name}</div>
+            </div>
+        `;
+        container.appendChild(card);
+    }
+}
+
+// Legacy function for compatibility - now calls the block renderer
+async function renderSagaScenarii(type) {
+    await renderSagaScenariiBlocks();
 }
 
 /* =============================================
@@ -289,6 +334,30 @@ async function renderElementsForType(typeIndex) {
 }
 
 /* =============================================
+   EMOJI PICKER & ELEMENT TYPE MODAL
+   ============================================= */
+
+function toggleEmojiPicker() {
+    const picker = document.getElementById('emojiPicker');
+    picker.classList.toggle('active');
+}
+
+function selectEmoji(emoji) {
+    document.getElementById('selectedEmoji').textContent = emoji;
+    document.getElementById('elementTypeIcon').value = emoji;
+    document.getElementById('emojiPicker').classList.remove('active');
+}
+
+// Close emoji picker when clicking outside
+document.addEventListener('click', function(e) {
+    const picker = document.getElementById('emojiPicker');
+    const selected = document.getElementById('selectedEmoji');
+    if (picker && selected && !picker.contains(e.target) && !selected.contains(e.target)) {
+        picker.classList.remove('active');
+    }
+});
+
+/* =============================================
    ELEMENT TYPE MODAL
    ============================================= */
 
@@ -302,6 +371,8 @@ function openElementTypeModal(editIndex = null) {
     document.getElementById('elementTypeName').value = '';
     document.getElementById('elementTypeDesc').value = '';
     document.getElementById('elementTypeIcon').value = '📁';
+    document.getElementById('selectedEmoji').textContent = '📁';
+    document.getElementById('emojiPicker').classList.remove('active');
 
     if (editIndex !== null) {
         const universe = appData.universes[appData.currentUniverse];
@@ -315,6 +386,7 @@ function openElementTypeModal(editIndex = null) {
         document.getElementById('elementTypeName').value = type.name || '';
         document.getElementById('elementTypeDesc').value = type.description || '';
         document.getElementById('elementTypeIcon').value = type.icon || '📁';
+        document.getElementById('selectedEmoji').textContent = type.icon || '📁';
     } else {
         title.textContent = 'Nouveau type d\'élément';
         deleteBtn.style.display = 'none';

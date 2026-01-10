@@ -524,3 +524,104 @@
     color: var(--accent-gold) !important;
     font-weight: 600;
 }
+
+/* =============================================
+   EMOJI PICKER
+   ============================================= */
+
+.emoji-picker-container {
+    position: relative;
+}
+
+.emoji-selected {
+    width: 60px;
+    height: 60px;
+    background: var(--bg-tertiary);
+    border: 2px solid var(--glass-border);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 32px;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.emoji-selected:hover {
+    border-color: var(--accent-gold);
+    background: rgba(212, 168, 83, 0.1);
+}
+
+.emoji-picker {
+    position: absolute;
+    top: 70px;
+    left: 0;
+    width: clamp(280px, 70vw, 360px);
+    max-height: 300px;
+    overflow-y: auto;
+    background: var(--bg-secondary);
+    border: 1px solid var(--glass-border);
+    border-radius: 12px;
+    padding: clamp(8px, 2vmin, 12px);
+    z-index: 100;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+    display: none;
+}
+
+.emoji-picker.active {
+    display: block;
+    animation: fadeIn 0.2s ease;
+}
+
+.emoji-category {
+    margin-bottom: clamp(12px, 3vmin, 16px);
+}
+
+.emoji-category:last-child {
+    margin-bottom: 0;
+}
+
+.emoji-category-title {
+    font-size: clamp(9px, 2vmin, 11px);
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: 8px;
+    padding-left: 4px;
+}
+
+.emoji-grid {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 4px;
+}
+
+.emoji-option {
+    width: 100%;
+    aspect-ratio: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: clamp(18px, 4vmin, 24px);
+    background: transparent;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.emoji-option:hover {
+    background: rgba(212, 168, 83, 0.2);
+    transform: scale(1.15);
+}
+
+/* =============================================
+   SCENARIO TYPE DESCRIPTION
+   ============================================= */
+
+.scenario-type-desc {
+    font-size: clamp(10px, 2.2vmin, 12px);
+    color: var(--text-muted);
+    font-style: italic;
+    margin-bottom: clamp(12px, 3vmin, 16px);
+    padding-left: 4px;
+}

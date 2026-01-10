@@ -354,12 +354,8 @@
 
                 <!-- Scénarii Section -->
                 <div id="sagaScenariiSection" class="crossline-section">
-                    <div class="sub-crossline-menus">
-                        <button class="sub-crossline-btn active" onclick="showSagaScenarioType('histoires')">Histoires</button>
-                        <button class="sub-crossline-btn" onclick="showSagaScenarioType('sujets')">Sujets</button>
-                    </div>
-                    <p class="crossline-section-desc" id="scenariiDesc">Scénarios du point de vue d'ensemble</p>
-                    <div class="cards-grid" id="sagaScenariiGrid"></div>
+                    <p class="crossline-section-desc">Scénarios de la saga</p>
+                    <div id="sagaScenariiContainer"></div>
                 </div>
 
                 <!-- Éléments Section -->
@@ -629,8 +625,115 @@
                     <textarea class="form-textarea" id="elementTypeDesc" placeholder="Description du type d'élément..."></textarea>
                 </div>
                 <div class="form-group">
-                    <label class="form-label">Icône (emoji)</label>
-                    <input type="text" class="form-input" id="elementTypeIcon" placeholder="👤" maxlength="4" style="width:80px;text-align:center;font-size:24px">
+                    <label class="form-label">Icône</label>
+                    <div class="emoji-picker-container">
+                        <div class="emoji-selected" id="selectedEmoji" onclick="toggleEmojiPicker()">📁</div>
+                        <div class="emoji-picker" id="emojiPicker">
+                            <div class="emoji-category">
+                                <div class="emoji-category-title">Personnages</div>
+                                <div class="emoji-grid">
+                                    <span class="emoji-option" onclick="selectEmoji('👤')">👤</span>
+                                    <span class="emoji-option" onclick="selectEmoji('👥')">👥</span>
+                                    <span class="emoji-option" onclick="selectEmoji('👑')">👑</span>
+                                    <span class="emoji-option" onclick="selectEmoji('🧙')">🧙</span>
+                                    <span class="emoji-option" onclick="selectEmoji('🧝')">🧝</span>
+                                    <span class="emoji-option" onclick="selectEmoji('🧛')">🧛</span>
+                                    <span class="emoji-option" onclick="selectEmoji('🧟')">🧟</span>
+                                    <span class="emoji-option" onclick="selectEmoji('🦸')">🦸</span>
+                                    <span class="emoji-option" onclick="selectEmoji('🦹')">🦹</span>
+                                    <span class="emoji-option" onclick="selectEmoji('👼')">👼</span>
+                                    <span class="emoji-option" onclick="selectEmoji('👿')">👿</span>
+                                    <span class="emoji-option" onclick="selectEmoji('🤖')">🤖</span>
+                                </div>
+                            </div>
+                            <div class="emoji-category">
+                                <div class="emoji-category-title">Lieux</div>
+                                <div class="emoji-grid">
+                                    <span class="emoji-option" onclick="selectEmoji('🏰')">🏰</span>
+                                    <span class="emoji-option" onclick="selectEmoji('🏛️')">🏛️</span>
+                                    <span class="emoji-option" onclick="selectEmoji('🏠')">🏠</span>
+                                    <span class="emoji-option" onclick="selectEmoji('⛪')">⛪</span>
+                                    <span class="emoji-option" onclick="selectEmoji('🕌')">🕌</span>
+                                    <span class="emoji-option" onclick="selectEmoji('🌋')">🌋</span>
+                                    <span class="emoji-option" onclick="selectEmoji('🏔️')">🏔️</span>
+                                    <span class="emoji-option" onclick="selectEmoji('🌲')">🌲</span>
+                                    <span class="emoji-option" onclick="selectEmoji('🏝️')">🏝️</span>
+                                    <span class="emoji-option" onclick="selectEmoji('🌊')">🌊</span>
+                                    <span class="emoji-option" onclick="selectEmoji('🌌')">🌌</span>
+                                    <span class="emoji-option" onclick="selectEmoji('🌍')">🌍</span>
+                                </div>
+                            </div>
+                            <div class="emoji-category">
+                                <div class="emoji-category-title">Objets</div>
+                                <div class="emoji-grid">
+                                    <span class="emoji-option" onclick="selectEmoji('⚔️')">⚔️</span>
+                                    <span class="emoji-option" onclick="selectEmoji('🗡️')">🗡️</span>
+                                    <span class="emoji-option" onclick="selectEmoji('🏹')">🏹</span>
+                                    <span class="emoji-option" onclick="selectEmoji('🛡️')">🛡️</span>
+                                    <span class="emoji-option" onclick="selectEmoji('💎')">💎</span>
+                                    <span class="emoji-option" onclick="selectEmoji('🔮')">🔮</span>
+                                    <span class="emoji-option" onclick="selectEmoji('📜')">📜</span>
+                                    <span class="emoji-option" onclick="selectEmoji('📖')">📖</span>
+                                    <span class="emoji-option" onclick="selectEmoji('🗝️')">🗝️</span>
+                                    <span class="emoji-option" onclick="selectEmoji('💍')">💍</span>
+                                    <span class="emoji-option" onclick="selectEmoji('🧪')">🧪</span>
+                                    <span class="emoji-option" onclick="selectEmoji('⚗️')">⚗️</span>
+                                </div>
+                            </div>
+                            <div class="emoji-category">
+                                <div class="emoji-category-title">Créatures</div>
+                                <div class="emoji-grid">
+                                    <span class="emoji-option" onclick="selectEmoji('🐉')">🐉</span>
+                                    <span class="emoji-option" onclick="selectEmoji('🦄')">🦄</span>
+                                    <span class="emoji-option" onclick="selectEmoji('🐺')">🐺</span>
+                                    <span class="emoji-option" onclick="selectEmoji('🦅')">🦅</span>
+                                    <span class="emoji-option" onclick="selectEmoji('🐍')">🐍</span>
+                                    <span class="emoji-option" onclick="selectEmoji('🦇')">🦇</span>
+                                    <span class="emoji-option" onclick="selectEmoji('🕷️')">🕷️</span>
+                                    <span class="emoji-option" onclick="selectEmoji('🐙')">🐙</span>
+                                    <span class="emoji-option" onclick="selectEmoji('🦋')">🦋</span>
+                                    <span class="emoji-option" onclick="selectEmoji('🐦‍🔥')">🐦‍🔥</span>
+                                    <span class="emoji-option" onclick="selectEmoji('👻')">👻</span>
+                                    <span class="emoji-option" onclick="selectEmoji('💀')">💀</span>
+                                </div>
+                            </div>
+                            <div class="emoji-category">
+                                <div class="emoji-category-title">Concepts</div>
+                                <div class="emoji-grid">
+                                    <span class="emoji-option" onclick="selectEmoji('⭐')">⭐</span>
+                                    <span class="emoji-option" onclick="selectEmoji('🔥')">🔥</span>
+                                    <span class="emoji-option" onclick="selectEmoji('💧')">💧</span>
+                                    <span class="emoji-option" onclick="selectEmoji('🌙')">🌙</span>
+                                    <span class="emoji-option" onclick="selectEmoji('☀️')">☀️</span>
+                                    <span class="emoji-option" onclick="selectEmoji('⚡')">⚡</span>
+                                    <span class="emoji-option" onclick="selectEmoji('❄️')">❄️</span>
+                                    <span class="emoji-option" onclick="selectEmoji('🌀')">🌀</span>
+                                    <span class="emoji-option" onclick="selectEmoji('✨')">✨</span>
+                                    <span class="emoji-option" onclick="selectEmoji('💫')">💫</span>
+                                    <span class="emoji-option" onclick="selectEmoji('🎭')">🎭</span>
+                                    <span class="emoji-option" onclick="selectEmoji('⚖️')">⚖️</span>
+                                </div>
+                            </div>
+                            <div class="emoji-category">
+                                <div class="emoji-category-title">Organisations</div>
+                                <div class="emoji-grid">
+                                    <span class="emoji-option" onclick="selectEmoji('🏴')">🏴</span>
+                                    <span class="emoji-option" onclick="selectEmoji('🚩')">🚩</span>
+                                    <span class="emoji-option" onclick="selectEmoji('⚜️')">⚜️</span>
+                                    <span class="emoji-option" onclick="selectEmoji('🔱')">🔱</span>
+                                    <span class="emoji-option" onclick="selectEmoji('👁️')">👁️</span>
+                                    <span class="emoji-option" onclick="selectEmoji('🎪')">🎪</span>
+                                    <span class="emoji-option" onclick="selectEmoji('⚓')">⚓</span>
+                                    <span class="emoji-option" onclick="selectEmoji('🏺')">🏺</span>
+                                    <span class="emoji-option" onclick="selectEmoji('🗿')">🗿</span>
+                                    <span class="emoji-option" onclick="selectEmoji('📿')">📿</span>
+                                    <span class="emoji-option" onclick="selectEmoji('🎴')">🎴</span>
+                                    <span class="emoji-option" onclick="selectEmoji('📁')">📁</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <input type="hidden" id="elementTypeIcon" value="📁">
                 </div>
             </div>
             <div class="modal-footer">
