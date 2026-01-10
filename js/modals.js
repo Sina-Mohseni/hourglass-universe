@@ -47,18 +47,31 @@ async function openEditModal(type) {
     if (type === 'universe') {
         entity = appData.universes[appData.currentUniverse];
         modalState.editIndex = appData.currentUniverse;
+    } else if (type === 'world') {
+        const universe = appData.universes[appData.currentUniverse];
+        const system = universe.temporalSystems[appData.currentWorldSystem];
+        const point = system.points[appData.currentWorldPoint];
+        const worldData = getWorldData(appData.currentWorldSystem, appData.currentWorldPoint);
+        entity = {
+            name: point.name,
+            description: worldData.description || '',
+            mediaId: worldData.mediaId,
+            audioIds: worldData.audioIds || []
+        };
+        modalState.editIndex = appData.currentWorldPoint;
     } else if (type === 'era') {
-        entity = appData.universes[appData.currentUniverse].eras[appData.currentEra];
+        const worldData = getWorldData(appData.currentWorldSystem, appData.currentWorldPoint);
+        entity = worldData.eras[appData.currentEra];
         modalState.editIndex = appData.currentEra;
     } else if (type === 'saga') {
-        const universe = appData.universes[appData.currentUniverse];
-        const era = universe.eras[appData.currentEra];
+        const worldData = getWorldData(appData.currentWorldSystem, appData.currentWorldPoint);
+        const era = worldData.eras[appData.currentEra];
         entity = era.sagas[appData.currentSaga];
         modalState.editIndex = appData.currentSaga;
     } else {
         // Detail (histoires, sujets, elements)
-        const universe = appData.universes[appData.currentUniverse];
-        const era = universe.eras[appData.currentEra];
+        const worldData = getWorldData(appData.currentWorldSystem, appData.currentWorldPoint);
+        const era = worldData.eras[appData.currentEra];
         const saga = era.sagas[appData.currentSaga];
 
         if (appData.currentDetailType === 'element' && appData.currentElementTypeIndex !== undefined) {

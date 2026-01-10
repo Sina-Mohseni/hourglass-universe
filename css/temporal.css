@@ -906,3 +906,531 @@
 .ratio-input-display {
     display: none;
 }
+
+/* =============================================
+   VERTICAL COLUMN EDITOR - New Design
+   ============================================= */
+
+.temporal-column-container {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    padding: 20px;
+    background: var(--bg-tertiary);
+    border: 1px solid var(--glass-border);
+    border-radius: 12px;
+    margin-bottom: 20px;
+}
+
+.temporal-column {
+    position: relative;
+    min-height: 150px;
+}
+
+.temporal-column-line {
+    position: absolute;
+    left: 15px;
+    top: 20px;
+    bottom: 20px;
+    width: 2px;
+    background: linear-gradient(180deg, var(--accent-gold), var(--accent-amber));
+    border-radius: 2px;
+}
+
+.temporal-points-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    position: relative;
+    z-index: 1;
+}
+
+.temporal-point {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px;
+    padding-left: 40px;
+    background: var(--bg-secondary);
+    border: 1px solid var(--glass-border);
+    border-radius: 10px;
+    cursor: pointer;
+    transition: var(--transition);
+    position: relative;
+}
+
+.temporal-point:hover {
+    border-color: var(--accent-gold);
+    background: rgba(212, 175, 55, 0.05);
+}
+
+.temporal-point.selected {
+    border-color: var(--accent-gold);
+    background: rgba(212, 175, 55, 0.1);
+    box-shadow: 0 0 12px rgba(212, 175, 55, 0.2);
+}
+
+.temporal-point.is-world {
+    border-color: var(--accent-amber);
+    background: rgba(184, 115, 51, 0.08);
+}
+
+.temporal-point-marker {
+    position: absolute;
+    left: 8px;
+    width: 16px;
+    height: 16px;
+    background: var(--bg-secondary);
+    border: 3px solid var(--glass-border);
+    border-radius: 50%;
+    transition: var(--transition);
+}
+
+.temporal-point.center .temporal-point-marker {
+    border-color: var(--accent-gold);
+    background: var(--accent-gold);
+}
+
+.temporal-point.external .temporal-point-marker {
+    border-color: var(--accent-amber);
+}
+
+.temporal-point.selected .temporal-point-marker,
+.temporal-point:hover .temporal-point-marker {
+    transform: scale(1.2);
+}
+
+.temporal-point.is-world .temporal-point-marker {
+    background: var(--accent-amber);
+    border-color: var(--accent-amber);
+}
+
+.temporal-point-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.temporal-point-name {
+    background: transparent;
+    border: none;
+    font-family: var(--font-display);
+    font-size: 16px;
+    color: var(--text-primary);
+    padding: 4px 8px;
+    border-radius: 4px;
+    transition: var(--transition);
+}
+
+.temporal-point-name:hover,
+.temporal-point-name:focus {
+    background: var(--bg-tertiary);
+    outline: none;
+}
+
+.temporal-point-name::placeholder {
+    color: var(--text-muted);
+    font-style: italic;
+}
+
+.temporal-point-info {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    padding-left: 8px;
+}
+
+.cycle-mini {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 11px;
+}
+
+.cycle-mini.interior {
+    background: rgba(212, 175, 55, 0.15);
+    color: var(--accent-gold);
+}
+
+.cycle-mini.exterior {
+    background: rgba(184, 115, 51, 0.15);
+    color: var(--accent-amber);
+}
+
+.world-mini {
+    font-size: 14px;
+}
+
+.temporal-add-point-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 12px;
+    background: transparent;
+    border: 2px dashed var(--glass-border);
+    border-radius: 10px;
+    color: var(--text-secondary);
+    font-size: 14px;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.temporal-add-point-btn:hover {
+    border-color: var(--accent-gold);
+    color: var(--accent-gold);
+    background: rgba(212, 175, 55, 0.05);
+}
+
+.temporal-add-point-btn span {
+    font-size: 20px;
+    font-weight: bold;
+}
+
+/* Point Detail Panel */
+.point-detail-panel {
+    background: var(--bg-secondary);
+    border: 1px solid var(--accent-gold);
+    border-radius: 12px;
+    overflow: hidden;
+    margin-bottom: 20px;
+}
+
+.point-detail-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px;
+    background: var(--bg-tertiary);
+    border-bottom: 1px solid var(--glass-border);
+}
+
+.point-detail-header h4 {
+    font-family: var(--font-display);
+    font-size: 18px;
+    color: var(--accent-gold);
+    margin: 0;
+}
+
+.point-detail-close {
+    background: transparent;
+    border: none;
+    color: var(--text-secondary);
+    font-size: 20px;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.point-detail-close:hover {
+    color: var(--accent-gold);
+}
+
+.point-detail-content {
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.point-cycle-section {
+    background: var(--bg-tertiary);
+    border-radius: 10px;
+    padding: 14px;
+}
+
+.point-cycle-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 12px;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-secondary);
+}
+
+.cycle-icon {
+    font-size: 18px;
+}
+
+.cycle-icon.interior {
+    color: var(--accent-gold);
+}
+
+.cycle-icon.exterior {
+    color: var(--accent-amber);
+}
+
+.cycle-icon.double {
+    color: #8B7355;
+}
+
+.point-cycle-inputs {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.point-cycle-duration {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.point-cycle-duration label {
+    font-size: 13px;
+    color: var(--text-secondary);
+}
+
+.point-cycle-duration .form-input {
+    width: 100px;
+}
+
+/* Exterior Cycles */
+.point-exterior-cycles {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.exterior-cycle-row {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 12px;
+    background: var(--bg-secondary);
+    border-radius: 8px;
+    border: 1px solid var(--glass-border);
+}
+
+.exterior-cycle-target {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.exterior-target-label {
+    font-size: 12px;
+    color: var(--text-muted);
+}
+
+.exterior-target-name {
+    font-family: var(--font-display);
+    font-size: 14px;
+    color: var(--accent-amber);
+}
+
+.exterior-cycle-duration {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.exterior-cycle-duration label {
+    font-size: 12px;
+    color: var(--text-secondary);
+}
+
+.exterior-cycle-duration .form-input {
+    width: 80px;
+}
+
+.duration-unit {
+    font-size: 11px;
+    color: var(--text-muted);
+}
+
+/* Double Cycles */
+.point-double-cycles {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.double-cycle-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 14px;
+    background: var(--bg-secondary);
+    border-radius: 8px;
+    border: 1px solid var(--glass-border);
+}
+
+.double-cycle-name {
+    font-size: 13px;
+    color: var(--text-primary);
+}
+
+.double-cycle-value {
+    font-family: var(--font-display);
+    font-size: 14px;
+    color: var(--accent-gold);
+    font-weight: 600;
+}
+
+/* World Section */
+.point-world-section {
+    padding: 14px;
+    background: linear-gradient(135deg, rgba(184, 115, 51, 0.1), rgba(212, 175, 55, 0.05));
+    border: 1px solid rgba(184, 115, 51, 0.3);
+    border-radius: 10px;
+}
+
+.point-world-toggle {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    cursor: pointer;
+}
+
+.point-world-toggle input[type="checkbox"] {
+    display: none;
+}
+
+.toggle-slider {
+    position: relative;
+    width: 44px;
+    height: 24px;
+    background: var(--bg-tertiary);
+    border: 2px solid var(--glass-border);
+    border-radius: 12px;
+    transition: var(--transition);
+}
+
+.toggle-slider::after {
+    content: '';
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 16px;
+    height: 16px;
+    background: var(--text-secondary);
+    border-radius: 50%;
+    transition: var(--transition);
+}
+
+.point-world-toggle input:checked + .toggle-slider {
+    background: var(--accent-amber);
+    border-color: var(--accent-amber);
+}
+
+.point-world-toggle input:checked + .toggle-slider::after {
+    transform: translateX(20px);
+    background: white;
+}
+
+.point-world-toggle .toggle-label {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.point-world-section .form-help {
+    margin-top: 8px;
+    margin-left: 56px;
+}
+
+/* Point Detail Footer */
+.point-detail-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 14px 16px;
+    background: var(--bg-tertiary);
+    border-top: 1px solid var(--glass-border);
+}
+
+.btn-small {
+    padding: 8px 16px;
+    font-size: 13px;
+}
+
+/* System Cards - Updated for Points */
+.temporal-system-points {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+    margin-bottom: 12px;
+}
+
+.temporal-point-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    background: var(--bg-tertiary);
+    border: 1px solid var(--glass-border);
+    border-radius: 8px;
+    font-size: 13px;
+}
+
+.temporal-point-tag.center {
+    border-color: var(--accent-gold);
+}
+
+.temporal-point-tag.center .point-name {
+    color: var(--accent-gold);
+}
+
+.temporal-point-tag.external {
+    border-color: var(--accent-amber);
+}
+
+.temporal-point-tag.external .point-name {
+    color: var(--accent-amber);
+}
+
+.temporal-point-tag.is-world {
+    background: rgba(184, 115, 51, 0.15);
+}
+
+.point-name {
+    font-family: var(--font-display);
+    color: var(--text-primary);
+}
+
+.world-badge {
+    font-size: 14px;
+}
+
+.temporal-system-cycles {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 12px;
+}
+
+.cycle-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-size: 11px;
+}
+
+.cycle-tag.interior {
+    background: rgba(212, 175, 55, 0.15);
+    color: var(--accent-gold);
+}
+
+.cycle-tag.exterior {
+    background: rgba(184, 115, 51, 0.15);
+    color: var(--accent-amber);
+}
+
+.temporal-system-worlds {
+    padding-top: 10px;
+    border-top: 1px solid var(--glass-border);
+    font-size: 12px;
+    color: var(--text-secondary);
+}
+
+.worlds-label {
+    color: var(--accent-amber);
+    font-weight: 600;
+}

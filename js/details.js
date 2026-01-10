@@ -13,8 +13,8 @@ async function openDetail(index, type) {
 
 // Helper function to get the current detail object
 function getCurrentDetail() {
-    const universe = appData.universes[appData.currentUniverse];
-    const era = universe.eras[appData.currentEra];
+    const worldData = getWorldData(appData.currentWorldSystem, appData.currentWorldPoint);
+    const era = worldData.eras[appData.currentEra];
     const saga = era.sagas[appData.currentSaga];
 
     if (appData.currentDetailType === 'element' && appData.currentElementTypeIndex !== undefined) {

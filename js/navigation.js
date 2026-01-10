@@ -13,17 +13,27 @@ function goBack() {
 
     if (page === 'home') {
         appData.currentUniverse = null;
+        appData.currentWorldSystem = null;
+        appData.currentWorldPoint = null;
         appData.currentEra = null;
         appData.currentSaga = null;
         appData.currentDetail = null;
         navigateTo('homePage');
         renderUniverses();
     } else if (page === 'universe') {
+        appData.currentWorldSystem = null;
+        appData.currentWorldPoint = null;
         appData.currentEra = null;
         appData.currentSaga = null;
         appData.currentDetail = null;
         renderUniversePage();
         navigateTo('universePage');
+    } else if (page === 'world') {
+        appData.currentEra = null;
+        appData.currentSaga = null;
+        appData.currentDetail = null;
+        renderWorldPage();
+        navigateTo('worldPage');
     } else if (page === 'era') {
         appData.currentSaga = null;
         appData.currentDetail = null;

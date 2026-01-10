@@ -3,12 +3,12 @@
    ============================================= */
 
 function renderEraCalendars() {
-    const universe = appData.universes[appData.currentUniverse];
-    const era = universe.eras[appData.currentEra];
+    const worldData = getWorldData(appData.currentWorldSystem, appData.currentWorldPoint);
+    const era = worldData.eras[appData.currentEra];
     const container = document.getElementById('calendarsContainer');
     container.innerHTML = '';
 
-    if (!era.calendars || !era.calendars.length) {
+    if (!era || !era.calendars || !era.calendars.length) {
         container.innerHTML = '<div class="empty-state"><div class="empty-icon">📅</div><div class="empty-text">Aucun calendrier</div></div>';
         return;
     }
@@ -19,8 +19,8 @@ function renderEraCalendars() {
 }
 
 function renderDetailCalendars() {
-    const universe = appData.universes[appData.currentUniverse];
-    const era = universe.eras[appData.currentEra];
+    const worldData = getWorldData(appData.currentWorldSystem, appData.currentWorldPoint);
+    const era = worldData.eras[appData.currentEra];
     const saga = era.sagas[appData.currentSaga];
     const detail = saga[appData.currentDetailType][appData.currentDetail];
     const container = document.getElementById('detailCalendarsContainer');
@@ -212,15 +212,19 @@ function editCalendar(parent, index) {
     calendarState = { parentType: parent, editIndex: index };
 
     let cal;
-    if (parent === 'era') {
-        cal = appData.universes[appData.currentUniverse].eras[appData.currentEra].calendars[index];
+    if (parent === 'world') {
+        const worldData = getWorldData(appData.currentWorldSystem, appData.currentWorldPoint);
+        cal = worldData.calendars[index];
+    } else if (parent === 'era') {
+        const worldData = getWorldData(appData.currentWorldSystem, appData.currentWorldPoint);
+        cal = worldData.eras[appData.currentEra].calendars[index];
     } else if (parent === 'saga') {
-        const universe = appData.universes[appData.currentUniverse];
-        const era = universe.eras[appData.currentEra];
+        const worldData = getWorldData(appData.currentWorldSystem, appData.currentWorldPoint);
+        const era = worldData.eras[appData.currentEra];
         cal = era.sagas[appData.currentSaga].calendars[index];
     } else {
-        const universe = appData.universes[appData.currentUniverse];
-        const era = universe.eras[appData.currentEra];
+        const worldData = getWorldData(appData.currentWorldSystem, appData.currentWorldPoint);
+        const era = worldData.eras[appData.currentEra];
         const saga = era.sagas[appData.currentSaga];
         cal = saga[appData.currentDetailType][appData.currentDetail].calendars[index];
     }
@@ -271,15 +275,18 @@ async function saveCalendar() {
     };
 
     let target;
-    if (calendarState.parentType === 'era') {
-        target = appData.universes[appData.currentUniverse].eras[appData.currentEra];
+    if (calendarState.parentType === 'world') {
+        target = getWorldData(appData.currentWorldSystem, appData.currentWorldPoint);
+    } else if (calendarState.parentType === 'era') {
+        const worldData = getWorldData(appData.currentWorldSystem, appData.currentWorldPoint);
+        target = worldData.eras[appData.currentEra];
     } else if (calendarState.parentType === 'saga') {
-        const universe = appData.universes[appData.currentUniverse];
-        const era = universe.eras[appData.currentEra];
+        const worldData = getWorldData(appData.currentWorldSystem, appData.currentWorldPoint);
+        const era = worldData.eras[appData.currentEra];
         target = era.sagas[appData.currentSaga];
     } else {
-        const universe = appData.universes[appData.currentUniverse];
-        const era = universe.eras[appData.currentEra];
+        const worldData = getWorldData(appData.currentWorldSystem, appData.currentWorldPoint);
+        const era = worldData.eras[appData.currentEra];
         const saga = era.sagas[appData.currentSaga];
         target = saga[appData.currentDetailType][appData.currentDetail];
     }
@@ -296,7 +303,10 @@ async function saveCalendar() {
     closeModal('calendarModal');
     showToast('Calendrier enregistré');
 
-    if (calendarState.parentType === 'era') {
+    if (calendarState.parentType === 'world') {
+        renderWorldCalendars();
+        restoreActiveSection('world');
+    } else if (calendarState.parentType === 'era') {
         renderEraCalendars();
         restoreActiveSection('era');
     } else if (calendarState.parentType === 'saga') {
@@ -311,15 +321,18 @@ async function saveCalendar() {
 async function deleteCalendar(parent, index) {
     let target;
 
-    if (parent === 'era') {
-        target = appData.universes[appData.currentUniverse].eras[appData.currentEra];
+    if (parent === 'world') {
+        target = getWorldData(appData.currentWorldSystem, appData.currentWorldPoint);
+    } else if (parent === 'era') {
+        const worldData = getWorldData(appData.currentWorldSystem, appData.currentWorldPoint);
+        target = worldData.eras[appData.currentEra];
     } else if (parent === 'saga') {
-        const universe = appData.universes[appData.currentUniverse];
-        const era = universe.eras[appData.currentEra];
+        const worldData = getWorldData(appData.currentWorldSystem, appData.currentWorldPoint);
+        const era = worldData.eras[appData.currentEra];
         target = era.sagas[appData.currentSaga];
     } else {
-        const universe = appData.universes[appData.currentUniverse];
-        const era = universe.eras[appData.currentEra];
+        const worldData = getWorldData(appData.currentWorldSystem, appData.currentWorldPoint);
+        const era = worldData.eras[appData.currentEra];
         const saga = era.sagas[appData.currentSaga];
         target = saga[appData.currentDetailType][appData.currentDetail];
     }
@@ -328,7 +341,10 @@ async function deleteCalendar(parent, index) {
     await saveAppData();
     showToast('Supprimé');
 
-    if (parent === 'era') {
+    if (parent === 'world') {
+        renderWorldCalendars();
+        restoreActiveSection('world');
+    } else if (parent === 'era') {
         renderEraCalendars();
         restoreActiveSection('era');
     } else if (parent === 'saga') {

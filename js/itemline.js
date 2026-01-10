@@ -15,15 +15,19 @@ function editItemline(parent, index) {
     let item;
     if (parent === 'universe') {
         item = appData.universes[appData.currentUniverse].itemline[index];
+    } else if (parent === 'world') {
+        const worldData = getWorldData(appData.currentWorldSystem, appData.currentWorldPoint);
+        item = worldData.itemline[index];
     } else if (parent === 'era') {
-        item = appData.universes[appData.currentUniverse].eras[appData.currentEra].itemline[index];
+        const worldData = getWorldData(appData.currentWorldSystem, appData.currentWorldPoint);
+        item = worldData.eras[appData.currentEra].itemline[index];
     } else if (parent === 'saga') {
-        const universe = appData.universes[appData.currentUniverse];
-        const era = universe.eras[appData.currentEra];
+        const worldData = getWorldData(appData.currentWorldSystem, appData.currentWorldPoint);
+        const era = worldData.eras[appData.currentEra];
         item = era.sagas[appData.currentSaga].itemline[index];
     } else {
-        const universe = appData.universes[appData.currentUniverse];
-        const era = universe.eras[appData.currentEra];
+        const worldData = getWorldData(appData.currentWorldSystem, appData.currentWorldPoint);
+        const era = worldData.eras[appData.currentEra];
         const saga = era.sagas[appData.currentSaga];
         item = saga[appData.currentDetailType][appData.currentDetail].itemline[index];
     }
@@ -67,15 +71,18 @@ async function saveItemline() {
 
     if (itemlineState.parentType === 'universe') {
         target = appData.universes[appData.currentUniverse];
+    } else if (itemlineState.parentType === 'world') {
+        target = getWorldData(appData.currentWorldSystem, appData.currentWorldPoint);
     } else if (itemlineState.parentType === 'era') {
-        target = appData.universes[appData.currentUniverse].eras[appData.currentEra];
+        const worldData = getWorldData(appData.currentWorldSystem, appData.currentWorldPoint);
+        target = worldData.eras[appData.currentEra];
     } else if (itemlineState.parentType === 'saga') {
-        const universe = appData.universes[appData.currentUniverse];
-        const era = universe.eras[appData.currentEra];
+        const worldData = getWorldData(appData.currentWorldSystem, appData.currentWorldPoint);
+        const era = worldData.eras[appData.currentEra];
         target = era.sagas[appData.currentSaga];
     } else {
-        const universe = appData.universes[appData.currentUniverse];
-        const era = universe.eras[appData.currentEra];
+        const worldData = getWorldData(appData.currentWorldSystem, appData.currentWorldPoint);
+        const era = worldData.eras[appData.currentEra];
         const saga = era.sagas[appData.currentSaga];
         target = saga[appData.currentDetailType][appData.currentDetail];
     }
@@ -95,6 +102,9 @@ async function saveItemline() {
     if (itemlineState.parentType === 'universe') {
         renderUniverseItemline();
         restoreActiveSection('universe');
+    } else if (itemlineState.parentType === 'world') {
+        renderWorldItemline();
+        restoreActiveSection('world');
     } else if (itemlineState.parentType === 'era') {
         renderEraItemline();
         restoreActiveSection('era');
@@ -112,15 +122,18 @@ async function deleteItemline(parent, index) {
 
     if (parent === 'universe') {
         target = appData.universes[appData.currentUniverse];
+    } else if (parent === 'world') {
+        target = getWorldData(appData.currentWorldSystem, appData.currentWorldPoint);
     } else if (parent === 'era') {
-        target = appData.universes[appData.currentUniverse].eras[appData.currentEra];
+        const worldData = getWorldData(appData.currentWorldSystem, appData.currentWorldPoint);
+        target = worldData.eras[appData.currentEra];
     } else if (parent === 'saga') {
-        const universe = appData.universes[appData.currentUniverse];
-        const era = universe.eras[appData.currentEra];
+        const worldData = getWorldData(appData.currentWorldSystem, appData.currentWorldPoint);
+        const era = worldData.eras[appData.currentEra];
         target = era.sagas[appData.currentSaga];
     } else {
-        const universe = appData.universes[appData.currentUniverse];
-        const era = universe.eras[appData.currentEra];
+        const worldData = getWorldData(appData.currentWorldSystem, appData.currentWorldPoint);
+        const era = worldData.eras[appData.currentEra];
         const saga = era.sagas[appData.currentSaga];
         target = saga[appData.currentDetailType][appData.currentDetail];
     }
@@ -132,6 +145,9 @@ async function deleteItemline(parent, index) {
     if (parent === 'universe') {
         renderUniverseItemline();
         restoreActiveSection('universe');
+    } else if (parent === 'world') {
+        renderWorldItemline();
+        restoreActiveSection('world');
     } else if (parent === 'era') {
         renderEraItemline();
         restoreActiveSection('era');

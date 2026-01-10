@@ -6,6 +6,8 @@ let appData = {
     id: 'main',
     universes: [],
     currentUniverse: null,
+    currentWorldSystem: null,
+    currentWorldPoint: null,
     currentEra: null,
     currentSaga: null,
     currentDetail: null,
@@ -32,6 +34,7 @@ let audioState = { tracks: [], currentIndex: 0, isPlaying: false };
 // Track active sections for each page
 let activeSections = {
     universe: null,
+    world: null,
     era: null,
     saga: null,
     detail: null

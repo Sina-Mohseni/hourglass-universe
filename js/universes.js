@@ -87,7 +87,7 @@ async function showUniverseSection(section) {
     if (section === 'itemline') {
         renderUniverseItemline();
     } else if (section === 'crossline') {
-        await renderEras();
+        await renderWorlds();
     } else if (section === 'timeline') {
         loadTemporalSystem();
     }

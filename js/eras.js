@@ -1,27 +1,27 @@
 /* =============================================
-   ERAS
+   ERAS - Now inside Worlds
    ============================================= */
 
 async function renderEras() {
-    const universe = appData.universes[appData.currentUniverse];
+    const worldData = getWorldData(appData.currentWorldSystem, appData.currentWorldPoint);
     const grid = document.getElementById('erasGrid');
     grid.innerHTML = '';
 
-    if (!universe.eras) universe.eras = [];
+    if (!worldData.eras) worldData.eras = [];
 
-    for (let i = 0; i < universe.eras.length; i++) {
-        const era = universe.eras[i];
+    for (let i = 0; i < worldData.eras.length; i++) {
+        const era = worldData.eras[i];
         const card = document.createElement('div');
         card.className = 'card-era';
         card.onclick = () => openEra(i);
-        card.innerHTML = `${await getCardBackground(era.mediaId)}<div class="card-content"><div class="card-title">${era.name}</div><div class="card-desc">${era.description || ''}</div></div>`;
+        card.innerHTML = `${await getCardBackground(era.mediaId)}<div class="card-overlay"></div><div class="card-content"><div class="card-title">${era.name}</div><div class="card-desc">${era.description || ''}</div></div>`;
         grid.appendChild(card);
     }
 
     const addCard = document.createElement('div');
     addCard.className = 'card-era add-card';
     addCard.onclick = () => openCreateModal('era');
-    addCard.innerHTML = '<div class="add-icon">+</div><span class="add-text">Nouvelle Era</span>';
+    addCard.innerHTML = '<div class="add-icon">+</div><span class="add-text">Nouvelle Ère</span>';
     grid.appendChild(addCard);
 }
 
@@ -34,13 +34,13 @@ async function openEra(index) {
 }
 
 async function renderEraPage() {
-    const universe = appData.universes[appData.currentUniverse];
-    const era = universe.eras[appData.currentEra];
+    const worldData = getWorldData(appData.currentWorldSystem, appData.currentWorldPoint);
+    const era = worldData.eras[appData.currentEra];
     if (!era) return;
 
     document.getElementById('eraTitle').textContent = era.name;
     document.getElementById('eraDesc').textContent = era.description || '';
-    document.getElementById('eraParentContext').textContent = universe.name;
+    document.getElementById('eraParentContext').textContent = getCurrentWorldName();
 
     await renderBackground('eraBackground', era.mediaId);
 
@@ -79,12 +79,12 @@ async function showEraSection(section) {
 }
 
 function renderEraItemline() {
-    const universe = appData.universes[appData.currentUniverse];
-    const era = universe.eras[appData.currentEra];
+    const worldData = getWorldData(appData.currentWorldSystem, appData.currentWorldPoint);
+    const era = worldData.eras[appData.currentEra];
     const container = document.getElementById('eraItemlineList');
     container.innerHTML = '';
 
-    if (!era.itemline || !era.itemline.length) {
+    if (!era || !era.itemline || !era.itemline.length) {
         container.innerHTML = '<div class="empty-state"><div class="empty-icon">📝</div><div class="empty-text">Aucune info</div></div>';
         return;
     }

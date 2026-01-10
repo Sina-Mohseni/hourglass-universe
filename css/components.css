@@ -259,6 +259,90 @@
     padding-left: clamp(16px, 4vmin, 32px);
 }
 
+/* World Card */
+.card-world {
+    width: 100%;
+    max-width: clamp(280px, 80vmin, 500px);
+    height: clamp(120px, 22vmin, 170px);
+    border-radius: 16px;
+    overflow: hidden;
+    position: relative;
+    cursor: pointer;
+    transition: var(--transition);
+    border: 1px solid var(--glass-border);
+    background: var(--bg-tertiary);
+}
+
+.card-world:hover {
+    transform: translateX(8px) scale(1.02);
+    box-shadow: var(--shadow-glow);
+    border-color: var(--accent-amber);
+}
+
+.card-world .card-content {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    height: 100%;
+    padding-left: clamp(16px, 4vmin, 32px);
+}
+
+.card-world .card-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 8px;
+}
+
+.world-system-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 3px 10px;
+    background: rgba(184, 115, 51, 0.2);
+    border-radius: 12px;
+    font-size: 11px;
+    color: var(--accent-amber);
+}
+
+.world-eras-count {
+    display: inline-flex;
+    align-items: center;
+    padding: 3px 10px;
+    background: rgba(212, 175, 55, 0.15);
+    border-radius: 12px;
+    font-size: 11px;
+    color: var(--accent-gold);
+}
+
+/* Empty state for full container */
+.empty-state-full {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 20px;
+    text-align: center;
+    color: var(--text-secondary);
+}
+
+.empty-state-full .empty-icon {
+    font-size: 48px;
+    margin-bottom: 16px;
+}
+
+.empty-state-full .empty-text {
+    font-size: 18px;
+    font-weight: 600;
+    margin-bottom: 8px;
+    color: var(--text-primary);
+}
+
+.empty-state-full .empty-hint {
+    font-size: 13px;
+    color: var(--text-muted);
+    max-width: 300px;
+}
+
 /* Add Card */
 .add-card {
     border: 2px dashed var(--glass-border);

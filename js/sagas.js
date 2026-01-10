@@ -8,8 +8,8 @@ let currentSagaScenarioType = 'histoires';
 let editingElementTypeIndex = null;
 
 async function renderSagas() {
-    const universe = appData.universes[appData.currentUniverse];
-    const era = universe.eras[appData.currentEra];
+    const worldData = getWorldData(appData.currentWorldSystem, appData.currentWorldPoint);
+    const era = worldData.eras[appData.currentEra];
     const grid = document.getElementById('sagasGrid');
     grid.innerHTML = '';
 
@@ -40,8 +40,8 @@ async function openSaga(index) {
 }
 
 async function renderSagaPage() {
-    const universe = appData.universes[appData.currentUniverse];
-    const era = universe.eras[appData.currentEra];
+    const worldData = getWorldData(appData.currentWorldSystem, appData.currentWorldPoint);
+    const era = worldData.eras[appData.currentEra];
     const saga = era.sagas[appData.currentSaga];
     if (!saga) return;
 
@@ -99,8 +99,8 @@ async function showSagaSection(section) {
    ============================================= */
 
 function renderSagaItemline() {
-    const universe = appData.universes[appData.currentUniverse];
-    const era = universe.eras[appData.currentEra];
+    const worldData = getWorldData(appData.currentWorldSystem, appData.currentWorldPoint);
+    const era = worldData.eras[appData.currentEra];
     const saga = era.sagas[appData.currentSaga];
     const container = document.getElementById('sagaItemlineList');
     container.innerHTML = '';
@@ -161,8 +161,8 @@ const scenarioTypes = [
 ];
 
 async function renderSagaScenariiBlocks() {
-    const universe = appData.universes[appData.currentUniverse];
-    const era = universe.eras[appData.currentEra];
+    const worldData = getWorldData(appData.currentWorldSystem, appData.currentWorldPoint);
+    const era = worldData.eras[appData.currentEra];
     const saga = era.sagas[appData.currentSaga];
     const container = document.getElementById('sagaScenariiContainer');
     container.innerHTML = '';
@@ -206,8 +206,8 @@ function toggleScenarioTypeExpand(typeKey) {
 }
 
 async function renderScenarioItems(typeKey) {
-    const universe = appData.universes[appData.currentUniverse];
-    const era = universe.eras[appData.currentEra];
+    const worldData = getWorldData(appData.currentWorldSystem, appData.currentWorldPoint);
+    const era = worldData.eras[appData.currentEra];
     const saga = era.sagas[appData.currentSaga];
     const container = document.getElementById(`scenarioTypeItems_${typeKey}`);
     container.innerHTML = '';
@@ -248,8 +248,8 @@ async function renderSagaScenarii(type) {
    ============================================= */
 
 function renderSagaElementTypes() {
-    const universe = appData.universes[appData.currentUniverse];
-    const era = universe.eras[appData.currentEra];
+    const worldData = getWorldData(appData.currentWorldSystem, appData.currentWorldPoint);
+    const era = worldData.eras[appData.currentEra];
     const saga = era.sagas[appData.currentSaga];
     const container = document.getElementById('sagaElementTypesContainer');
     container.innerHTML = '';
@@ -300,8 +300,8 @@ function toggleElementTypeExpand(typeIndex) {
 }
 
 async function renderElementsForType(typeIndex) {
-    const universe = appData.universes[appData.currentUniverse];
-    const era = universe.eras[appData.currentEra];
+    const worldData = getWorldData(appData.currentWorldSystem, appData.currentWorldPoint);
+    const era = worldData.eras[appData.currentEra];
     const saga = era.sagas[appData.currentSaga];
     const type = saga.elementTypes[typeIndex];
     const container = document.getElementById(`elementTypeElements_${typeIndex}`);
@@ -375,8 +375,8 @@ function openElementTypeModal(editIndex = null) {
     document.getElementById('emojiPicker').classList.remove('active');
 
     if (editIndex !== null) {
-        const universe = appData.universes[appData.currentUniverse];
-        const era = universe.eras[appData.currentEra];
+        const worldData = getWorldData(appData.currentWorldSystem, appData.currentWorldPoint);
+        const era = worldData.eras[appData.currentEra];
         const saga = era.sagas[appData.currentSaga];
         const type = saga.elementTypes[editIndex];
 
@@ -409,8 +409,8 @@ async function saveElementType() {
         return;
     }
 
-    const universe = appData.universes[appData.currentUniverse];
-    const era = universe.eras[appData.currentEra];
+    const worldData = getWorldData(appData.currentWorldSystem, appData.currentWorldPoint);
+    const era = worldData.eras[appData.currentEra];
     const saga = era.sagas[appData.currentSaga];
 
     if (!saga.elementTypes) saga.elementTypes = [];
@@ -439,8 +439,8 @@ async function saveElementType() {
 async function deleteElementType() {
     if (editingElementTypeIndex === null) return;
 
-    const universe = appData.universes[appData.currentUniverse];
-    const era = universe.eras[appData.currentEra];
+    const worldData = getWorldData(appData.currentWorldSystem, appData.currentWorldPoint);
+    const era = worldData.eras[appData.currentEra];
     const saga = era.sagas[appData.currentSaga];
 
     saga.elementTypes.splice(editingElementTypeIndex, 1);
@@ -461,8 +461,8 @@ let editingElementIndex = null;
 function openCreateElementModal(typeIndex) {
     currentElementTypeIndex = typeIndex;
 
-    const universe = appData.universes[appData.currentUniverse];
-    const era = universe.eras[appData.currentEra];
+    const worldData = getWorldData(appData.currentWorldSystem, appData.currentWorldPoint);
+    const era = worldData.eras[appData.currentEra];
     const saga = era.sagas[appData.currentSaga];
     const type = saga.elementTypes[typeIndex];
 
@@ -501,8 +501,8 @@ function openElementDetail(typeIndex, elementIndex) {
    ============================================= */
 
 function renderSagaCalendarSelection() {
-    const universe = appData.universes[appData.currentUniverse];
-    const era = universe.eras[appData.currentEra];
+    const worldData = getWorldData(appData.currentWorldSystem, appData.currentWorldPoint);
+    const era = worldData.eras[appData.currentEra];
     const saga = era.sagas[appData.currentSaga];
     const container = document.getElementById('sagaCalendarSelection');
     container.innerHTML = '';
@@ -586,8 +586,8 @@ function renderSagaCalendarSelection() {
 }
 
 async function toggleCalendarSelection(source, index) {
-    const universe = appData.universes[appData.currentUniverse];
-    const era = universe.eras[appData.currentEra];
+    const worldData = getWorldData(appData.currentWorldSystem, appData.currentWorldPoint);
+    const era = worldData.eras[appData.currentEra];
     const saga = era.sagas[appData.currentSaga];
 
     if (!saga.selectedCalendars) saga.selectedCalendars = [];

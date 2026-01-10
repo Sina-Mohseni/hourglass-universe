@@ -139,9 +139,9 @@
                 <button class="btn btn-secondary" onclick="openItemlineModal('universe')" style="margin-top:20px;width:100%">+ Ajouter une info</button>
             </div>
             
-            <!-- Crossline Section (Eras) -->
+            <!-- Crossline Section (Worlds) -->
             <div id="universeCrossline" style="display:none">
-                <div class="cards-grid" id="erasGrid"></div>
+                <div class="cards-grid" id="worldsGrid"></div>
             </div>
 
             <!-- Timeline Section (Temporal Systems) -->
@@ -156,6 +156,92 @@
                     <!-- Add new system button -->
                     <button class="btn btn-secondary" onclick="openTemporalModal()" style="margin-top:15px;width:100%">+ Ajouter un système temporel</button>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- WORLD PAGE -->
+    <!-- ========================================== -->
+    <div class="page" id="worldPage">
+        <div class="page-background" id="worldBackground"></div>
+        <header class="header">
+            <div class="header-left">
+                <button class="icon-btn" onclick="goBack()">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M19 12H5M12 19l-7-7 7-7"/>
+                    </svg>
+                </button>
+                <div class="logo">
+                    <span id="worldTitle"></span>
+                </div>
+            </div>
+            <div class="header-right">
+                <button class="icon-btn" id="worldMusicBtn" style="display:none" onclick="toggleAudioPlayer()">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M9 18V5l12-2v13"/>
+                        <circle cx="6" cy="18" r="3"/>
+                        <circle cx="18" cy="16" r="3"/>
+                    </svg>
+                </button>
+                <button class="icon-btn" onclick="openEditModal('world')">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/>
+                        <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                    </svg>
+                </button>
+                <button class="icon-btn" onclick="openDeleteConfirm('world')">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="3 6 5 6 21 6"/>
+                        <path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/>
+                    </svg>
+                </button>
+            </div>
+        </header>
+        <div class="content">
+            <p class="page-subtitle" id="worldDesc"></p>
+            <div class="parent-context" id="worldParentContext"></div>
+            <div class="sub-menus">
+                <div class="sub-menus-container" id="worldSubMenus" data-active="0">
+                    <button class="sub-menu-btn" onclick="showWorldSection('itemline')" data-section="itemline">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                            <path d="M4 5h16M4 5v14l8 3 8-3V5M4 5l8 3 8-3"/>
+                            <line x1="12" y1="8" x2="12" y2="22"/>
+                        </svg>
+                        <span>Info</span>
+                    </button>
+                    <button class="sub-menu-btn" onclick="showWorldSection('crossline')" data-section="crossline">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                            <circle cx="12" cy="12" r="10"/>
+                            <path d="M2 12h20M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/>
+                        </svg>
+                        <span>Eras</span>
+                    </button>
+                    <button class="sub-menu-btn" onclick="showWorldSection('timeline')" data-section="timeline">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                            <circle cx="12" cy="12" r="10"/>
+                            <polyline points="12 6 12 12 16 14"/>
+                        </svg>
+                        <span>Time</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Itemline Section -->
+            <div id="worldItemline" style="display:none">
+                <div class="itemline-container" id="worldItemlineList"></div>
+                <button class="btn btn-secondary" onclick="openItemlineModal('world')" style="margin-top:20px;width:100%">+ Ajouter une info</button>
+            </div>
+
+            <!-- Crossline Section (Eras) -->
+            <div id="worldCrossline" style="display:none">
+                <div class="cards-grid" id="erasGrid"></div>
+            </div>
+
+            <!-- Timeline Section (Calendars) -->
+            <div id="worldTimeline" style="display:none">
+                <div id="worldCalendarsContainer" class="calendars-container"></div>
+                <button class="btn btn-secondary" onclick="openCalendarModal('world')" style="margin-top:20px;width:100%">+ Ajouter un calendrier</button>
             </div>
         </div>
     </div>
@@ -758,26 +844,86 @@
                     <input type="text" class="form-input" id="temporalSystemName" placeholder="Ex: Système solaire, Cycle lunaire...">
                 </div>
 
-                <p class="form-help" style="margin-bottom:16px">Définissez vos cycles du plus petit (Alpha) au plus grand (Omega).</p>
+                <p class="form-help" style="margin-bottom:16px">
+                    Créez une colonne de points. Le <strong>haut</strong> = centre (ex: Soleil), le <strong>bas</strong> = externe (ex: Lune).
+                    Cliquez sur un point pour définir ses cycles.
+                </p>
 
-                <!-- Cycles list with inline editing -->
-                <div id="temporalCyclesList" class="temporal-cycles-editor"></div>
-
-                <!-- Add intermediate cycle button -->
-                <button class="btn btn-secondary" id="addIntermediateBtn" onclick="addIntermediateCycle()" style="margin-top:15px;width:100%">+ Ajouter un cycle intermédiaire</button>
-
-                <!-- Conversions display -->
-                <div id="cycleConversions" class="cycle-conversions-section" style="display:none">
-                    <h4 class="conversions-title">Conversions</h4>
-                    <div class="conversions-selector">
-                        <label>Calculer pour 1</label>
-                        <select id="conversionCycleSelect" onchange="updateConversions()"></select>
+                <!-- Vertical Column Editor -->
+                <div class="temporal-column-container">
+                    <div class="temporal-column">
+                        <div class="temporal-column-line"></div>
+                        <div id="temporalPointsList" class="temporal-points-list"></div>
                     </div>
+                    <button class="temporal-add-point-btn" onclick="addTemporalPoint()">
+                        <span>+</span> Ajouter un point
+                    </button>
+                </div>
+
+                <!-- Point Detail Panel (shown when point is selected) -->
+                <div id="pointDetailPanel" class="point-detail-panel" style="display:none">
+                    <div class="point-detail-header">
+                        <h4 id="pointDetailTitle">Détails du point</h4>
+                        <button class="point-detail-close" onclick="closePointDetail()">✕</button>
+                    </div>
+                    <div class="point-detail-content">
+                        <!-- Interior Cycle -->
+                        <div class="point-cycle-section">
+                            <div class="point-cycle-header">
+                                <span class="cycle-icon interior">⟳</span>
+                                <span>Cycle intérieur (rotation sur lui-même)</span>
+                            </div>
+                            <div class="point-cycle-inputs">
+                                <input type="text" class="form-input" id="pointInteriorName" placeholder="Nom (ex: Jour, Rotation...)">
+                                <div class="point-cycle-duration">
+                                    <label>Durée en unité de base:</label>
+                                    <input type="number" class="form-input" id="pointInteriorDuration" value="1" min="1">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Exterior Cycles -->
+                        <div class="point-cycle-section">
+                            <div class="point-cycle-header">
+                                <span class="cycle-icon exterior">◎</span>
+                                <span>Cycles extérieurs (orbites autour d'autres points)</span>
+                            </div>
+                            <div id="pointExteriorCycles" class="point-exterior-cycles"></div>
+                        </div>
+
+                        <!-- Double Cycles (calculated) -->
+                        <div class="point-cycle-section">
+                            <div class="point-cycle-header">
+                                <span class="cycle-icon double">◉</span>
+                                <span>Cycles doubles (calculés automatiquement)</span>
+                            </div>
+                            <div id="pointDoubleCycles" class="point-double-cycles"></div>
+                        </div>
+
+                        <!-- Activate as World -->
+                        <div class="point-world-section">
+                            <label class="point-world-toggle">
+                                <input type="checkbox" id="pointIsWorld" onchange="togglePointWorld()">
+                                <span class="toggle-slider"></span>
+                                <span class="toggle-label">Activer comme Monde</span>
+                            </label>
+                            <p class="form-help">Les points actifs apparaîtront comme Mondes dans la crossline de l'Univers</p>
+                        </div>
+                    </div>
+                    <div class="point-detail-footer">
+                        <button class="btn btn-danger btn-small" id="deletePointBtn" onclick="deleteSelectedPoint()">Supprimer ce point</button>
+                        <button class="btn btn-primary btn-small" onclick="savePointDetail()">Appliquer</button>
+                    </div>
+                </div>
+
+                <!-- Conversions Summary -->
+                <div id="cycleConversions" class="cycle-conversions-section" style="display:none">
+                    <h4 class="conversions-title">Résumé des conversions</h4>
                     <div id="conversionResults" class="conversion-results"></div>
                 </div>
             </div>
             <div class="modal-footer">
-                <button class="btn btn-danger" id="deleteTemporalBtn" onclick="deleteTemporalSystem()" style="display:none">Supprimer</button>
+                <button class="btn btn-danger" id="deleteTemporalBtn" onclick="deleteTemporalSystem()" style="display:none">Supprimer le système</button>
                 <button class="btn btn-secondary" onclick="closeTemporalModal()">Annuler</button>
                 <button class="btn btn-primary" onclick="saveTemporalSystem()">Enregistrer</button>
             </div>
@@ -848,6 +994,7 @@
 <script src="js/utils.js"></script>
 <script src="js/navigation.js"></script>
 <script src="js/universes.js"></script>
+<script src="js/world.js"></script>
 <script src="js/eras.js"></script>
 <script src="js/sagas.js"></script>
 <script src="js/details.js"></script>
