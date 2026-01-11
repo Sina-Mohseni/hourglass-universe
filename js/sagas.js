@@ -80,19 +80,11 @@ async function openSagasQuickMenu() {
             item.className = 'quick-menu-item' + (isCurrent ? ' current' : '');
             item.onclick = () => switchToSaga(i);
 
-            let iconHtml = '<span>📖</span>';
-            if (saga.mediaId) {
-                try {
-                    const media = await getMedia(saga.mediaId);
-                    if (media && media.data) {
-                        iconHtml = `<img src="${media.data}" alt="">`;
-                    }
-                } catch (e) {}
-            }
+            const bgHtml = await getCardBackground(saga.mediaId);
 
             item.innerHTML = `
-                <div class="quick-menu-item-icon">${iconHtml}</div>
-                <div class="quick-menu-item-info">
+                ${bgHtml}
+                <div class="quick-menu-item-content">
                     <div class="quick-menu-item-name">${saga.name || 'Sans nom'}</div>
                     <div class="quick-menu-item-desc">${saga.description || 'Aucune description'}</div>
                 </div>
@@ -114,6 +106,72 @@ async function switchToSaga(index) {
     await renderSagaPage();
     saveAppData();
     showToast('Saga changée');
+}
+
+/* =============================================
+   QUICK MENUS - Univers, Mondes, Époques
+   ============================================= */
+
+async function openUniversesQuickMenu() {
+    await openCreationQuickMenu('universes', 'Univers', 'Aucun univers créé', 'Nouvel Univers');
+}
+
+async function openWorldsQuickMenu() {
+    await openCreationQuickMenu('worlds', 'Mondes', 'Aucun monde créé', 'Nouveau Monde');
+}
+
+async function openErasQuickMenu() {
+    await openCreationQuickMenu('eras', 'Époques', 'Aucune époque créée', 'Nouvelle Époque');
+}
+
+async function openCreationQuickMenu(typeKey, title, emptyText, newBtnText) {
+    const saga = appData.sagas[appData.currentSaga];
+    if (!saga) return;
+
+    const container = document.getElementById('creationQuickMenuList');
+    container.innerHTML = '';
+
+    // Update modal title and button
+    document.getElementById('creationQuickMenuTitle').textContent = title;
+    document.getElementById('creationQuickMenuNewBtn').textContent = '+ ' + newBtnText;
+    document.getElementById('creationQuickMenuNewBtn').onclick = () => {
+        closeModal('creationQuickMenuModal');
+        openCreateModal(typeKey, 'saga');
+    };
+
+    // Store current type for reference
+    container.setAttribute('data-type', typeKey);
+
+    const items = saga[typeKey] || [];
+
+    if (items.length === 0) {
+        container.innerHTML = `<div class="quick-menu-empty">${emptyText}</div>`;
+    } else {
+        for (let i = 0; i < items.length; i++) {
+            const item = items[i];
+            const el = document.createElement('div');
+            el.className = 'quick-menu-item';
+            el.onclick = () => openCreationFromQuickMenu(typeKey, i);
+
+            const bgHtml = await getCardBackground(item.mediaId);
+
+            el.innerHTML = `
+                ${bgHtml}
+                <div class="quick-menu-item-content">
+                    <div class="quick-menu-item-name">${item.name || 'Sans nom'}</div>
+                    <div class="quick-menu-item-desc">${item.description || 'Aucune description'}</div>
+                </div>
+            `;
+            container.appendChild(el);
+        }
+    }
+
+    document.getElementById('creationQuickMenuModal').classList.add('active');
+}
+
+function openCreationFromQuickMenu(typeKey, index) {
+    closeModal('creationQuickMenuModal');
+    openCreationDetail(typeKey, index);
 }
 
 async function openSagaFromHome(index) {
