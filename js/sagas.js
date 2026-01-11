@@ -681,24 +681,24 @@ function renderSagaCalendarsAccordion() {
     });
 }
 
-function renderCalendarYearsPreview(years) {
+function renderCalendarYearsPreview(years, depth = 0) {
     if (!years || years.length === 0) {
         return '<div class="empty-elements">Aucun cycle défini</div>';
     }
 
     let html = '<div class="calendar-years-preview">';
     years.forEach((year, yIdx) => {
-        const subCount = year.subCycles ? year.subCycles.length : 0;
+        const subCount = countAllSubCycles(year);
         html += `
-            <div class="year-preview-block">
+            <div class="year-preview-block" style="margin-left: ${depth * 12}px">
                 <div class="year-preview-header">
                     <span class="year-preview-name">${year.name || 'Cycle'} ${year.number || (yIdx + 1)}</span>
                     <span class="year-preview-count">${subCount} sous-cycle${subCount > 1 ? 's' : ''}</span>
                 </div>
                 ${year.subCycles && year.subCycles.length > 0 ? `
                     <div class="year-preview-subs">
-                        ${year.subCycles.slice(0, 4).map(sub => `<span class="sub-preview">${sub.name || 'Sous-cycle'} ${sub.number || ''}</span>`).join('')}
-                        ${year.subCycles.length > 4 ? `<span class="sub-preview more">+${year.subCycles.length - 4}</span>` : ''}
+                        ${year.subCycles.slice(0, 3).map(sub => `<span class="sub-preview">${sub.name || 'Sous-cycle'} ${sub.number || ''}</span>`).join('')}
+                        ${year.subCycles.length > 3 ? `<span class="sub-preview more">+${year.subCycles.length - 3}</span>` : ''}
                     </div>
                 ` : ''}
             </div>
@@ -708,6 +708,15 @@ function renderCalendarYearsPreview(years) {
     return html;
 }
 
+function countAllSubCycles(cycle) {
+    if (!cycle.subCycles || cycle.subCycles.length === 0) return 0;
+    let count = cycle.subCycles.length;
+    for (const sub of cycle.subCycles) {
+        count += countAllSubCycles(sub);
+    }
+    return count;
+}
+
 function toggleCalendarAccordionExpand(calIndex) {
     const content = document.getElementById(`calendarAccordionContent_${calIndex}`);
     const item = content.parentElement;
@@ -715,7 +724,7 @@ function toggleCalendarAccordionExpand(calIndex) {
 }
 
 /* =============================================
-   CALENDAR ACCORDION MODAL
+   CALENDAR ACCORDION MODAL - Recursive System
    ============================================= */
 
 function openCalendarAccordionModal(editIndex = null) {
@@ -766,69 +775,96 @@ function renderAccordionYears() {
     }
 
     calendarAccordionData.years.forEach((year, yIdx) => {
-        const yearEl = document.createElement('div');
-        yearEl.className = 'year-accordion-block';
-
-        const subCount = year.subCycles ? year.subCycles.length : 0;
-
-        yearEl.innerHTML = `
-            <div class="year-accordion-header" onclick="toggleYearExpand(${yIdx})">
-                <div class="year-accordion-icon">📆</div>
-                <div class="year-accordion-info">
-                    <span class="year-accordion-name">${year.name || 'Cycle'} ${year.number || (yIdx + 1)}</span>
-                    <span class="year-accordion-count">${subCount} sous-cycle${subCount > 1 ? 's' : ''}</span>
-                </div>
-                <div class="year-accordion-actions">
-                    <button class="year-action-btn" onclick="event.stopPropagation(); editYear(${yIdx})" title="Modifier">✎</button>
-                    <button class="year-action-btn" onclick="event.stopPropagation(); copyYear(${yIdx})" title="Copier">📋</button>
-                    <button class="year-action-btn delete" onclick="event.stopPropagation(); deleteYear(${yIdx})" title="Supprimer">✕</button>
-                    <svg class="year-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M6 9l6 6 6-6"/>
-                    </svg>
-                </div>
-            </div>
-            <div class="year-accordion-content" id="yearContent_${yIdx}">
-                <div class="year-subcycles" id="yearSubcycles_${yIdx}"></div>
-                <button class="btn btn-secondary btn-small" onclick="addSubCycle(${yIdx})" style="margin-top:8px;width:100%">+ Ajouter un sous-cycle</button>
-            </div>
-        `;
-        container.appendChild(yearEl);
-
-        // Render subcycles
-        renderYearSubcycles(yIdx);
+        container.appendChild(createCycleElement(year, yIdx, [], 0));
     });
 }
 
-function toggleYearExpand(yearIndex) {
-    const content = document.getElementById(`yearContent_${yearIndex}`);
-    const block = content.parentElement;
-    block.classList.toggle('expanded');
-}
+// Create a cycle element with recursive sub-cycles
+function createCycleElement(cycle, index, parentPath, depth) {
+    const currentPath = [...parentPath, index];
+    const pathStr = currentPath.join('-');
+    const subCount = countAllSubCycles(cycle);
 
-function renderYearSubcycles(yearIndex) {
-    const container = document.getElementById(`yearSubcycles_${yearIndex}`);
-    const year = calendarAccordionData.years[yearIndex];
-    container.innerHTML = '';
+    const cycleEl = document.createElement('div');
+    cycleEl.className = 'year-accordion-block';
+    cycleEl.style.marginLeft = `${depth * 16}px`;
+    cycleEl.setAttribute('data-path', pathStr);
 
-    if (!year.subCycles || year.subCycles.length === 0) {
-        container.innerHTML = '<div class="empty-subcycles">Aucun sous-cycle</div>';
-        return;
+    const depthLabel = depth === 0 ? 'Cycle' : `Sous-cycle (niv. ${depth})`;
+    const depthIcon = depth === 0 ? '📆' : depth === 1 ? '📅' : '📄';
+
+    cycleEl.innerHTML = `
+        <div class="year-accordion-header" onclick="toggleCycleExpand('${pathStr}')">
+            <div class="year-accordion-icon">${depthIcon}</div>
+            <div class="year-accordion-info">
+                <span class="year-accordion-name">${cycle.name || depthLabel} ${cycle.number || (index + 1)}</span>
+                <span class="year-accordion-count">${subCount} sous-cycle${subCount > 1 ? 's' : ''}</span>
+            </div>
+            <div class="year-accordion-actions">
+                <button class="year-action-btn" onclick="event.stopPropagation(); editCycle('${pathStr}')" title="Modifier">✎</button>
+                <button class="year-action-btn" onclick="event.stopPropagation(); copyCycle('${pathStr}')" title="Copier">📋</button>
+                <button class="year-action-btn delete" onclick="event.stopPropagation(); deleteCycle('${pathStr}')" title="Supprimer">✕</button>
+                <svg class="year-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M6 9l6 6 6-6"/>
+                </svg>
+            </div>
+        </div>
+        <div class="year-accordion-content" id="cycleContent_${pathStr}">
+            <div class="year-subcycles" id="cycleSubcycles_${pathStr}"></div>
+            <button class="btn btn-secondary btn-small" onclick="addSubCycleAtPath('${pathStr}')" style="margin-top:8px;width:100%">+ Ajouter un sous-cycle</button>
+        </div>
+    `;
+
+    // Render sub-cycles recursively
+    const subcyclesContainer = cycleEl.querySelector(`#cycleSubcycles_${pathStr}`);
+    if (cycle.subCycles && cycle.subCycles.length > 0) {
+        cycle.subCycles.forEach((sub, sIdx) => {
+            subcyclesContainer.appendChild(createCycleElement(sub, sIdx, currentPath, depth + 1));
+        });
+    } else {
+        subcyclesContainer.innerHTML = '<div class="empty-subcycles">Aucun sous-cycle</div>';
     }
 
-    year.subCycles.forEach((sub, sIdx) => {
-        const subEl = document.createElement('div');
-        subEl.className = 'subcycle-block';
-        subEl.innerHTML = `
-            <div class="subcycle-info">
-                <span class="subcycle-name">${sub.name || 'Sous-cycle'} ${sub.number || (sIdx + 1)}</span>
-            </div>
-            <div class="subcycle-actions">
-                <button class="subcycle-btn" onclick="editSubCycle(${yearIndex}, ${sIdx})">✎</button>
-                <button class="subcycle-btn delete" onclick="deleteSubCycle(${yearIndex}, ${sIdx})">✕</button>
-            </div>
-        `;
-        container.appendChild(subEl);
-    });
+    return cycleEl;
+}
+
+function toggleCycleExpand(pathStr) {
+    const block = document.querySelector(`[data-path="${pathStr}"]`);
+    if (block) {
+        block.classList.toggle('expanded');
+    }
+}
+
+// Get cycle at path
+function getCycleAtPath(path) {
+    if (typeof path === 'string') {
+        path = path.split('-').map(Number);
+    }
+
+    let current = calendarAccordionData.years[path[0]];
+    for (let i = 1; i < path.length; i++) {
+        if (!current || !current.subCycles) return null;
+        current = current.subCycles[path[i]];
+    }
+    return current;
+}
+
+// Get parent cycles array at path
+function getParentArrayAtPath(path) {
+    if (typeof path === 'string') {
+        path = path.split('-').map(Number);
+    }
+
+    if (path.length === 1) {
+        return calendarAccordionData.years;
+    }
+
+    let current = calendarAccordionData.years[path[0]];
+    for (let i = 1; i < path.length - 1; i++) {
+        if (!current || !current.subCycles) return null;
+        current = current.subCycles[path[i]];
+    }
+    return current.subCycles;
 }
 
 function addCalendarYear() {
@@ -840,77 +876,109 @@ function addCalendarYear() {
     renderAccordionYears();
 }
 
-function editYear(yearIndex) {
-    editingYearIndex = yearIndex;
-    const year = calendarAccordionData.years[yearIndex];
+function addSubCycleAtPath(pathStr) {
+    const cycle = getCycleAtPath(pathStr);
+    if (!cycle) return;
 
-    document.getElementById('yearEditName').value = year.name || '';
-    document.getElementById('yearEditNumber').value = year.number || '';
+    if (!cycle.subCycles) cycle.subCycles = [];
+
+    const depth = pathStr.split('-').length;
+    const defaultName = depth === 1 ? 'Mois' : depth === 2 ? 'Semaine' : depth === 3 ? 'Jour' : 'Période';
+
+    cycle.subCycles.push({
+        name: defaultName,
+        number: String(cycle.subCycles.length + 1),
+        subCycles: []
+    });
+    renderAccordionYears();
+}
+
+function editCycle(pathStr) {
+    const cycle = getCycleAtPath(pathStr);
+    if (!cycle) return;
+
+    editingYearIndex = pathStr;
+
+    document.getElementById('yearEditName').value = cycle.name || '';
+    document.getElementById('yearEditNumber').value = cycle.number || '';
     document.getElementById('yearEditModal').classList.add('active');
 }
 
 function saveYearEdit() {
     if (editingYearIndex === null) return;
 
-    const year = calendarAccordionData.years[editingYearIndex];
-    year.name = document.getElementById('yearEditName').value.trim() || 'Cycle';
-    year.number = document.getElementById('yearEditNumber').value.trim() || String(editingYearIndex + 1);
+    const cycle = getCycleAtPath(editingYearIndex);
+    if (!cycle) return;
+
+    cycle.name = document.getElementById('yearEditName').value.trim() || 'Cycle';
+    cycle.number = document.getElementById('yearEditNumber').value.trim() || '';
 
     closeModal('yearEditModal');
     renderAccordionYears();
     editingYearIndex = null;
 }
 
-function copyYear(yearIndex) {
-    const yearToCopy = calendarAccordionData.years[yearIndex];
-    const copiedYear = JSON.parse(JSON.stringify(yearToCopy));
-    copiedYear.number = String(calendarAccordionData.years.length + 1);
-    calendarAccordionData.years.push(copiedYear);
+function copyCycle(pathStr) {
+    const path = pathStr.split('-').map(Number);
+    const parentArray = getParentArrayAtPath(path);
+    const index = path[path.length - 1];
+
+    if (!parentArray || !parentArray[index]) return;
+
+    const cycleToCopy = parentArray[index];
+    const copiedCycle = JSON.parse(JSON.stringify(cycleToCopy));
+    copiedCycle.number = String(parentArray.length + 1);
+    parentArray.push(copiedCycle);
     renderAccordionYears();
     showToast('Cycle copié');
 }
 
-function deleteYear(yearIndex) {
-    calendarAccordionData.years.splice(yearIndex, 1);
+function deleteCycle(pathStr) {
+    const path = pathStr.split('-').map(Number);
+    const parentArray = getParentArrayAtPath(path);
+    const index = path[path.length - 1];
+
+    if (!parentArray) return;
+
+    parentArray.splice(index, 1);
     renderAccordionYears();
 }
 
+// Legacy functions for backwards compatibility
+function toggleYearExpand(yearIndex) {
+    toggleCycleExpand(String(yearIndex));
+}
+
+function renderYearSubcycles(yearIndex) {
+    renderAccordionYears();
+}
+
+function editYear(yearIndex) {
+    editCycle(String(yearIndex));
+}
+
+function copyYear(yearIndex) {
+    copyCycle(String(yearIndex));
+}
+
+function deleteYear(yearIndex) {
+    deleteCycle(String(yearIndex));
+}
+
 function addSubCycle(yearIndex) {
-    const year = calendarAccordionData.years[yearIndex];
-    if (!year.subCycles) year.subCycles = [];
-    year.subCycles.push({
-        name: 'Mois',
-        number: String(year.subCycles.length + 1)
-    });
-    renderYearSubcycles(yearIndex);
+    addSubCycleAtPath(String(yearIndex));
 }
 
 function editSubCycle(yearIndex, subIndex) {
-    editingSubCycleYearIndex = yearIndex;
-    editingSubCycleIndex = subIndex;
-    const sub = calendarAccordionData.years[yearIndex].subCycles[subIndex];
-
-    document.getElementById('subCycleEditName').value = sub.name || '';
-    document.getElementById('subCycleEditNumber').value = sub.number || '';
-    document.getElementById('subCycleEditModal').classList.add('active');
-}
-
-function saveSubCycleEdit() {
-    if (editingSubCycleYearIndex === null || editingSubCycleIndex === null) return;
-
-    const sub = calendarAccordionData.years[editingSubCycleYearIndex].subCycles[editingSubCycleIndex];
-    sub.name = document.getElementById('subCycleEditName').value.trim() || 'Sous-cycle';
-    sub.number = document.getElementById('subCycleEditNumber').value.trim() || String(editingSubCycleIndex + 1);
-
-    closeModal('subCycleEditModal');
-    renderYearSubcycles(editingSubCycleYearIndex);
-    editingSubCycleYearIndex = null;
-    editingSubCycleIndex = null;
+    editCycle(`${yearIndex}-${subIndex}`);
 }
 
 function deleteSubCycle(yearIndex, subIndex) {
-    calendarAccordionData.years[yearIndex].subCycles.splice(subIndex, 1);
-    renderYearSubcycles(yearIndex);
+    deleteCycle(`${yearIndex}-${subIndex}`);
+}
+
+function saveSubCycleEdit() {
+    saveYearEdit();
 }
 
 async function saveCalendarAccordion() {
