@@ -569,3 +569,188 @@
     color: var(--accent-gold);
     font-weight: 600;
 }
+
+/* =============================================
+   FLAT CYCLE BLOCKS - Uniform Size Design
+   ============================================= */
+
+.cycle-flat-block {
+    display: flex;
+    align-items: center;
+    background: var(--bg-secondary);
+    border: 1px solid var(--glass-border);
+    border-radius: 10px;
+    padding: clamp(10px, 2.5vmin, 14px);
+    margin-bottom: 8px;
+    transition: var(--transition);
+    min-height: 54px;
+}
+
+.cycle-flat-block:hover {
+    border-color: var(--accent-gold);
+    background: rgba(212, 168, 83, 0.05);
+}
+
+/* Depth Indicator - Visual hierarchy without changing block size */
+.cycle-flat-depth {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    min-width: 40px;
+    margin-right: 12px;
+}
+
+.depth-line {
+    font-family: monospace;
+    color: var(--text-muted);
+    opacity: 0.5;
+    font-size: 12px;
+}
+
+/* Depth color variations */
+.cycle-flat-depth.depth-0 .depth-line {
+    color: var(--accent-gold);
+    opacity: 0.8;
+}
+
+.cycle-flat-depth.depth-1 .depth-line {
+    color: var(--accent-amber);
+    opacity: 0.7;
+}
+
+.cycle-flat-depth.depth-2 .depth-line {
+    color: #9c7a3c;
+    opacity: 0.6;
+}
+
+.cycle-flat-depth.depth-3 .depth-line {
+    color: #7a5c2e;
+    opacity: 0.5;
+}
+
+.cycle-flat-depth.depth-4 .depth-line {
+    color: #5a4422;
+    opacity: 0.4;
+}
+
+/* Left border color indicator by depth */
+.cycle-flat-block[data-depth="0"] {
+    border-left: 3px solid var(--accent-gold);
+}
+
+.cycle-flat-block[data-depth="1"] {
+    border-left: 3px solid var(--accent-amber);
+    margin-left: 12px;
+}
+
+.cycle-flat-block[data-depth="2"] {
+    border-left: 3px solid #9c7a3c;
+    margin-left: 24px;
+}
+
+.cycle-flat-block[data-depth="3"] {
+    border-left: 3px solid #7a5c2e;
+    margin-left: 36px;
+}
+
+.cycle-flat-block[data-depth="4"],
+.cycle-flat-block[data-depth="5"],
+.cycle-flat-block[data-depth="6"],
+.cycle-flat-block[data-depth="7"],
+.cycle-flat-block[data-depth="8"] {
+    border-left: 3px solid #5a4422;
+    margin-left: 48px;
+}
+
+/* Content section */
+.cycle-flat-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+}
+
+.cycle-flat-name {
+    font-family: var(--font-display);
+    font-size: clamp(13px, 2.8vmin, 16px);
+    color: var(--accent-amber);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.cycle-flat-meta {
+    font-size: clamp(10px, 2vmin, 12px);
+    color: var(--text-muted);
+    margin-top: 2px;
+}
+
+/* Action buttons */
+.cycle-flat-actions {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-left: 12px;
+}
+
+.cycle-flat-btn {
+    width: clamp(28px, 6vmin, 32px);
+    height: clamp(28px, 6vmin, 32px);
+    border: none;
+    border-radius: 6px;
+    background: var(--bg-tertiary);
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: var(--transition);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: clamp(12px, 2.5vmin, 14px);
+}
+
+.cycle-flat-btn:hover {
+    background: rgba(212, 168, 83, 0.15);
+    color: var(--accent-gold);
+}
+
+.cycle-flat-btn.add {
+    background: rgba(212, 168, 83, 0.1);
+    color: var(--accent-gold);
+    font-weight: bold;
+}
+
+.cycle-flat-btn.add:hover {
+    background: rgba(212, 168, 83, 0.25);
+}
+
+.cycle-flat-btn.delete:hover {
+    background: rgba(255, 100, 100, 0.15);
+    color: #ff6b6b;
+}
+
+/* Calendar years accordion container for flat blocks */
+.calendar-years-accordion {
+    display: flex;
+    flex-direction: column;
+    max-height: 450px;
+    overflow-y: auto;
+    padding-right: 4px;
+}
+
+.calendar-years-accordion::-webkit-scrollbar {
+    width: 6px;
+}
+
+.calendar-years-accordion::-webkit-scrollbar-track {
+    background: var(--bg-secondary);
+    border-radius: 3px;
+}
+
+.calendar-years-accordion::-webkit-scrollbar-thumb {
+    background: var(--glass-border);
+    border-radius: 3px;
+}
+
+.calendar-years-accordion::-webkit-scrollbar-thumb:hover {
+    background: var(--accent-gold);
+}

@@ -724,7 +724,7 @@ function toggleCalendarAccordionExpand(calIndex) {
 }
 
 /* =============================================
-   CALENDAR ACCORDION MODAL - Recursive System
+   CALENDAR ACCORDION MODAL - Flat List System
    ============================================= */
 
 function openCalendarAccordionModal(editIndex = null) {
@@ -757,7 +757,7 @@ function openCalendarAccordionModal(editIndex = null) {
         deleteBtn.style.display = 'none';
     }
 
-    renderAccordionYears();
+    renderFlatCyclesList();
     modal.classList.add('active');
 }
 
@@ -765,7 +765,28 @@ function editCalendarAccordion(calIndex) {
     openCalendarAccordionModal(calIndex);
 }
 
-function renderAccordionYears() {
+// Flatten all cycles into a single list for display
+function flattenCycles(cycles, parentPath = [], depth = 0) {
+    const result = [];
+    if (!cycles) return result;
+
+    cycles.forEach((cycle, index) => {
+        const path = [...parentPath, index];
+        result.push({
+            cycle,
+            path,
+            pathStr: path.join('-'),
+            depth,
+            index
+        });
+        if (cycle.subCycles && cycle.subCycles.length > 0) {
+            result.push(...flattenCycles(cycle.subCycles, path, depth + 1));
+        }
+    });
+    return result;
+}
+
+function renderFlatCyclesList() {
     const container = document.getElementById('calendarYearsAccordion');
     container.innerHTML = '';
 
@@ -774,65 +795,52 @@ function renderAccordionYears() {
         return;
     }
 
-    calendarAccordionData.years.forEach((year, yIdx) => {
-        container.appendChild(createCycleElement(year, yIdx, [], 0));
+    const flatList = flattenCycles(calendarAccordionData.years);
+
+    flatList.forEach(item => {
+        container.appendChild(createFlatCycleBlock(item));
     });
 }
 
-// Create a cycle element with recursive sub-cycles
-function createCycleElement(cycle, index, parentPath, depth) {
-    const currentPath = [...parentPath, index];
-    const pathStr = currentPath.join('-');
-    const subCount = countAllSubCycles(cycle);
+function createFlatCycleBlock(item) {
+    const { cycle, pathStr, depth, index } = item;
+    const subCount = cycle.subCycles ? cycle.subCycles.length : 0;
 
-    const cycleEl = document.createElement('div');
-    cycleEl.className = 'year-accordion-block';
-    cycleEl.setAttribute('data-path', pathStr);
-    cycleEl.setAttribute('data-depth', depth);
+    const block = document.createElement('div');
+    block.className = 'cycle-flat-block';
+    block.setAttribute('data-path', pathStr);
+    block.setAttribute('data-depth', depth);
 
-    const depthLabel = depth === 0 ? 'Cycle' : `Niv.${depth}`;
-    const depthIcon = depth === 0 ? '📆' : depth === 1 ? '📅' : depth === 2 ? '📄' : '•';
+    // Depth indicator (visual hierarchy)
+    const depthIndicator = depth > 0 ? '└'.padStart(depth * 2, ' ') + ' ' : '';
+    const depthClass = `depth-${Math.min(depth, 4)}`;
 
-    cycleEl.innerHTML = `
-        <div class="year-accordion-header" onclick="toggleCycleExpand('${pathStr}')">
-            <div class="year-accordion-icon">${depthIcon}</div>
-            <div class="year-accordion-info">
-                <span class="year-accordion-name">${cycle.name || 'Cycle'} ${cycle.number || (index + 1)}</span>
-                <span class="year-accordion-count">${subCount} sous-cycle${subCount > 1 ? 's' : ''}</span>
-            </div>
-            <div class="year-accordion-actions">
-                <button class="year-action-btn" onclick="event.stopPropagation(); editCycle('${pathStr}')" title="Modifier">✎</button>
-                <button class="year-action-btn" onclick="event.stopPropagation(); copyCycle('${pathStr}')" title="Copier">📋</button>
-                <button class="year-action-btn delete" onclick="event.stopPropagation(); deleteCycle('${pathStr}')" title="Supprimer">✕</button>
-                <svg class="year-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M6 9l6 6 6-6"/>
-                </svg>
-            </div>
+    block.innerHTML = `
+        <div class="cycle-flat-depth ${depthClass}">
+            <span class="depth-line">${'─'.repeat(depth)}</span>
         </div>
-        <div class="year-accordion-content" id="cycleContent_${pathStr}">
-            <div class="year-subcycles" id="cycleSubcycles_${pathStr}"></div>
-            <button class="btn btn-secondary btn-small" onclick="addSubCycleAtPath('${pathStr}')" style="margin-top:8px;width:100%">+ Ajouter un sous-cycle</button>
+        <div class="cycle-flat-content">
+            <div class="cycle-flat-name">${cycle.name || 'Cycle'} ${cycle.number || (index + 1)}</div>
+            <div class="cycle-flat-meta">${subCount > 0 ? `${subCount} sous-cycle${subCount > 1 ? 's' : ''}` : 'Aucun sous-cycle'}</div>
+        </div>
+        <div class="cycle-flat-actions">
+            <button class="cycle-flat-btn add" onclick="addSubCycleAtPath('${pathStr}')" title="Ajouter sous-cycle">+</button>
+            <button class="cycle-flat-btn" onclick="editCycle('${pathStr}')" title="Modifier">✎</button>
+            <button class="cycle-flat-btn" onclick="copyCycle('${pathStr}')" title="Copier">📋</button>
+            <button class="cycle-flat-btn delete" onclick="deleteCycle('${pathStr}')" title="Supprimer">✕</button>
         </div>
     `;
 
-    // Render sub-cycles recursively
-    const subcyclesContainer = cycleEl.querySelector(`#cycleSubcycles_${pathStr}`);
-    if (cycle.subCycles && cycle.subCycles.length > 0) {
-        cycle.subCycles.forEach((sub, sIdx) => {
-            subcyclesContainer.appendChild(createCycleElement(sub, sIdx, currentPath, depth + 1));
-        });
-    } else {
-        subcyclesContainer.innerHTML = '<div class="empty-subcycles">Aucun sous-cycle</div>';
-    }
+    return block;
+}
 
-    return cycleEl;
+// Legacy function kept for compatibility
+function renderAccordionYears() {
+    renderFlatCyclesList();
 }
 
 function toggleCycleExpand(pathStr) {
-    const block = document.querySelector(`[data-path="${pathStr}"]`);
-    if (block) {
-        block.classList.toggle('expanded');
-    }
+    // No longer needed with flat design
 }
 
 // Get cycle at path
