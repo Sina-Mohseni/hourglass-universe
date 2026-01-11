@@ -13,16 +13,22 @@ async function openDetail(index, type) {
 
 // Helper function to get the current detail object
 function getCurrentDetail() {
-    const worldData = getWorldData(appData.currentWorldSystem, appData.currentWorldPoint);
-    const era = worldData.eras[appData.currentEra];
-    const saga = era.sagas[appData.currentSaga];
+    // New structure: sagas are at root level
+    const saga = appData.sagas[appData.currentSaga];
+    if (!saga) return null;
 
-    if (appData.currentDetailType === 'element' && appData.currentElementTypeIndex !== undefined) {
+    const detailType = appData.currentDetailType;
+
+    // Handle element type details
+    if (detailType === 'element' && appData.currentElementTypeIndex !== undefined) {
         const elementType = saga.elementTypes[appData.currentElementTypeIndex];
+        if (!elementType || !elementType.elements) return null;
         return elementType.elements[appData.currentDetail];
     }
 
-    return saga[appData.currentDetailType][appData.currentDetail];
+    // Handle all other types (universes, worlds, eras, histoires, sujets)
+    if (!saga[detailType]) return null;
+    return saga[detailType][appData.currentDetail];
 }
 
 async function renderDetailPage() {
@@ -32,12 +38,13 @@ async function renderDetailPage() {
     document.getElementById('detailTitle').textContent = detail.name;
     document.getElementById('detailDesc').textContent = detail.description || '';
 
+    // Always render background if mediaId exists
     await renderBackground('detailBackground', detail.mediaId);
 
-    const musicBtn = document.getElementById('detailMusicBtn');
-    musicBtn.style.display = (detail.audioIds && detail.audioIds.length) ? 'flex' : 'none';
-
-    if (detail.audioIds) await loadAudioTracks(detail.audioIds);
+    // Always show music button
+    if (detail.audioIds && detail.audioIds.length) {
+        await loadAudioTracks(detail.audioIds);
+    }
 
     hideAllDetailSections();
 }

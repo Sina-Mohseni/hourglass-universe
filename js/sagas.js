@@ -318,10 +318,7 @@ async function renderCreationItems(typeKey) {
         card.className = 'element-card';
         card.onclick = () => openCreationDetail(typeKey, i);
 
-        let bgHtml = '';
-        if (item.mediaId) {
-            bgHtml = await getCardBackground(item.mediaId);
-        }
+        const bgHtml = await getCardBackground(item.mediaId);
 
         card.innerHTML = `
             ${bgHtml}
@@ -411,10 +408,7 @@ async function renderScenarioItems(typeKey) {
         card.className = 'element-card';
         card.onclick = () => openDetail(i, typeKey);
 
-        let bgHtml = '';
-        if (item.mediaId) {
-            bgHtml = await getCardBackground(item.mediaId);
-        }
+        const bgHtml = await getCardBackground(item.mediaId);
 
         card.innerHTML = `
             ${bgHtml}
@@ -511,10 +505,7 @@ async function renderElementsForType(typeIndex) {
         card.className = 'element-card';
         card.onclick = () => openElementDetail(typeIndex, i);
 
-        let bgHtml = '';
-        if (el.mediaId) {
-            bgHtml = await getCardBackground(el.mediaId);
-        }
+        const bgHtml = await getCardBackground(el.mediaId);
 
         card.innerHTML = `
             ${bgHtml}
