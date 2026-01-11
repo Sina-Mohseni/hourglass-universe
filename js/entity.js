@@ -4,7 +4,7 @@
 
 async function saveEntity() {
     try {
-        console.log('Saving entity, mode:', modalState.mode, 'type:', modalState.type);
+        console.log('Saving entity, mode:', modalState.mode, 'type:', modalState.type, 'parentType:', modalState.parentType);
         const name = document.getElementById('inputName').value.trim();
         if (!name) {
             showToast('Entrez un nom');
@@ -43,138 +43,9 @@ async function saveEntity() {
         };
 
         if (modalState.mode === 'edit') {
-            if (modalState.type === 'universe' || (appData.navStack[appData.navStack.length - 1] === 'universe' && modalState.type !== 'era')) {
-                const existing = appData.universes[modalState.editIndex];
-                if (existing.mediaId && existing.mediaId !== mediaId) {
-                    await deleteMedia(existing.mediaId);
-                }
-                entity.eras = existing.eras || [];
-                entity.itemline = existing.itemline || [];
-                entity.crossline = existing.crossline || [];
-                entity.temporalSystem = existing.temporalSystem;
-                appData.universes[modalState.editIndex] = entity;
-                await saveAppData();
-                await renderUniversePage();
-            } else if (modalState.type === 'world') {
-                const worldData = getWorldData(appData.currentWorldSystem, appData.currentWorldPoint);
-                if (worldData.mediaId && worldData.mediaId !== mediaId) {
-                    await deleteMedia(worldData.mediaId);
-                }
-                worldData.description = entity.description;
-                worldData.mediaId = mediaId;
-                worldData.audioIds = audioIds;
-                await saveAppData();
-                await renderWorldPage();
-            } else if (modalState.type === 'era') {
-                const worldData = getWorldData(appData.currentWorldSystem, appData.currentWorldPoint);
-                const existing = worldData.eras[modalState.editIndex];
-                if (existing.mediaId && existing.mediaId !== mediaId) {
-                    await deleteMedia(existing.mediaId);
-                }
-                entity.itemline = existing.itemline || [];
-                entity.sagas = existing.sagas || [];
-                entity.calendars = existing.calendars || [];
-                worldData.eras[modalState.editIndex] = entity;
-                await saveAppData();
-                await renderEraPage();
-            } else if (modalState.type === 'saga') {
-                const worldData = getWorldData(appData.currentWorldSystem, appData.currentWorldPoint);
-                const era = worldData.eras[appData.currentEra];
-                const existing = era.sagas[modalState.editIndex];
-                if (existing.mediaId && existing.mediaId !== mediaId) {
-                    await deleteMedia(existing.mediaId);
-                }
-                entity.itemline = existing.itemline || [];
-                entity.histoires = existing.histoires || [];
-                entity.sujets = existing.sujets || [];
-                entity.elementTypes = existing.elementTypes || [];
-                entity.selectedCalendars = existing.selectedCalendars || [];
-                era.sagas[modalState.editIndex] = entity;
-                await saveAppData();
-                await renderSagaPage();
-            } else if (modalState.type === 'element' && appData.currentElementTypeIndex !== undefined) {
-                // Element edit within element type
-                const worldData = getWorldData(appData.currentWorldSystem, appData.currentWorldPoint);
-                const era = worldData.eras[appData.currentEra];
-                const saga = era.sagas[appData.currentSaga];
-                const elementType = saga.elementTypes[appData.currentElementTypeIndex];
-                const existing = elementType.elements[modalState.editIndex];
-                if (existing.mediaId && existing.mediaId !== mediaId) {
-                    await deleteMedia(existing.mediaId);
-                }
-                entity.itemline = existing.itemline || [];
-                entity.calendars = existing.calendars || [];
-                elementType.elements[modalState.editIndex] = entity;
-                await saveAppData();
-                await renderDetailPage();
-            } else {
-                // Detail edit (histoires, sujets)
-                const worldData = getWorldData(appData.currentWorldSystem, appData.currentWorldPoint);
-                const era = worldData.eras[appData.currentEra];
-                const saga = era.sagas[appData.currentSaga];
-                const existing = saga[modalState.type][modalState.editIndex];
-                if (existing.mediaId && existing.mediaId !== mediaId) {
-                    await deleteMedia(existing.mediaId);
-                }
-                entity.itemline = existing.itemline || [];
-                entity.calendars = existing.calendars || [];
-                saga[modalState.type][modalState.editIndex] = entity;
-                await saveAppData();
-                await renderDetailPage();
-            }
+            await handleEditEntity(entity, mediaId, audioIds);
         } else {
-            if (modalState.type === 'universe') {
-                entity.eras = [];
-                appData.universes.push(entity);
-                await saveAppData();
-                await renderUniverses();
-            } else if (modalState.type === 'era') {
-                const worldData = getWorldData(appData.currentWorldSystem, appData.currentWorldPoint);
-                if (!worldData.eras) worldData.eras = [];
-                entity.sagas = [];
-                worldData.eras.push(entity);
-                await saveAppData();
-                await renderEras();
-            } else if (modalState.type === 'saga') {
-                const worldData = getWorldData(appData.currentWorldSystem, appData.currentWorldPoint);
-                const era = worldData.eras[appData.currentEra];
-                if (!era.sagas) era.sagas = [];
-                entity.histoires = [];
-                entity.sujets = [];
-                entity.elementTypes = [];
-                entity.selectedCalendars = [];
-                era.sagas.push(entity);
-                await saveAppData();
-                await renderSagas();
-            } else if (modalState.type === 'element' && modalState.parentType === 'saga') {
-                // Create element within an element type
-                const worldData = getWorldData(appData.currentWorldSystem, appData.currentWorldPoint);
-                const era = worldData.eras[appData.currentEra];
-                const saga = era.sagas[appData.currentSaga];
-                const elementType = saga.elementTypes[modalState.elementTypeIndex];
-                if (!elementType.elements) elementType.elements = [];
-                elementType.elements.push(entity);
-                await saveAppData();
-                renderSagaElementTypes();
-            } else if (modalState.parentType === 'saga') {
-                // Create detail from saga page (histoires, sujets)
-                const worldData = getWorldData(appData.currentWorldSystem, appData.currentWorldPoint);
-                const era = worldData.eras[appData.currentEra];
-                const saga = era.sagas[appData.currentSaga];
-                if (!saga[modalState.type]) saga[modalState.type] = [];
-                saga[modalState.type].push(entity);
-                await saveAppData();
-                await renderSagaScenarii(modalState.type);
-            } else if (modalState.parentType === 'detail') {
-                const worldData = getWorldData(appData.currentWorldSystem, appData.currentWorldPoint);
-                const era = worldData.eras[appData.currentEra];
-                const saga = era.sagas[appData.currentSaga];
-                const detail = saga[appData.currentDetailType][appData.currentDetail];
-                if (!detail[modalState.type]) detail[modalState.type] = [];
-                detail[modalState.type].push(entity);
-                await saveAppData();
-                await renderDetailCrossline(modalState.type);
-            }
+            await handleCreateEntity(entity);
         }
 
         showToast('Enregistré');
@@ -185,6 +56,160 @@ async function saveEntity() {
     }
 }
 
+async function handleEditEntity(entity, mediaId, audioIds) {
+    // Edit saga at root level
+    if (modalState.type === 'saga' && appData.navStack[appData.navStack.length - 1] === 'saga') {
+        const existing = appData.sagas[appData.currentSaga];
+        if (existing.mediaId && existing.mediaId !== mediaId) {
+            await deleteMedia(existing.mediaId);
+        }
+        entity.itemline = existing.itemline || [];
+        entity.universes = existing.universes || [];
+        entity.worlds = existing.worlds || [];
+        entity.eras = existing.eras || [];
+        entity.histoires = existing.histoires || [];
+        entity.sujets = existing.sujets || [];
+        entity.elementTypes = existing.elementTypes || [];
+        entity.calendars = existing.calendars || [];
+        appData.sagas[appData.currentSaga] = entity;
+        await saveAppData();
+        await renderSagaPage();
+    }
+    // Edit universe (legacy)
+    else if (modalState.type === 'universe') {
+        const existing = appData.universes[modalState.editIndex];
+        if (existing.mediaId && existing.mediaId !== mediaId) {
+            await deleteMedia(existing.mediaId);
+        }
+        entity.eras = existing.eras || [];
+        entity.itemline = existing.itemline || [];
+        entity.crossline = existing.crossline || [];
+        entity.temporalSystem = existing.temporalSystem;
+        appData.universes[modalState.editIndex] = entity;
+        await saveAppData();
+        await renderUniversePage();
+    }
+    // Edit world
+    else if (modalState.type === 'world') {
+        const worldData = getWorldData(appData.currentWorldSystem, appData.currentWorldPoint);
+        if (worldData.mediaId && worldData.mediaId !== mediaId) {
+            await deleteMedia(worldData.mediaId);
+        }
+        worldData.description = entity.description;
+        worldData.mediaId = mediaId;
+        worldData.audioIds = audioIds;
+        await saveAppData();
+        await renderWorldPage();
+    }
+    // Edit era
+    else if (modalState.type === 'era') {
+        const worldData = getWorldData(appData.currentWorldSystem, appData.currentWorldPoint);
+        const existing = worldData.eras[modalState.editIndex];
+        if (existing.mediaId && existing.mediaId !== mediaId) {
+            await deleteMedia(existing.mediaId);
+        }
+        entity.itemline = existing.itemline || [];
+        entity.sagas = existing.sagas || [];
+        entity.calendars = existing.calendars || [];
+        worldData.eras[modalState.editIndex] = entity;
+        await saveAppData();
+        await renderEraPage();
+    }
+    // Edit element in saga
+    else if (modalState.type === 'element' && appData.currentElementTypeIndex !== undefined) {
+        const saga = appData.sagas[appData.currentSaga];
+        const elementType = saga.elementTypes[appData.currentElementTypeIndex];
+        const existing = elementType.elements[modalState.editIndex];
+        if (existing.mediaId && existing.mediaId !== mediaId) {
+            await deleteMedia(existing.mediaId);
+        }
+        entity.itemline = existing.itemline || [];
+        entity.calendars = existing.calendars || [];
+        elementType.elements[modalState.editIndex] = entity;
+        await saveAppData();
+        await renderDetailPage();
+    }
+    // Edit detail in saga (histoires, sujets, universes, worlds, eras)
+    else {
+        const saga = appData.sagas[appData.currentSaga];
+        const existing = saga[modalState.type][modalState.editIndex];
+        if (existing.mediaId && existing.mediaId !== mediaId) {
+            await deleteMedia(existing.mediaId);
+        }
+        entity.itemline = existing.itemline || [];
+        entity.calendars = existing.calendars || [];
+        saga[modalState.type][modalState.editIndex] = entity;
+        await saveAppData();
+        await renderDetailPage();
+    }
+}
+
+async function handleCreateEntity(entity) {
+    // Create saga at root level
+    if (modalState.type === 'saga' && (modalState.parentType === 'home' || appData.navStack[appData.navStack.length - 1] === 'home')) {
+        entity.universes = [];
+        entity.worlds = [];
+        entity.eras = [];
+        entity.histoires = [];
+        entity.sujets = [];
+        entity.elementTypes = [];
+        entity.calendars = [];
+        appData.sagas.push(entity);
+        await saveAppData();
+        await renderSagasHome();
+    }
+    // Create universe (legacy)
+    else if (modalState.type === 'universe' && !modalState.parentType) {
+        entity.eras = [];
+        appData.universes.push(entity);
+        await saveAppData();
+        await renderUniverses();
+    }
+    // Create in saga crossline (universes, worlds, eras)
+    else if ((modalState.type === 'universes' || modalState.type === 'worlds' || modalState.type === 'eras') && modalState.parentType === 'saga') {
+        const saga = appData.sagas[appData.currentSaga];
+        if (!saga[modalState.type]) saga[modalState.type] = [];
+        saga[modalState.type].push(entity);
+        await saveAppData();
+        await renderSagaCreationBlocks();
+    }
+    // Create era in world (legacy)
+    else if (modalState.type === 'era') {
+        const worldData = getWorldData(appData.currentWorldSystem, appData.currentWorldPoint);
+        if (!worldData.eras) worldData.eras = [];
+        entity.sagas = [];
+        worldData.eras.push(entity);
+        await saveAppData();
+        await renderEras();
+    }
+    // Create element within an element type
+    else if (modalState.type === 'element' && modalState.parentType === 'saga') {
+        const saga = appData.sagas[appData.currentSaga];
+        const elementType = saga.elementTypes[modalState.elementTypeIndex];
+        if (!elementType.elements) elementType.elements = [];
+        elementType.elements.push(entity);
+        await saveAppData();
+        renderSagaElementTypes();
+    }
+    // Create detail in saga (histoires, sujets)
+    else if ((modalState.type === 'histoires' || modalState.type === 'sujets') && modalState.parentType === 'saga') {
+        const saga = appData.sagas[appData.currentSaga];
+        if (!saga[modalState.type]) saga[modalState.type] = [];
+        saga[modalState.type].push(entity);
+        await saveAppData();
+        await renderSagaScenariiBlocks();
+    }
+    // Create in detail page
+    else if (modalState.parentType === 'detail') {
+        const saga = appData.sagas[appData.currentSaga];
+        const detail = saga[appData.currentDetailType][appData.currentDetail];
+        if (!detail[modalState.type]) detail[modalState.type] = [];
+        detail[modalState.type].push(entity);
+        await saveAppData();
+        await renderDetailCrossline(modalState.type);
+    }
+}
+
 // Delete
 function openDeleteConfirm(type) {
     deleteState.type = type;
@@ -192,7 +217,22 @@ function openDeleteConfirm(type) {
 }
 
 async function confirmDelete() {
-    if (deleteState.type === 'universe') {
+    // Delete saga from root level
+    if (deleteState.type === 'saga' && appData.navStack[appData.navStack.length - 1] === 'saga') {
+        const saga = appData.sagas[appData.currentSaga];
+        if (saga.mediaId) await deleteMedia(saga.mediaId);
+        if (saga.audioIds) {
+            for (const id of saga.audioIds) await deleteMedia(id);
+        }
+        appData.sagas.splice(appData.currentSaga, 1);
+        appData.currentSaga = null;
+        await saveAppData();
+        await renderSagasHome();
+        navigateTo('homePage');
+        appData.navStack = ['home'];
+    }
+    // Delete universe (legacy)
+    else if (deleteState.type === 'universe') {
         const universe = appData.universes[appData.currentUniverse];
         if (universe.mediaId) await deleteMedia(universe.mediaId);
         if (universe.audioIds) {
@@ -204,12 +244,15 @@ async function confirmDelete() {
         await renderUniverses();
         navigateTo('homePage');
         appData.navStack = ['home'];
-    } else if (deleteState.type === 'world') {
-        // Cannot delete world from here - it's managed via temporal system
+    }
+    // Delete world (managed via temporal system)
+    else if (deleteState.type === 'world') {
         showToast('Les Mondes sont gérés dans le système temporel');
         closeModal('deleteModal');
         return;
-    } else if (deleteState.type === 'era') {
+    }
+    // Delete era
+    else if (deleteState.type === 'era') {
         const worldData = getWorldData(appData.currentWorldSystem, appData.currentWorldPoint);
         const era = worldData.eras[appData.currentEra];
         if (era.mediaId) await deleteMedia(era.mediaId);
@@ -220,23 +263,10 @@ async function confirmDelete() {
         appData.currentEra = null;
         await saveAppData();
         goBack();
-    } else if (deleteState.type === 'saga') {
-        const worldData = getWorldData(appData.currentWorldSystem, appData.currentWorldPoint);
-        const era = worldData.eras[appData.currentEra];
-        const saga = era.sagas[appData.currentSaga];
-        if (saga.mediaId) await deleteMedia(saga.mediaId);
-        if (saga.audioIds) {
-            for (const id of saga.audioIds) await deleteMedia(id);
-        }
-        era.sagas.splice(appData.currentSaga, 1);
-        appData.currentSaga = null;
-        await saveAppData();
-        goBack();
-    } else {
-        // Delete detail (histoires, sujets, elements)
-        const worldData = getWorldData(appData.currentWorldSystem, appData.currentWorldPoint);
-        const era = worldData.eras[appData.currentEra];
-        const saga = era.sagas[appData.currentSaga];
+    }
+    // Delete detail (histoires, sujets, elements, universes, worlds, eras in saga)
+    else if (deleteState.type === 'detail') {
+        const saga = appData.sagas[appData.currentSaga];
 
         let detail;
         if (appData.currentDetailType === 'element' && appData.currentElementTypeIndex !== undefined) {

@@ -1,37 +1,67 @@
 /* =============================================
-   SAGAS - Restructured with Scénarii & Éléments
+   SAGAS - Root Level with Crossline & Timeline
    ============================================= */
 
 // Current state for saga crossline
-let currentSagaCrosslineMain = 'scenarii';
+let currentSagaCrosslineMain = 'creation';
 let currentSagaScenarioType = 'histoires';
 let editingElementTypeIndex = null;
 
-async function renderSagas() {
-    const worldData = getWorldData(appData.currentWorldSystem, appData.currentWorldPoint);
-    const era = worldData.eras[appData.currentEra];
-    const grid = document.getElementById('sagasGrid');
-    grid.innerHTML = '';
+// Calendar accordion state
+let calendarAccordionData = {
+    name: '',
+    years: [],
+    editingCalendarIndex: null
+};
+let editingYearIndex = null;
+let editingSubCycleIndex = null;
+let editingSubCycleYearIndex = null;
 
-    if (!era.sagas) era.sagas = [];
+/* =============================================
+   HOME PAGE - Sagas Slider
+   ============================================= */
 
-    for (let i = 0; i < era.sagas.length; i++) {
-        const saga = era.sagas[i];
-        const card = document.createElement('div');
-        card.className = 'card-era';
-        card.onclick = () => openSaga(i);
-        card.innerHTML = `${await getCardBackground(saga.mediaId)}<div class="card-content"><div class="card-title">${saga.name}</div><div class="card-desc">${saga.description || ''}</div></div>`;
-        grid.appendChild(card);
+async function renderSagasHome() {
+    try {
+        const grid = document.getElementById('sagasHomeGrid');
+        if (!grid) {
+            console.error('sagasHomeGrid element not found');
+            return;
+        }
+        grid.innerHTML = '';
+
+        // Ensure sagas array exists
+        if (!Array.isArray(appData.sagas)) {
+            appData.sagas = [];
+        }
+
+        for (let i = 0; i < appData.sagas.length; i++) {
+            const saga = appData.sagas[i];
+            if (!saga) continue;
+            const card = document.createElement('div');
+            card.className = 'card-universe';
+            card.onclick = () => openSagaFromHome(i);
+            card.innerHTML = `${await getCardBackground(saga.mediaId)}<div class="card-overlay"></div><div class="card-content"><div class="card-title">${saga.name || ''}</div><div class="card-desc">${saga.description || ''}</div></div>`;
+            grid.appendChild(card);
+        }
+
+        const addCard = document.createElement('div');
+        addCard.className = 'card-universe add-card';
+        addCard.onclick = () => openCreateModal('saga');
+        addCard.innerHTML = '<div class="add-icon">+</div><span class="add-text">Nouvelle Saga</span>';
+        grid.appendChild(addCard);
+    } catch (error) {
+        console.error('Erreur renderSagasHome:', error);
     }
-
-    const addCard = document.createElement('div');
-    addCard.className = 'card-era add-card';
-    addCard.onclick = () => openCreateModal('saga');
-    addCard.innerHTML = '<div class="add-icon">+</div><span class="add-text">Nouvelle Saga</span>';
-    grid.appendChild(addCard);
 }
 
-async function openSaga(index) {
+function slideSagas(direction) {
+    const track = document.getElementById('sagasHomeGrid');
+    const scrollAmount = window.innerWidth * direction;
+    track.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+}
+
+async function openSagaFromHome(index) {
     appData.currentSaga = index;
     appData.navStack.push('saga');
     await renderSagaPage();
@@ -39,21 +69,30 @@ async function openSaga(index) {
     saveAppData();
 }
 
+/* =============================================
+   SAGA PAGE
+   ============================================= */
+
 async function renderSagaPage() {
-    const worldData = getWorldData(appData.currentWorldSystem, appData.currentWorldPoint);
-    const era = worldData.eras[appData.currentEra];
-    const saga = era.sagas[appData.currentSaga];
+    const saga = appData.sagas[appData.currentSaga];
     if (!saga) return;
 
     // Initialize saga data structure if needed
+    if (!saga.itemline) saga.itemline = [];
+    if (!saga.universes) saga.universes = [];
+    if (!saga.worlds) saga.worlds = [];
+    if (!saga.eras) saga.eras = [];
     if (!saga.histoires) saga.histoires = [];
     if (!saga.sujets) saga.sujets = [];
     if (!saga.elementTypes) saga.elementTypes = [];
-    if (!saga.selectedCalendars) saga.selectedCalendars = [];
+    if (!saga.calendars) saga.calendars = [];
 
     document.getElementById('sagaTitle').textContent = saga.name;
     document.getElementById('sagaDesc').textContent = saga.description || '';
-    document.getElementById('sagaParentContext').textContent = era.name;
+
+    // Hide parent context since saga is now root level
+    const parentContext = document.getElementById('sagaParentContext');
+    if (parentContext) parentContext.style.display = 'none';
 
     await renderBackground('sagaBackground', saga.mediaId);
 
@@ -63,7 +102,7 @@ async function renderSagaPage() {
     if (saga.audioIds) await loadAudioTracks(saga.audioIds);
 
     // Reset crossline state
-    currentSagaCrosslineMain = 'scenarii';
+    currentSagaCrosslineMain = 'creation';
     currentSagaScenarioType = 'histoires';
 
     hideAllSagaSections();
@@ -71,7 +110,8 @@ async function renderSagaPage() {
 
 function hideAllSagaSections() {
     ['sagaItemline', 'sagaCrossline', 'sagaTimeline'].forEach(id => {
-        document.getElementById(id).style.display = 'none';
+        const el = document.getElementById(id);
+        if (el) el.style.display = 'none';
     });
     document.querySelectorAll('#sagaPage .sub-menu-btn').forEach(b => b.classList.remove('active'));
     const container = document.getElementById('sagaSubMenus');
@@ -81,7 +121,8 @@ function hideAllSagaSections() {
 async function showSagaSection(section) {
     hideAllSagaSections();
     activeSections.saga = section;
-    document.getElementById('saga' + section.charAt(0).toUpperCase() + section.slice(1)).style.display = 'block';
+    const sectionEl = document.getElementById('saga' + section.charAt(0).toUpperCase() + section.slice(1));
+    if (sectionEl) sectionEl.style.display = 'block';
 
     setActiveButton('#sagaPage', section);
 
@@ -90,7 +131,7 @@ async function showSagaSection(section) {
     } else if (section === 'crossline') {
         await showSagaCrosslineMain(currentSagaCrosslineMain);
     } else if (section === 'timeline') {
-        renderSagaCalendarSelection();
+        renderSagaCalendarsAccordion();
     }
 }
 
@@ -99,9 +140,7 @@ async function showSagaSection(section) {
    ============================================= */
 
 function renderSagaItemline() {
-    const worldData = getWorldData(appData.currentWorldSystem, appData.currentWorldPoint);
-    const era = worldData.eras[appData.currentEra];
-    const saga = era.sagas[appData.currentSaga];
+    const saga = appData.sagas[appData.currentSaga];
     const container = document.getElementById('sagaItemlineList');
     container.innerHTML = '';
 
@@ -128,7 +167,7 @@ function renderSagaItemline() {
 }
 
 /* =============================================
-   SAGA CROSSLINE - Main Tabs (Scénarii / Éléments)
+   SAGA CROSSLINE - Main Tabs (Création / Scénarii / Éléments)
    ============================================= */
 
 async function showSagaCrosslineMain(mainTab) {
@@ -140,14 +179,116 @@ async function showSagaCrosslineMain(mainTab) {
     });
 
     // Show/hide sections
-    document.getElementById('sagaScenariiSection').style.display = mainTab === 'scenarii' ? 'block' : 'none';
-    document.getElementById('sagaElementsSection').style.display = mainTab === 'elements' ? 'block' : 'none';
+    const creationSection = document.getElementById('sagaCreationSection');
+    const scenariiSection = document.getElementById('sagaScenariiSection');
+    const elementsSection = document.getElementById('sagaElementsSection');
 
-    if (mainTab === 'scenarii') {
+    if (creationSection) creationSection.style.display = mainTab === 'creation' ? 'block' : 'none';
+    if (scenariiSection) scenariiSection.style.display = mainTab === 'scenarii' ? 'block' : 'none';
+    if (elementsSection) elementsSection.style.display = mainTab === 'elements' ? 'block' : 'none';
+
+    if (mainTab === 'creation') {
+        await renderSagaCreationBlocks();
+    } else if (mainTab === 'scenarii') {
         await renderSagaScenariiBlocks();
     } else {
         renderSagaElementTypes();
     }
+}
+
+/* =============================================
+   SAGA CRÉATION - Univers, Monde, Époque
+   ============================================= */
+
+const creationTypes = [
+    { key: 'universes', name: 'Univers', icon: '🌌', desc: 'Les univers contenant vos mondes' },
+    { key: 'worlds', name: 'Mondes', icon: '🌍', desc: 'Les mondes et planètes de votre saga' },
+    { key: 'eras', name: 'Époques', icon: '⏳', desc: 'Les périodes historiques de votre saga' }
+];
+
+async function renderSagaCreationBlocks() {
+    const saga = appData.sagas[appData.currentSaga];
+    const container = document.getElementById('sagaCreationContainer');
+    container.innerHTML = '';
+
+    for (const creationType of creationTypes) {
+        if (!saga[creationType.key]) saga[creationType.key] = [];
+        const count = saga[creationType.key].length;
+
+        const block = document.createElement('div');
+        block.className = 'element-type-block creation-type-block';
+        block.innerHTML = `
+            <div class="element-type-header" onclick="toggleCreationTypeExpand('${creationType.key}')">
+                <div class="element-type-icon">${creationType.icon}</div>
+                <div class="element-type-info">
+                    <div class="element-type-name">${creationType.name}</div>
+                    <div class="element-type-count">${count} ${creationType.key === 'universes' ? 'univers' : creationType.key === 'worlds' ? 'monde' : 'époque'}${count > 1 ? 's' : ''}</div>
+                </div>
+                <div class="element-type-actions">
+                    <svg class="element-type-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M6 9l6 6 6-6"/>
+                    </svg>
+                </div>
+            </div>
+            <div class="element-type-content" id="creationTypeContent_${creationType.key}">
+                <p class="scenario-type-desc">${creationType.desc}</p>
+                <div class="element-type-elements" id="creationTypeItems_${creationType.key}"></div>
+                <button class="btn btn-secondary btn-small" onclick="openCreateModal('${creationType.key}', 'saga')" style="margin-top:12px;width:100%">+ ${creationType.key === 'universes' ? 'Nouvel univers' : creationType.key === 'worlds' ? 'Nouveau monde' : 'Nouvelle époque'}</button>
+            </div>
+        `;
+        container.appendChild(block);
+
+        // Render items for this creation type
+        await renderCreationItems(creationType.key);
+    }
+}
+
+function toggleCreationTypeExpand(typeKey) {
+    const content = document.getElementById(`creationTypeContent_${typeKey}`);
+    const block = content.parentElement;
+    block.classList.toggle('expanded');
+}
+
+async function renderCreationItems(typeKey) {
+    const saga = appData.sagas[appData.currentSaga];
+    const container = document.getElementById(`creationTypeItems_${typeKey}`);
+    container.innerHTML = '';
+
+    if (!saga[typeKey] || saga[typeKey].length === 0) {
+        const emptyText = typeKey === 'universes' ? 'Aucun univers' :
+                         typeKey === 'worlds' ? 'Aucun monde' : 'Aucune époque';
+        container.innerHTML = `<div class="empty-elements">${emptyText}</div>`;
+        return;
+    }
+
+    for (let i = 0; i < saga[typeKey].length; i++) {
+        const item = saga[typeKey][i];
+        const card = document.createElement('div');
+        card.className = 'element-card';
+        card.onclick = () => openCreationDetail(typeKey, i);
+
+        let bgHtml = '';
+        if (item.mediaId) {
+            bgHtml = await getCardBackground(item.mediaId);
+        }
+
+        card.innerHTML = `
+            ${bgHtml}
+            <div class="element-card-content">
+                <div class="element-card-name">${item.name}</div>
+            </div>
+        `;
+        container.appendChild(card);
+    }
+}
+
+function openCreationDetail(typeKey, index) {
+    appData.currentDetail = index;
+    appData.currentDetailType = typeKey;
+    appData.navStack.push('detail');
+    renderDetailPage();
+    navigateTo('detailPage');
+    saveAppData();
 }
 
 /* =============================================
@@ -161,9 +302,7 @@ const scenarioTypes = [
 ];
 
 async function renderSagaScenariiBlocks() {
-    const worldData = getWorldData(appData.currentWorldSystem, appData.currentWorldPoint);
-    const era = worldData.eras[appData.currentEra];
-    const saga = era.sagas[appData.currentSaga];
+    const saga = appData.sagas[appData.currentSaga];
     const container = document.getElementById('sagaScenariiContainer');
     container.innerHTML = '';
 
@@ -206,9 +345,7 @@ function toggleScenarioTypeExpand(typeKey) {
 }
 
 async function renderScenarioItems(typeKey) {
-    const worldData = getWorldData(appData.currentWorldSystem, appData.currentWorldPoint);
-    const era = worldData.eras[appData.currentEra];
-    const saga = era.sagas[appData.currentSaga];
+    const saga = appData.sagas[appData.currentSaga];
     const container = document.getElementById(`scenarioTypeItems_${typeKey}`);
     container.innerHTML = '';
 
@@ -238,7 +375,16 @@ async function renderScenarioItems(typeKey) {
     }
 }
 
-// Legacy function for compatibility - now calls the block renderer
+function openDetail(index, typeKey) {
+    appData.currentDetail = index;
+    appData.currentDetailType = typeKey;
+    appData.navStack.push('detail');
+    renderDetailPage();
+    navigateTo('detailPage');
+    saveAppData();
+}
+
+// Legacy function for compatibility
 async function renderSagaScenarii(type) {
     await renderSagaScenariiBlocks();
 }
@@ -248,9 +394,7 @@ async function renderSagaScenarii(type) {
    ============================================= */
 
 function renderSagaElementTypes() {
-    const worldData = getWorldData(appData.currentWorldSystem, appData.currentWorldPoint);
-    const era = worldData.eras[appData.currentEra];
-    const saga = era.sagas[appData.currentSaga];
+    const saga = appData.sagas[appData.currentSaga];
     const container = document.getElementById('sagaElementTypesContainer');
     container.innerHTML = '';
 
@@ -300,9 +444,7 @@ function toggleElementTypeExpand(typeIndex) {
 }
 
 async function renderElementsForType(typeIndex) {
-    const worldData = getWorldData(appData.currentWorldSystem, appData.currentWorldPoint);
-    const era = worldData.eras[appData.currentEra];
-    const saga = era.sagas[appData.currentSaga];
+    const saga = appData.sagas[appData.currentSaga];
     const type = saga.elementTypes[typeIndex];
     const container = document.getElementById(`elementTypeElements_${typeIndex}`);
     container.innerHTML = '';
@@ -375,9 +517,7 @@ function openElementTypeModal(editIndex = null) {
     document.getElementById('emojiPicker').classList.remove('active');
 
     if (editIndex !== null) {
-        const worldData = getWorldData(appData.currentWorldSystem, appData.currentWorldPoint);
-        const era = worldData.eras[appData.currentEra];
-        const saga = era.sagas[appData.currentSaga];
+        const saga = appData.sagas[appData.currentSaga];
         const type = saga.elementTypes[editIndex];
 
         title.textContent = 'Modifier le type';
@@ -409,9 +549,7 @@ async function saveElementType() {
         return;
     }
 
-    const worldData = getWorldData(appData.currentWorldSystem, appData.currentWorldPoint);
-    const era = worldData.eras[appData.currentEra];
-    const saga = era.sagas[appData.currentSaga];
+    const saga = appData.sagas[appData.currentSaga];
 
     if (!saga.elementTypes) saga.elementTypes = [];
 
@@ -439,9 +577,7 @@ async function saveElementType() {
 async function deleteElementType() {
     if (editingElementTypeIndex === null) return;
 
-    const worldData = getWorldData(appData.currentWorldSystem, appData.currentWorldPoint);
-    const era = worldData.eras[appData.currentEra];
-    const saga = era.sagas[appData.currentSaga];
+    const saga = appData.sagas[appData.currentSaga];
 
     saga.elementTypes.splice(editingElementTypeIndex, 1);
 
@@ -461,9 +597,7 @@ let editingElementIndex = null;
 function openCreateElementModal(typeIndex) {
     currentElementTypeIndex = typeIndex;
 
-    const worldData = getWorldData(appData.currentWorldSystem, appData.currentWorldPoint);
-    const era = worldData.eras[appData.currentEra];
-    const saga = era.sagas[appData.currentSaga];
+    const saga = appData.sagas[appData.currentSaga];
     const type = saga.elementTypes[typeIndex];
 
     // Reset and configure modal state for element creation
@@ -497,133 +631,351 @@ function openElementDetail(typeIndex, elementIndex) {
 }
 
 /* =============================================
-   SAGA TIMELINE - Calendar Selection
+   SAGA TIMELINE - Calendar Accordion System
    ============================================= */
 
-function renderSagaCalendarSelection() {
-    const worldData = getWorldData(appData.currentWorldSystem, appData.currentWorldPoint);
-    const era = worldData.eras[appData.currentEra];
-    const saga = era.sagas[appData.currentSaga];
-    const container = document.getElementById('sagaCalendarSelection');
+function renderSagaCalendarsAccordion() {
+    const saga = appData.sagas[appData.currentSaga];
+    const container = document.getElementById('sagaCalendarAccordion');
     container.innerHTML = '';
 
-    if (!saga.selectedCalendars) saga.selectedCalendars = [];
+    if (!saga.calendars) saga.calendars = [];
 
-    // Collect all available calendars from Universe and Era
-    const availableCalendars = [];
-
-    // Universe calendars (from era timeline)
-    if (era.calendars && era.calendars.length > 0) {
-        era.calendars.forEach((cal, idx) => {
-            availableCalendars.push({
-                source: 'era',
-                sourceLabel: era.name,
-                calendar: cal,
-                index: idx
-            });
-        });
-    }
-
-    if (availableCalendars.length === 0) {
+    if (saga.calendars.length === 0) {
         container.innerHTML = `
             <div class="empty-state">
                 <div class="empty-icon">📅</div>
-                <div class="empty-text">Aucun calendrier disponible</div>
-                <p style="color:var(--text-muted);margin-top:8px;font-size:12px">Créez des calendriers depuis la timeline de l'Époque</p>
+                <div class="empty-text">Aucun calendrier</div>
+                <p style="color:var(--text-muted);margin-top:8px;font-size:12px">Créez des calendriers avec des cycles personnalisables</p>
             </div>
         `;
         return;
     }
 
-    // Create calendar selection grid
-    const grid = document.createElement('div');
-    grid.className = 'calendar-selection-grid';
+    saga.calendars.forEach((calendar, calIndex) => {
+        const calEl = document.createElement('div');
+        calEl.className = 'calendar-accordion-item';
 
-    availableCalendars.forEach((item, idx) => {
-        const isSelected = saga.selectedCalendars.some(
-            sel => sel.source === item.source && sel.index === item.index
-        );
+        const yearsCount = calendar.years ? calendar.years.length : 0;
 
-        const card = document.createElement('div');
-        card.className = `calendar-select-card ${isSelected ? 'selected' : ''}`;
-        card.onclick = () => toggleCalendarSelection(item.source, item.index);
-
-        card.innerHTML = `
-            <div class="calendar-select-check">${isSelected ? '✓' : ''}</div>
-            <div class="calendar-select-icon">📅</div>
-            <div class="calendar-select-info">
-                <div class="calendar-select-name">${item.calendar.name}</div>
-                <div class="calendar-select-source">${item.sourceLabel}</div>
+        calEl.innerHTML = `
+            <div class="calendar-accordion-header" onclick="toggleCalendarAccordionExpand(${calIndex})">
+                <div class="calendar-accordion-icon">📅</div>
+                <div class="calendar-accordion-info">
+                    <div class="calendar-accordion-name">${calendar.name}</div>
+                    <div class="calendar-accordion-count">${yearsCount} cycle${yearsCount > 1 ? 's' : ''}</div>
+                </div>
+                <div class="calendar-accordion-actions">
+                    <button class="element-type-btn" onclick="event.stopPropagation(); editCalendarAccordion(${calIndex})">✎</button>
+                    <button class="element-type-btn delete" onclick="event.stopPropagation(); deleteCalendarFromList(${calIndex})">✕</button>
+                    <svg class="element-type-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M6 9l6 6 6-6"/>
+                    </svg>
+                </div>
+            </div>
+            <div class="calendar-accordion-content" id="calendarAccordionContent_${calIndex}">
+                ${renderCalendarYearsPreview(calendar.years || [])}
             </div>
         `;
-        grid.appendChild(card);
+        container.appendChild(calEl);
     });
-
-    container.appendChild(grid);
-
-    // Show selected calendars details
-    if (saga.selectedCalendars.length > 0) {
-        const selectedSection = document.createElement('div');
-        selectedSection.className = 'selected-calendars-section';
-        selectedSection.innerHTML = '<h4 class="selected-calendars-title">Calendriers sélectionnés</h4>';
-
-        const selectedList = document.createElement('div');
-        selectedList.className = 'selected-calendars-list';
-
-        saga.selectedCalendars.forEach(sel => {
-            let cal = null;
-            if (sel.source === 'era' && era.calendars && era.calendars[sel.index]) {
-                cal = era.calendars[sel.index];
-            }
-            if (cal) {
-                selectedList.appendChild(createCalendarDisplayElement(cal));
-            }
-        });
-
-        selectedSection.appendChild(selectedList);
-        container.appendChild(selectedSection);
-    }
 }
 
-async function toggleCalendarSelection(source, index) {
-    const worldData = getWorldData(appData.currentWorldSystem, appData.currentWorldPoint);
-    const era = worldData.eras[appData.currentEra];
-    const saga = era.sagas[appData.currentSaga];
+function renderCalendarYearsPreview(years) {
+    if (!years || years.length === 0) {
+        return '<div class="empty-elements">Aucun cycle défini</div>';
+    }
 
-    if (!saga.selectedCalendars) saga.selectedCalendars = [];
+    let html = '<div class="calendar-years-preview">';
+    years.forEach((year, yIdx) => {
+        const subCount = year.subCycles ? year.subCycles.length : 0;
+        html += `
+            <div class="year-preview-block">
+                <div class="year-preview-header">
+                    <span class="year-preview-name">${year.name || 'Cycle'} ${year.number || (yIdx + 1)}</span>
+                    <span class="year-preview-count">${subCount} sous-cycle${subCount > 1 ? 's' : ''}</span>
+                </div>
+                ${year.subCycles && year.subCycles.length > 0 ? `
+                    <div class="year-preview-subs">
+                        ${year.subCycles.slice(0, 4).map(sub => `<span class="sub-preview">${sub.name || 'Sous-cycle'} ${sub.number || ''}</span>`).join('')}
+                        ${year.subCycles.length > 4 ? `<span class="sub-preview more">+${year.subCycles.length - 4}</span>` : ''}
+                    </div>
+                ` : ''}
+            </div>
+        `;
+    });
+    html += '</div>';
+    return html;
+}
 
-    const existingIdx = saga.selectedCalendars.findIndex(
-        sel => sel.source === source && sel.index === index
-    );
+function toggleCalendarAccordionExpand(calIndex) {
+    const content = document.getElementById(`calendarAccordionContent_${calIndex}`);
+    const item = content.parentElement;
+    item.classList.toggle('expanded');
+}
 
-    if (existingIdx >= 0) {
-        saga.selectedCalendars.splice(existingIdx, 1);
+/* =============================================
+   CALENDAR ACCORDION MODAL
+   ============================================= */
+
+function openCalendarAccordionModal(editIndex = null) {
+    calendarAccordionData = {
+        name: '',
+        years: [],
+        editingCalendarIndex: editIndex
+    };
+
+    const modal = document.getElementById('calendarAccordionModal');
+    const title = document.getElementById('calendarAccordionModalTitle');
+    const deleteBtn = document.getElementById('deleteCalendarAccordionBtn');
+
+    document.getElementById('accordionCalendarName').value = '';
+    document.getElementById('calendarYearsAccordion').innerHTML = '';
+
+    if (editIndex !== null) {
+        const saga = appData.sagas[appData.currentSaga];
+        const calendar = saga.calendars[editIndex];
+
+        title.textContent = 'Modifier le calendrier';
+        deleteBtn.style.display = 'inline-flex';
+
+        calendarAccordionData.name = calendar.name || '';
+        calendarAccordionData.years = JSON.parse(JSON.stringify(calendar.years || []));
+
+        document.getElementById('accordionCalendarName').value = calendar.name || '';
     } else {
-        saga.selectedCalendars.push({ source, index });
+        title.textContent = 'Nouveau Calendrier';
+        deleteBtn.style.display = 'none';
+    }
+
+    renderAccordionYears();
+    modal.classList.add('active');
+}
+
+function editCalendarAccordion(calIndex) {
+    openCalendarAccordionModal(calIndex);
+}
+
+function renderAccordionYears() {
+    const container = document.getElementById('calendarYearsAccordion');
+    container.innerHTML = '';
+
+    if (calendarAccordionData.years.length === 0) {
+        container.innerHTML = '<div class="empty-elements">Aucun cycle. Cliquez sur "+ Ajouter un cycle" pour commencer.</div>';
+        return;
+    }
+
+    calendarAccordionData.years.forEach((year, yIdx) => {
+        const yearEl = document.createElement('div');
+        yearEl.className = 'year-accordion-block';
+
+        const subCount = year.subCycles ? year.subCycles.length : 0;
+
+        yearEl.innerHTML = `
+            <div class="year-accordion-header" onclick="toggleYearExpand(${yIdx})">
+                <div class="year-accordion-icon">📆</div>
+                <div class="year-accordion-info">
+                    <span class="year-accordion-name">${year.name || 'Cycle'} ${year.number || (yIdx + 1)}</span>
+                    <span class="year-accordion-count">${subCount} sous-cycle${subCount > 1 ? 's' : ''}</span>
+                </div>
+                <div class="year-accordion-actions">
+                    <button class="year-action-btn" onclick="event.stopPropagation(); editYear(${yIdx})" title="Modifier">✎</button>
+                    <button class="year-action-btn" onclick="event.stopPropagation(); copyYear(${yIdx})" title="Copier">📋</button>
+                    <button class="year-action-btn delete" onclick="event.stopPropagation(); deleteYear(${yIdx})" title="Supprimer">✕</button>
+                    <svg class="year-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M6 9l6 6 6-6"/>
+                    </svg>
+                </div>
+            </div>
+            <div class="year-accordion-content" id="yearContent_${yIdx}">
+                <div class="year-subcycles" id="yearSubcycles_${yIdx}"></div>
+                <button class="btn btn-secondary btn-small" onclick="addSubCycle(${yIdx})" style="margin-top:8px;width:100%">+ Ajouter un sous-cycle</button>
+            </div>
+        `;
+        container.appendChild(yearEl);
+
+        // Render subcycles
+        renderYearSubcycles(yIdx);
+    });
+}
+
+function toggleYearExpand(yearIndex) {
+    const content = document.getElementById(`yearContent_${yearIndex}`);
+    const block = content.parentElement;
+    block.classList.toggle('expanded');
+}
+
+function renderYearSubcycles(yearIndex) {
+    const container = document.getElementById(`yearSubcycles_${yearIndex}`);
+    const year = calendarAccordionData.years[yearIndex];
+    container.innerHTML = '';
+
+    if (!year.subCycles || year.subCycles.length === 0) {
+        container.innerHTML = '<div class="empty-subcycles">Aucun sous-cycle</div>';
+        return;
+    }
+
+    year.subCycles.forEach((sub, sIdx) => {
+        const subEl = document.createElement('div');
+        subEl.className = 'subcycle-block';
+        subEl.innerHTML = `
+            <div class="subcycle-info">
+                <span class="subcycle-name">${sub.name || 'Sous-cycle'} ${sub.number || (sIdx + 1)}</span>
+            </div>
+            <div class="subcycle-actions">
+                <button class="subcycle-btn" onclick="editSubCycle(${yearIndex}, ${sIdx})">✎</button>
+                <button class="subcycle-btn delete" onclick="deleteSubCycle(${yearIndex}, ${sIdx})">✕</button>
+            </div>
+        `;
+        container.appendChild(subEl);
+    });
+}
+
+function addCalendarYear() {
+    calendarAccordionData.years.push({
+        name: 'An',
+        number: String(calendarAccordionData.years.length + 1),
+        subCycles: []
+    });
+    renderAccordionYears();
+}
+
+function editYear(yearIndex) {
+    editingYearIndex = yearIndex;
+    const year = calendarAccordionData.years[yearIndex];
+
+    document.getElementById('yearEditName').value = year.name || '';
+    document.getElementById('yearEditNumber').value = year.number || '';
+    document.getElementById('yearEditModal').classList.add('active');
+}
+
+function saveYearEdit() {
+    if (editingYearIndex === null) return;
+
+    const year = calendarAccordionData.years[editingYearIndex];
+    year.name = document.getElementById('yearEditName').value.trim() || 'Cycle';
+    year.number = document.getElementById('yearEditNumber').value.trim() || String(editingYearIndex + 1);
+
+    closeModal('yearEditModal');
+    renderAccordionYears();
+    editingYearIndex = null;
+}
+
+function copyYear(yearIndex) {
+    const yearToCopy = calendarAccordionData.years[yearIndex];
+    const copiedYear = JSON.parse(JSON.stringify(yearToCopy));
+    copiedYear.number = String(calendarAccordionData.years.length + 1);
+    calendarAccordionData.years.push(copiedYear);
+    renderAccordionYears();
+    showToast('Cycle copié');
+}
+
+function deleteYear(yearIndex) {
+    calendarAccordionData.years.splice(yearIndex, 1);
+    renderAccordionYears();
+}
+
+function addSubCycle(yearIndex) {
+    const year = calendarAccordionData.years[yearIndex];
+    if (!year.subCycles) year.subCycles = [];
+    year.subCycles.push({
+        name: 'Mois',
+        number: String(year.subCycles.length + 1)
+    });
+    renderYearSubcycles(yearIndex);
+}
+
+function editSubCycle(yearIndex, subIndex) {
+    editingSubCycleYearIndex = yearIndex;
+    editingSubCycleIndex = subIndex;
+    const sub = calendarAccordionData.years[yearIndex].subCycles[subIndex];
+
+    document.getElementById('subCycleEditName').value = sub.name || '';
+    document.getElementById('subCycleEditNumber').value = sub.number || '';
+    document.getElementById('subCycleEditModal').classList.add('active');
+}
+
+function saveSubCycleEdit() {
+    if (editingSubCycleYearIndex === null || editingSubCycleIndex === null) return;
+
+    const sub = calendarAccordionData.years[editingSubCycleYearIndex].subCycles[editingSubCycleIndex];
+    sub.name = document.getElementById('subCycleEditName').value.trim() || 'Sous-cycle';
+    sub.number = document.getElementById('subCycleEditNumber').value.trim() || String(editingSubCycleIndex + 1);
+
+    closeModal('subCycleEditModal');
+    renderYearSubcycles(editingSubCycleYearIndex);
+    editingSubCycleYearIndex = null;
+    editingSubCycleIndex = null;
+}
+
+function deleteSubCycle(yearIndex, subIndex) {
+    calendarAccordionData.years[yearIndex].subCycles.splice(subIndex, 1);
+    renderYearSubcycles(yearIndex);
+}
+
+async function saveCalendarAccordion() {
+    const name = document.getElementById('accordionCalendarName').value.trim();
+
+    if (!name) {
+        showToast('Veuillez entrer un nom pour le calendrier');
+        return;
+    }
+
+    const saga = appData.sagas[appData.currentSaga];
+    if (!saga.calendars) saga.calendars = [];
+
+    const calendarData = {
+        name: name,
+        years: calendarAccordionData.years
+    };
+
+    if (calendarAccordionData.editingCalendarIndex !== null) {
+        saga.calendars[calendarAccordionData.editingCalendarIndex] = calendarData;
+    } else {
+        saga.calendars.push(calendarData);
     }
 
     await saveAppData();
-    renderSagaCalendarSelection();
+    closeModal('calendarAccordionModal');
+    renderSagaCalendarsAccordion();
+    showToast(calendarAccordionData.editingCalendarIndex !== null ? 'Calendrier modifié' : 'Calendrier créé');
 }
 
-function createCalendarDisplayElement(cal) {
-    const el = document.createElement('div');
-    el.className = 'calendar-display-item';
+async function deleteCalendarAccordion() {
+    if (calendarAccordionData.editingCalendarIndex === null) return;
 
-    const daysPerYear = (cal.daysPerWeek || 7) * (cal.weeksPerMonth || 4) * (cal.monthsPerYear || 12);
+    const saga = appData.sagas[appData.currentSaga];
+    saga.calendars.splice(calendarAccordionData.editingCalendarIndex, 1);
 
-    el.innerHTML = `
-        <div class="calendar-display-name">${cal.name}</div>
-        <div class="calendar-display-structure">
-            <span>${cal.monthsPerYear || 12} ${cal.monthName || 'mois'}</span>
-            <span>×</span>
-            <span>${cal.weeksPerMonth || 4} ${cal.weekName || 'semaines'}</span>
-            <span>×</span>
-            <span>${cal.daysPerWeek || 7} ${cal.dayName || 'jours'}</span>
-            <span>=</span>
-            <span class="calendar-display-total">${daysPerYear} ${cal.dayName || 'jours'}/${cal.yearName || 'an'}</span>
-        </div>
-    `;
+    await saveAppData();
+    closeModal('calendarAccordionModal');
+    renderSagaCalendarsAccordion();
+    showToast('Calendrier supprimé');
+}
 
-    return el;
+async function deleteCalendarFromList(calIndex) {
+    const saga = appData.sagas[appData.currentSaga];
+    saga.calendars.splice(calIndex, 1);
+    await saveAppData();
+    renderSagaCalendarsAccordion();
+    showToast('Calendrier supprimé');
+}
+
+/* =============================================
+   LEGACY FUNCTIONS FOR ERA-BASED SAGAS
+   ============================================= */
+
+// Keep for backward compatibility with old data structure
+async function renderSagas() {
+    // This was for era-based sagas, now redirect to home sagas
+    await renderSagasHome();
+}
+
+async function openSaga(index) {
+    await openSagaFromHome(index);
+}
+
+// Legacy calendar selection (if needed)
+function renderSagaCalendarSelection() {
+    renderSagaCalendarsAccordion();
 }

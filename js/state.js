@@ -4,14 +4,17 @@
 
 let appData = {
     id: 'main',
-    universes: [],
+    sagas: [],           // Root level sagas (new structure)
+    universes: [],       // Legacy support
+    currentSaga: null,
     currentUniverse: null,
+    currentWorld: null,
+    currentEra: null,
     currentWorldSystem: null,
     currentWorldPoint: null,
-    currentEra: null,
-    currentSaga: null,
     currentDetail: null,
     currentDetailType: null,
+    currentElementTypeIndex: null,
     navStack: ['home']
 };
 

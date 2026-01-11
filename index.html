@@ -27,7 +27,7 @@
     <div class="toast" id="toast"></div>
 
     <!-- ========================================== -->
-    <!-- HOME PAGE - Liste des Univers -->
+    <!-- HOME PAGE - Liste des Sagas -->
     <!-- ========================================== -->
     <div class="page active" id="homePage">
         <header class="header">
@@ -41,7 +41,7 @@
                 </div>
             </div>
             <div class="header-right">
-                <button class="icon-btn" onclick="openCreateModal('universe')">
+                <button class="icon-btn" onclick="openCreateModal('saga')">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <line x1="12" y1="5" x2="12" y2="19"/>
                         <line x1="5" y1="12" x2="19" y2="12"/>
@@ -51,11 +51,11 @@
         </header>
         <div class="content">
             <div class="universe-slider">
-                <button class="slider-arrow prev" onclick="slideUniverses(-1)">
+                <button class="slider-arrow prev" onclick="slideSagas(-1)">
                     <svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg>
                 </button>
-                <div class="universe-slider-track" id="universesGrid"></div>
-                <button class="slider-arrow next" onclick="slideUniverses(1)">
+                <div class="universe-slider-track" id="sagasHomeGrid"></div>
+                <button class="slider-arrow next" onclick="slideSagas(1)">
                     <svg viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg>
                 </button>
             </div>
@@ -417,9 +417,16 @@
 
             <!-- Crossline Section - Restructured -->
             <div id="sagaCrossline" style="display:none">
-                <!-- Main Crossline Tabs: Scénarii / Éléments -->
+                <!-- Main Crossline Tabs: Création / Scénarii / Éléments -->
                 <div class="crossline-main-tabs">
-                    <button class="crossline-main-tab active" onclick="showSagaCrosslineMain('scenarii')" data-tab="scenarii">
+                    <button class="crossline-main-tab active" onclick="showSagaCrosslineMain('creation')" data-tab="creation">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                            <circle cx="12" cy="12" r="10"/>
+                            <path d="M2 12h20M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/>
+                        </svg>
+                        <span>Création</span>
+                    </button>
+                    <button class="crossline-main-tab" onclick="showSagaCrosslineMain('scenarii')" data-tab="scenarii">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
                             <path d="M12 3L2 9l10 6 10-6-10-6z"/>
                             <path d="M2 17l10 6 10-6"/>
@@ -438,8 +445,14 @@
                     </button>
                 </div>
 
+                <!-- Création Section (Univers, Monde, Époque) -->
+                <div id="sagaCreationSection" class="crossline-section">
+                    <p class="crossline-section-desc">Créez les fondations de votre saga</p>
+                    <div id="sagaCreationContainer"></div>
+                </div>
+
                 <!-- Scénarii Section -->
-                <div id="sagaScenariiSection" class="crossline-section">
+                <div id="sagaScenariiSection" class="crossline-section" style="display:none">
                     <p class="crossline-section-desc">Scénarios de la saga</p>
                     <div id="sagaScenariiContainer"></div>
                 </div>
@@ -452,10 +465,11 @@
                 </div>
             </div>
 
-            <!-- Timeline Section - Calendar Selection -->
+            <!-- Timeline Section - Calendar Creation with Accordion -->
             <div id="sagaTimeline" style="display:none">
-                <p class="timeline-section-desc">Sélectionnez les calendriers créés depuis les timelines Univers et Époque</p>
-                <div id="sagaCalendarSelection" class="calendar-selection-container"></div>
+                <p class="timeline-section-desc">Créez vos calendriers avec des cycles personnalisables</p>
+                <div id="sagaCalendarAccordion" class="calendar-accordion-container"></div>
+                <button class="btn btn-secondary" onclick="openCalendarAccordionModal()" style="margin-top:20px;width:100%">+ Créer un calendrier</button>
             </div>
         </div>
     </div>
@@ -941,6 +955,85 @@
                     <button class="btn btn-secondary" onclick="closeModal('deleteModal')">Annuler</button>
                     <button class="btn btn-danger" onclick="confirmDelete()">Supprimer</button>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Calendar Accordion Modal -->
+    <div class="modal-overlay" id="calendarAccordionModal">
+        <div class="modal modal-large">
+            <div class="modal-header">
+                <h2 class="modal-title" id="calendarAccordionModalTitle">Nouveau Calendrier</h2>
+                <button class="modal-close" onclick="closeModal('calendarAccordionModal')">✕</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label class="form-label">Nom du calendrier</label>
+                    <input type="text" class="form-input" id="accordionCalendarName" placeholder="Ex: Calendrier Impérial...">
+                </div>
+
+                <p class="form-help" style="margin-bottom:16px">
+                    Créez des <strong>cycles</strong> (années) avec leurs <strong>sous-cycles</strong> (mois, semaines, jours).
+                    Vous pouvez copier un cycle pour créer rapidement des structures identiques.
+                </p>
+
+                <!-- Accordion Years Container -->
+                <div id="calendarYearsAccordion" class="calendar-years-accordion"></div>
+
+                <button class="btn btn-secondary" onclick="addCalendarYear()" style="margin-top:15px;width:100%">+ Ajouter un cycle</button>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-danger" id="deleteCalendarAccordionBtn" onclick="deleteCalendarAccordion()" style="display:none">Supprimer</button>
+                <button class="btn btn-secondary" onclick="closeModal('calendarAccordionModal')">Annuler</button>
+                <button class="btn btn-primary" onclick="saveCalendarAccordion()">Enregistrer</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Year/Cycle Edit Modal -->
+    <div class="modal-overlay" id="yearEditModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h2 class="modal-title" id="yearEditModalTitle">Modifier le cycle</h2>
+                <button class="modal-close" onclick="closeModal('yearEditModal')">✕</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label class="form-label">Nom du cycle</label>
+                    <input type="text" class="form-input" id="yearEditName" placeholder="Ex: An, Année, Cycle...">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Numéro/Identifiant</label>
+                    <input type="text" class="form-input" id="yearEditNumber" placeholder="Ex: I, 1, Premier...">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeModal('yearEditModal')">Annuler</button>
+                <button class="btn btn-primary" onclick="saveYearEdit()">Appliquer</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sub-Cycle Edit Modal -->
+    <div class="modal-overlay" id="subCycleEditModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h2 class="modal-title" id="subCycleEditModalTitle">Modifier le sous-cycle</h2>
+                <button class="modal-close" onclick="closeModal('subCycleEditModal')">✕</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label class="form-label">Nom du sous-cycle</label>
+                    <input type="text" class="form-input" id="subCycleEditName" placeholder="Ex: Mois, Saison, Lune...">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Numéro/Identifiant</label>
+                    <input type="text" class="form-input" id="subCycleEditNumber" placeholder="Ex: 1, Janvier, Premier...">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeModal('subCycleEditModal')">Annuler</button>
+                <button class="btn btn-primary" onclick="saveSubCycleEdit()">Appliquer</button>
             </div>
         </div>
     </div>

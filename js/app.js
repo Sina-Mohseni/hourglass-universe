@@ -8,10 +8,11 @@ document.addEventListener('DOMContentLoaded', async () => {
         await loadAppData();
 
         // Defensive: ensure appData has all required properties
+        if (!appData.sagas) appData.sagas = [];
         if (!appData.universes) appData.universes = [];
         if (!appData.navStack) appData.navStack = ['home'];
 
-        await renderUniverses();
+        await renderSagasHome();
         createParticles();
         console.log('Application initialisée');
     } catch (error) {
@@ -19,13 +20,16 @@ document.addEventListener('DOMContentLoaded', async () => {
         // Fallback: reset appData if corrupted
         appData = {
             id: 'main',
+            sagas: [],
             universes: [],
+            currentSaga: null,
             currentUniverse: null,
+            currentWorld: null,
             currentEra: null,
             currentDetail: null,
             currentDetailType: null,
             navStack: ['home']
         };
-        await renderUniverses();
+        await renderSagasHome();
     }
 });

@@ -44,7 +44,11 @@ async function openEditModal(type) {
     modalState.mode = 'edit';
 
     let entity;
-    if (type === 'universe') {
+    if (type === 'saga' && appData.navStack[appData.navStack.length - 1] === 'saga') {
+        // Edit saga at root level
+        entity = appData.sagas[appData.currentSaga];
+        modalState.editIndex = appData.currentSaga;
+    } else if (type === 'universe') {
         entity = appData.universes[appData.currentUniverse];
         modalState.editIndex = appData.currentUniverse;
     } else if (type === 'world') {
@@ -63,16 +67,9 @@ async function openEditModal(type) {
         const worldData = getWorldData(appData.currentWorldSystem, appData.currentWorldPoint);
         entity = worldData.eras[appData.currentEra];
         modalState.editIndex = appData.currentEra;
-    } else if (type === 'saga') {
-        const worldData = getWorldData(appData.currentWorldSystem, appData.currentWorldPoint);
-        const era = worldData.eras[appData.currentEra];
-        entity = era.sagas[appData.currentSaga];
-        modalState.editIndex = appData.currentSaga;
-    } else {
-        // Detail (histoires, sujets, elements)
-        const worldData = getWorldData(appData.currentWorldSystem, appData.currentWorldPoint);
-        const era = worldData.eras[appData.currentEra];
-        const saga = era.sagas[appData.currentSaga];
+    } else if (type === 'detail') {
+        // Detail (histoires, sujets, elements, universes, worlds, eras in saga)
+        const saga = appData.sagas[appData.currentSaga];
 
         if (appData.currentDetailType === 'element' && appData.currentElementTypeIndex !== undefined) {
             const elementType = saga.elementTypes[appData.currentElementTypeIndex];
@@ -80,6 +77,12 @@ async function openEditModal(type) {
         } else {
             entity = saga[appData.currentDetailType][appData.currentDetail];
         }
+        modalState.editIndex = appData.currentDetail;
+        modalState.type = appData.currentDetailType;
+    } else {
+        // Fallback to saga details
+        const saga = appData.sagas[appData.currentSaga];
+        entity = saga[appData.currentDetailType][appData.currentDetail];
         modalState.editIndex = appData.currentDetail;
         modalState.type = appData.currentDetailType;
     }

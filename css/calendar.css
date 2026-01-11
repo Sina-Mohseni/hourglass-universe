@@ -148,3 +148,424 @@
     outline: none;
     border-color: var(--accent-gold);
 }
+
+/* =============================================
+   CALENDAR ACCORDION SYSTEM
+   ============================================= */
+
+.calendar-accordion-container {
+    display: flex;
+    flex-direction: column;
+    gap: clamp(12px, 3vmin, 16px);
+}
+
+.calendar-accordion-item {
+    background: var(--bg-secondary);
+    border: 1px solid var(--glass-border);
+    border-radius: 12px;
+    overflow: hidden;
+    transition: var(--transition);
+}
+
+.calendar-accordion-item:hover {
+    border-color: var(--accent-gold);
+}
+
+.calendar-accordion-item.expanded {
+    border-color: var(--accent-gold);
+}
+
+.calendar-accordion-header {
+    display: flex;
+    align-items: center;
+    padding: clamp(12px, 3vmin, 16px);
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.calendar-accordion-header:hover {
+    background: rgba(212, 168, 83, 0.05);
+}
+
+.calendar-accordion-icon {
+    font-size: clamp(20px, 5vmin, 28px);
+    margin-right: clamp(12px, 3vmin, 16px);
+}
+
+.calendar-accordion-info {
+    flex: 1;
+}
+
+.calendar-accordion-name {
+    font-family: var(--font-display);
+    font-size: clamp(14px, 3vmin, 18px);
+    color: var(--accent-amber);
+}
+
+.calendar-accordion-count {
+    font-size: clamp(11px, 2.5vmin, 13px);
+    color: var(--text-muted);
+    margin-top: 2px;
+}
+
+.calendar-accordion-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.calendar-accordion-content {
+    display: none;
+    padding: clamp(12px, 3vmin, 16px);
+    border-top: 1px solid var(--glass-border);
+    background: var(--bg-tertiary);
+}
+
+.calendar-accordion-item.expanded .calendar-accordion-content {
+    display: block;
+}
+
+.calendar-accordion-item.expanded .element-type-chevron {
+    transform: rotate(180deg);
+}
+
+/* Calendar Years Preview */
+.calendar-years-preview {
+    display: flex;
+    flex-direction: column;
+    gap: clamp(8px, 2vmin, 12px);
+}
+
+.year-preview-block {
+    background: var(--bg-secondary);
+    border: 1px solid var(--glass-border);
+    border-radius: 10px;
+    padding: clamp(10px, 2.5vmin, 14px);
+}
+
+.year-preview-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.year-preview-name {
+    font-family: var(--font-display);
+    font-size: clamp(13px, 2.8vmin, 16px);
+    color: var(--accent-amber);
+}
+
+.year-preview-count {
+    font-size: clamp(10px, 2vmin, 12px);
+    color: var(--text-muted);
+}
+
+.year-preview-subs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.sub-preview {
+    padding: 4px 10px;
+    background: var(--bg-tertiary);
+    border-radius: 6px;
+    font-size: clamp(10px, 2vmin, 12px);
+    color: var(--text-secondary);
+}
+
+.sub-preview.more {
+    background: rgba(212, 168, 83, 0.15);
+    color: var(--accent-gold);
+}
+
+/* Year Accordion in Modal */
+.calendar-years-accordion {
+    display: flex;
+    flex-direction: column;
+    gap: clamp(10px, 2.5vmin, 14px);
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.year-accordion-block {
+    background: var(--bg-tertiary);
+    border: 1px solid var(--glass-border);
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.year-accordion-block.expanded {
+    border-color: var(--accent-gold);
+}
+
+.year-accordion-header {
+    display: flex;
+    align-items: center;
+    padding: clamp(10px, 2.5vmin, 14px);
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.year-accordion-header:hover {
+    background: rgba(212, 168, 83, 0.05);
+}
+
+.year-accordion-icon {
+    font-size: clamp(18px, 4vmin, 24px);
+    margin-right: clamp(10px, 2.5vmin, 14px);
+}
+
+.year-accordion-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.year-accordion-name {
+    font-family: var(--font-display);
+    font-size: clamp(13px, 2.8vmin, 16px);
+    color: var(--accent-amber);
+}
+
+.year-accordion-count {
+    font-size: clamp(10px, 2vmin, 12px);
+    color: var(--text-muted);
+    margin-top: 2px;
+}
+
+.year-accordion-actions {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.year-action-btn {
+    width: clamp(28px, 6vmin, 34px);
+    height: clamp(28px, 6vmin, 34px);
+    border: none;
+    border-radius: 6px;
+    background: var(--bg-secondary);
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: var(--transition);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: clamp(12px, 2.5vmin, 14px);
+}
+
+.year-action-btn:hover {
+    background: rgba(212, 168, 83, 0.15);
+    color: var(--accent-gold);
+}
+
+.year-action-btn.delete:hover {
+    background: rgba(255, 100, 100, 0.15);
+    color: #ff6b6b;
+}
+
+.year-chevron {
+    width: 20px;
+    height: 20px;
+    transition: transform 0.3s ease;
+    color: var(--text-muted);
+}
+
+.year-accordion-block.expanded .year-chevron {
+    transform: rotate(180deg);
+}
+
+.year-accordion-content {
+    display: none;
+    padding: clamp(10px, 2.5vmin, 14px);
+    border-top: 1px solid var(--glass-border);
+    background: var(--bg-secondary);
+}
+
+.year-accordion-block.expanded .year-accordion-content {
+    display: block;
+}
+
+/* Subcycles */
+.year-subcycles {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.subcycle-block {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: clamp(8px, 2vmin, 12px);
+    background: var(--bg-tertiary);
+    border-radius: 8px;
+    border: 1px solid var(--glass-border);
+}
+
+.subcycle-info {
+    flex: 1;
+}
+
+.subcycle-name {
+    font-size: clamp(12px, 2.5vmin, 14px);
+    color: var(--text-primary);
+}
+
+.subcycle-actions {
+    display: flex;
+    gap: 6px;
+}
+
+.subcycle-btn {
+    width: clamp(26px, 5vmin, 30px);
+    height: clamp(26px, 5vmin, 30px);
+    border: none;
+    border-radius: 6px;
+    background: var(--bg-secondary);
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: var(--transition);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: clamp(11px, 2.2vmin, 13px);
+}
+
+.subcycle-btn:hover {
+    background: rgba(212, 168, 83, 0.15);
+    color: var(--accent-gold);
+}
+
+.subcycle-btn.delete:hover {
+    background: rgba(255, 100, 100, 0.15);
+    color: #ff6b6b;
+}
+
+.empty-subcycles {
+    padding: clamp(12px, 3vmin, 16px);
+    text-align: center;
+    color: var(--text-muted);
+    font-size: clamp(11px, 2.5vmin, 13px);
+}
+
+/* Timeline Section Description */
+.timeline-section-desc {
+    text-align: center;
+    color: var(--text-secondary);
+    font-size: clamp(12px, 2.5vmin, 14px);
+    margin-bottom: clamp(16px, 4vmin, 24px);
+}
+
+/* Calendar Selection (legacy) */
+.calendar-selection-container {
+    display: flex;
+    flex-direction: column;
+    gap: clamp(16px, 4vmin, 24px);
+}
+
+.calendar-selection-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(clamp(140px, 35vmin, 200px), 1fr));
+    gap: clamp(12px, 3vmin, 16px);
+}
+
+.calendar-select-card {
+    display: flex;
+    align-items: center;
+    padding: clamp(12px, 3vmin, 16px);
+    background: var(--bg-secondary);
+    border: 2px solid var(--glass-border);
+    border-radius: 12px;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.calendar-select-card:hover {
+    border-color: var(--accent-gold);
+    background: rgba(212, 168, 83, 0.05);
+}
+
+.calendar-select-card.selected {
+    border-color: var(--accent-gold);
+    background: rgba(212, 168, 83, 0.1);
+}
+
+.calendar-select-check {
+    width: 24px;
+    height: 24px;
+    margin-right: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    color: var(--accent-gold);
+}
+
+.calendar-select-icon {
+    font-size: clamp(24px, 6vmin, 32px);
+    margin-right: 12px;
+}
+
+.calendar-select-info {
+    flex: 1;
+}
+
+.calendar-select-name {
+    font-family: var(--font-display);
+    font-size: clamp(13px, 2.8vmin, 16px);
+    color: var(--accent-amber);
+}
+
+.calendar-select-source {
+    font-size: clamp(10px, 2vmin, 12px);
+    color: var(--text-muted);
+    margin-top: 2px;
+}
+
+.selected-calendars-section {
+    margin-top: clamp(20px, 5vmin, 30px);
+}
+
+.selected-calendars-title {
+    font-family: var(--font-display);
+    font-size: clamp(14px, 3vmin, 18px);
+    color: var(--accent-amber);
+    margin-bottom: clamp(12px, 3vmin, 16px);
+}
+
+.selected-calendars-list {
+    display: flex;
+    flex-direction: column;
+    gap: clamp(10px, 2.5vmin, 14px);
+}
+
+.calendar-display-item {
+    padding: clamp(12px, 3vmin, 16px);
+    background: var(--bg-secondary);
+    border: 1px solid var(--glass-border);
+    border-radius: 10px;
+}
+
+.calendar-display-name {
+    font-family: var(--font-display);
+    font-size: clamp(14px, 3vmin, 17px);
+    color: var(--accent-amber);
+    margin-bottom: 8px;
+}
+
+.calendar-display-structure {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    font-size: clamp(11px, 2.5vmin, 13px);
+    color: var(--text-secondary);
+}
+
+.calendar-display-total {
+    color: var(--accent-gold);
+    font-weight: 600;
+}
