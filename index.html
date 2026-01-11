@@ -351,39 +351,36 @@
                 </button>
                 <!-- Quick Creation Icons -->
                 <div class="header-quick-icons">
-                    <button class="quick-icon-btn" onclick="openSagasQuickMenu()" title="Sagas">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <button class="icon-btn" onclick="openSagasQuickMenu()" title="Sagas">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <path d="M4 19.5A2.5 2.5 0 016.5 17H20"/>
                             <path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/>
                             <path d="M8 7h8M8 11h8M8 15h5"/>
                         </svg>
                     </button>
-                    <button class="quick-icon-btn" onclick="openCreateModal('universes', 'saga')" title="Univers">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <button class="icon-btn" onclick="openCreateModal('universes', 'saga')" title="Univers">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <circle cx="12" cy="12" r="10"/>
                             <ellipse cx="12" cy="12" rx="10" ry="4"/>
                             <ellipse cx="12" cy="12" rx="4" ry="10"/>
                         </svg>
                     </button>
-                    <button class="quick-icon-btn" onclick="openCreateModal('worlds', 'saga')" title="Mondes">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <button class="icon-btn" onclick="openCreateModal('worlds', 'saga')" title="Mondes">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <circle cx="12" cy="12" r="10"/>
                             <path d="M2 12h20M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/>
                         </svg>
                     </button>
-                    <button class="quick-icon-btn" onclick="openCreateModal('eras', 'saga')" title="Époques">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <button class="icon-btn" onclick="openCreateModal('eras', 'saga')" title="Époques">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <circle cx="12" cy="12" r="10"/>
                             <polyline points="12 6 12 12 16 14"/>
                         </svg>
                     </button>
                 </div>
-                <div class="logo">
-                    <span id="sagaTitle"></span>
-                </div>
             </div>
             <div class="header-right">
-                <button class="icon-btn" id="sagaMusicBtn" style="display:none" onclick="toggleAudioPlayer()">
+                <button class="icon-btn" id="sagaMusicBtn" onclick="toggleAudioPlayer()">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <path d="M9 18V5l12-2v13"/>
                         <circle cx="6" cy="18" r="3"/>
@@ -407,6 +404,12 @@
         <div class="content">
             <p class="page-subtitle" id="sagaDesc"></p>
             <div class="parent-context" id="sagaParentContext"></div>
+
+            <!-- Saga Title above sub-menu -->
+            <div class="saga-title-container">
+                <h1 class="saga-page-title" id="sagaTitle"></h1>
+            </div>
+
             <div class="sub-menus">
                 <div class="sub-menus-container" id="sagaSubMenus" data-active="0">
                     <button class="sub-menu-btn" onclick="showSagaSection('itemline')" data-section="itemline">

@@ -151,10 +151,10 @@ async function renderSagaPage() {
 
     await renderBackground('sagaBackground', saga.mediaId);
 
-    const musicBtn = document.getElementById('sagaMusicBtn');
-    musicBtn.style.display = (saga.audioIds && saga.audioIds.length) ? 'flex' : 'none';
-
-    if (saga.audioIds) await loadAudioTracks(saga.audioIds);
+    // Always show music button, load tracks if available
+    if (saga.audioIds && saga.audioIds.length) {
+        await loadAudioTracks(saga.audioIds);
+    }
 
     // Reset crossline state
     currentSagaCrosslineMain = 'scenarii';
