@@ -41,6 +41,13 @@
                 </div>
             </div>
             <div class="header-right">
+                <button class="icon-btn" onclick="openRootUniversesQuickMenu()" title="Univers">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"/>
+                        <ellipse cx="12" cy="12" rx="10" ry="4"/>
+                        <ellipse cx="12" cy="12" rx="4" ry="10"/>
+                    </svg>
+                </button>
                 <button class="icon-btn" onclick="openCreateModal('saga')">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <line x1="12" y1="5" x2="12" y2="19"/>
@@ -74,12 +81,25 @@
                         <path d="M19 12H5M12 19l-7-7 7-7"/>
                     </svg>
                 </button>
-                <div class="logo">
-                    <span id="universeTitle"></span>
+                <!-- Quick Icons for Universe -->
+                <div class="header-quick-icons">
+                    <button class="icon-btn" onclick="openRootUniversesQuickMenu()" title="Univers">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="10"/>
+                            <ellipse cx="12" cy="12" rx="10" ry="4"/>
+                            <ellipse cx="12" cy="12" rx="4" ry="10"/>
+                        </svg>
+                    </button>
+                    <button class="icon-btn" onclick="openUniverseWorldsQuickMenu()" title="Mondes">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="10"/>
+                            <path d="M2 12h20M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/>
+                        </svg>
+                    </button>
                 </div>
             </div>
             <div class="header-right">
-                <button class="icon-btn" id="universeMusicBtn" style="display:none" onclick="toggleAudioPlayer()">
+                <button class="icon-btn" id="universeMusicBtn" onclick="toggleAudioPlayer()">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <path d="M9 18V5l12-2v13"/>
                         <circle cx="6" cy="18" r="3"/>
@@ -102,6 +122,12 @@
         </header>
         <div class="content">
             <p class="page-subtitle" id="universeDesc"></p>
+
+            <!-- Universe Title above sub-menu -->
+            <div class="saga-title-container">
+                <h1 class="saga-page-title" id="universeTitle"></h1>
+            </div>
+
             <div class="sub-menus">
                 <div class="sub-menus-container" id="universeSubMenus" data-active="0">
                     <button class="sub-menu-btn" onclick="showUniverseSection('itemline')" data-section="itemline">
@@ -132,16 +158,18 @@
                     </button>
                 </div>
             </div>
-            
+
             <!-- Itemline Section -->
             <div id="universeItemline" style="display:none">
                 <div class="itemline-container" id="universeItemlineList"></div>
-                <button class="btn btn-secondary" onclick="openItemlineModal('universe')" style="margin-top:20px;width:100%">+ Ajouter une info</button>
+                <button class="btn btn-secondary" onclick="openItemlineModal('universe')" style="margin-top:20px;width:100%">+ Ajouter une description</button>
             </div>
-            
+
             <!-- Crossline Section (Worlds) -->
             <div id="universeCrossline" style="display:none">
+                <p class="crossline-section-desc">Mondes de cet univers</p>
                 <div class="cards-grid" id="worldsGrid"></div>
+                <button class="btn btn-secondary" onclick="openCreateModal('world', 'universe')" style="margin-top:20px;width:100%">+ Créer un monde</button>
             </div>
 
             <!-- Timeline Section (Temporal Systems) -->
@@ -172,12 +200,31 @@
                         <path d="M19 12H5M12 19l-7-7 7-7"/>
                     </svg>
                 </button>
-                <div class="logo">
-                    <span id="worldTitle"></span>
+                <!-- Quick Icons for World -->
+                <div class="header-quick-icons">
+                    <button class="icon-btn" onclick="openRootUniversesQuickMenu()" title="Univers">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="10"/>
+                            <ellipse cx="12" cy="12" rx="10" ry="4"/>
+                            <ellipse cx="12" cy="12" rx="4" ry="10"/>
+                        </svg>
+                    </button>
+                    <button class="icon-btn" onclick="openUniverseWorldsQuickMenu()" title="Mondes">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="10"/>
+                            <path d="M2 12h20M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/>
+                        </svg>
+                    </button>
+                    <button class="icon-btn" onclick="openWorldErasQuickMenu()" title="Époques">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="10"/>
+                            <polyline points="12 6 12 12 16 14"/>
+                        </svg>
+                    </button>
                 </div>
             </div>
             <div class="header-right">
-                <button class="icon-btn" id="worldMusicBtn" style="display:none" onclick="toggleAudioPlayer()">
+                <button class="icon-btn" id="worldMusicBtn" onclick="toggleAudioPlayer()">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <path d="M9 18V5l12-2v13"/>
                         <circle cx="6" cy="18" r="3"/>
@@ -201,26 +248,37 @@
         <div class="content">
             <p class="page-subtitle" id="worldDesc"></p>
             <div class="parent-context" id="worldParentContext"></div>
+
+            <!-- World Title above sub-menu -->
+            <div class="saga-title-container">
+                <h1 class="saga-page-title" id="worldTitle"></h1>
+            </div>
+
             <div class="sub-menus">
                 <div class="sub-menus-container" id="worldSubMenus" data-active="0">
                     <button class="sub-menu-btn" onclick="showWorldSection('itemline')" data-section="itemline">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
                             <path d="M4 5h16M4 5v14l8 3 8-3V5M4 5l8 3 8-3"/>
                             <line x1="12" y1="8" x2="12" y2="22"/>
+                            <circle cx="12" cy="12" r="2" fill="currentColor"/>
                         </svg>
-                        <span>Info</span>
+                        <span>Item</span>
                     </button>
                     <button class="sub-menu-btn" onclick="showWorldSection('crossline')" data-section="crossline">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                            <circle cx="12" cy="12" r="10"/>
-                            <path d="M2 12h20M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/>
+                            <circle cx="12" cy="5" r="2"/><circle cx="5" cy="12" r="2"/><circle cx="19" cy="12" r="2"/>
+                            <circle cx="12" cy="19" r="2"/><circle cx="12" cy="12" r="3"/>
+                            <line x1="12" y1="7" x2="12" y2="9"/><line x1="12" y1="15" x2="12" y2="17"/>
+                            <line x1="7" y1="12" x2="9" y2="12"/><line x1="15" y1="12" x2="17" y2="12"/>
                         </svg>
-                        <span>Eras</span>
+                        <span>Cross</span>
                     </button>
                     <button class="sub-menu-btn" onclick="showWorldSection('timeline')" data-section="timeline">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                            <circle cx="12" cy="12" r="10"/>
-                            <polyline points="12 6 12 12 16 14"/>
+                            <polygon points="12,2 22,8.5 22,15.5 12,22 2,15.5 2,8.5"/>
+                            <line x1="12" y1="12" x2="12" y2="6"/>
+                            <line x1="12" y1="12" x2="16" y2="14"/>
+                            <circle cx="12" cy="12" r="2" fill="currentColor"/>
                         </svg>
                         <span>Time</span>
                     </button>
@@ -230,18 +288,20 @@
             <!-- Itemline Section -->
             <div id="worldItemline" style="display:none">
                 <div class="itemline-container" id="worldItemlineList"></div>
-                <button class="btn btn-secondary" onclick="openItemlineModal('world')" style="margin-top:20px;width:100%">+ Ajouter une info</button>
+                <button class="btn btn-secondary" onclick="openItemlineModal('world')" style="margin-top:20px;width:100%">+ Ajouter une description</button>
             </div>
 
-            <!-- Crossline Section (Eras) -->
+            <!-- Crossline Section - Same as Itemline style -->
             <div id="worldCrossline" style="display:none">
-                <div class="cards-grid" id="erasGrid"></div>
+                <div class="itemline-container" id="worldCrosslineList"></div>
+                <button class="btn btn-secondary" onclick="openItemlineModal('worldCrossline')" style="margin-top:20px;width:100%">+ Ajouter une info</button>
             </div>
 
-            <!-- Timeline Section (Calendars) -->
+            <!-- Timeline Section (Epochs) -->
             <div id="worldTimeline" style="display:none">
-                <div id="worldCalendarsContainer" class="calendars-container"></div>
-                <button class="btn btn-secondary" onclick="openCalendarModal('world')" style="margin-top:20px;width:100%">+ Ajouter un calendrier</button>
+                <p class="crossline-section-desc">Époques de ce monde</p>
+                <div class="cards-grid" id="erasGrid"></div>
+                <button class="btn btn-secondary" onclick="openCreateModal('era', 'world')" style="margin-top:20px;width:100%">+ Créer une époque</button>
             </div>
         </div>
     </div>
@@ -258,12 +318,38 @@
                         <path d="M19 12H5M12 19l-7-7 7-7"/>
                     </svg>
                 </button>
-                <div class="logo">
-                    <span id="eraTitle"></span>
+                <!-- Quick Icons for Era -->
+                <div class="header-quick-icons">
+                    <button class="icon-btn" onclick="openRootUniversesQuickMenu()" title="Univers">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="10"/>
+                            <ellipse cx="12" cy="12" rx="10" ry="4"/>
+                            <ellipse cx="12" cy="12" rx="4" ry="10"/>
+                        </svg>
+                    </button>
+                    <button class="icon-btn" onclick="openUniverseWorldsQuickMenu()" title="Mondes">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="10"/>
+                            <path d="M2 12h20M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/>
+                        </svg>
+                    </button>
+                    <button class="icon-btn" onclick="openWorldErasQuickMenu()" title="Époques">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="10"/>
+                            <polyline points="12 6 12 12 16 14"/>
+                        </svg>
+                    </button>
+                    <button class="icon-btn" onclick="openEraSagasQuickMenu()" title="Sagas">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M4 19.5A2.5 2.5 0 016.5 17H20"/>
+                            <path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/>
+                            <path d="M8 7h8M8 11h8M8 15h5"/>
+                        </svg>
+                    </button>
                 </div>
             </div>
             <div class="header-right">
-                <button class="icon-btn" id="eraMusicBtn" style="display:none" onclick="toggleAudioPlayer()">
+                <button class="icon-btn" id="eraMusicBtn" onclick="toggleAudioPlayer()">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <path d="M9 18V5l12-2v13"/>
                         <circle cx="6" cy="18" r="3"/>
@@ -287,6 +373,12 @@
         <div class="content">
             <p class="page-subtitle" id="eraDesc"></p>
             <div class="parent-context" id="eraParentContext"></div>
+
+            <!-- Era Title above sub-menu -->
+            <div class="saga-title-container">
+                <h1 class="saga-page-title" id="eraTitle"></h1>
+            </div>
+
             <div class="sub-menus">
                 <div class="sub-menus-container" id="eraSubMenus" data-active="0">
                     <button class="sub-menu-btn" onclick="showEraSection('itemline')" data-section="itemline">
@@ -317,22 +409,25 @@
                     </button>
                 </div>
             </div>
-            
+
             <!-- Itemline Section -->
             <div id="eraItemline" style="display:none">
                 <div class="itemline-container" id="eraItemlineList"></div>
-                <button class="btn btn-secondary" onclick="openItemlineModal('era')" style="margin-top:20px;width:100%">+ Ajouter une info</button>
+                <button class="btn btn-secondary" onclick="openItemlineModal('era')" style="margin-top:20px;width:100%">+ Ajouter une description</button>
             </div>
-            
+
             <!-- Crossline Section (Sagas) -->
             <div id="eraCrossline" style="display:none">
+                <p class="crossline-section-desc">Sagas de cette époque</p>
                 <div class="cards-grid" id="sagasGrid"></div>
+                <button class="btn btn-secondary" onclick="openCreateModal('saga', 'era')" style="margin-top:20px;width:100%">+ Créer une saga</button>
             </div>
-            
+
             <!-- Timeline Section (Calendars) -->
             <div id="eraTimeline" style="display:none">
+                <p class="crossline-section-desc">Calendriers de cette époque</p>
                 <div id="calendarsContainer"></div>
-                <button class="btn btn-secondary" onclick="openCalendarModal()" style="margin-top:20px;width:100%">+ Créer un calendrier</button>
+                <button class="btn btn-secondary" onclick="openCalendarModal('era')" style="margin-top:20px;width:100%">+ Créer un calendrier</button>
             </div>
         </div>
     </div>
