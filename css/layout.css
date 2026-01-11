@@ -83,10 +83,7 @@
 .header-quick-icons {
     display: flex;
     align-items: center;
-    gap: clamp(4px, 1vmin, 8px);
-    margin-left: clamp(4px, 1vmin, 8px);
-    padding-left: clamp(8px, 1.5vmin, 12px);
-    border-left: 1px solid var(--glass-border);
+    gap: clamp(8px, 2vmin, 16px);
 }
 
 .quick-icon-btn {
