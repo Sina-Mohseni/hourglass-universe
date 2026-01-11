@@ -158,12 +158,54 @@ async function handleCreateEntity(entity) {
         await saveAppData();
         await renderSagasHome();
     }
-    // Create universe (legacy)
-    else if (modalState.type === 'universe' && !modalState.parentType) {
-        entity.eras = [];
+    // Create universe at root level (from home page or universe page)
+    else if (modalState.type === 'universe' && (modalState.parentType === 'root' || !modalState.parentType)) {
+        entity.worlds = [];
+        entity.itemline = [];
+        entity.temporalSystems = [];
         appData.universes.push(entity);
         await saveAppData();
-        await renderUniverses();
+        if (typeof renderUniverses === 'function') {
+            await renderUniverses();
+        }
+        showToast('Univers créé');
+    }
+    // Create world in universe
+    else if (modalState.type === 'world' && modalState.parentType === 'universe') {
+        const universe = appData.universes[appData.currentUniverse];
+        if (!universe.worlds) universe.worlds = [];
+        entity.eras = [];
+        entity.itemline = [];
+        entity.crosslineInfo = [];
+        universe.worlds.push(entity);
+        await saveAppData();
+        await showUniverseSection('crossline');
+    }
+    // Create era in world
+    else if (modalState.type === 'era' && modalState.parentType === 'world') {
+        const universe = appData.universes[appData.currentUniverse];
+        const world = universe.worlds[appData.currentWorld];
+        if (!world.eras) world.eras = [];
+        entity.sagas = [];
+        entity.itemline = [];
+        entity.calendars = [];
+        world.eras.push(entity);
+        await saveAppData();
+        await showWorldSection('timeline');
+    }
+    // Create saga in era
+    else if (modalState.type === 'saga' && modalState.parentType === 'era') {
+        const universe = appData.universes[appData.currentUniverse];
+        const world = universe.worlds[appData.currentWorld];
+        const era = world.eras[appData.currentEra];
+        if (!era.sagas) era.sagas = [];
+        entity.histoires = [];
+        entity.sujets = [];
+        entity.elementTypes = [];
+        entity.calendars = [];
+        era.sagas.push(entity);
+        await saveAppData();
+        await showEraSection('crossline');
     }
     // Create in saga crossline (universes, worlds, eras)
     else if ((modalState.type === 'universes' || modalState.type === 'worlds' || modalState.type === 'eras') && modalState.parentType === 'saga') {
@@ -174,7 +216,7 @@ async function handleCreateEntity(entity) {
         await renderSagaCreationBlocks();
     }
     // Create era in world (legacy)
-    else if (modalState.type === 'era') {
+    else if (modalState.type === 'era' && !modalState.parentType) {
         const worldData = getWorldData(appData.currentWorldSystem, appData.currentWorldPoint);
         if (!worldData.eras) worldData.eras = [];
         entity.sagas = [];
