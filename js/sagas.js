@@ -3,7 +3,7 @@
    ============================================= */
 
 // Current state for saga crossline
-let currentSagaCrosslineMain = 'creation';
+let currentSagaCrosslineMain = 'scenarii';
 let currentSagaScenarioType = 'histoires';
 let editingElementTypeIndex = null;
 
@@ -61,6 +61,61 @@ function slideSagas(direction) {
     track.scrollBy({ left: scrollAmount, behavior: 'smooth' });
 }
 
+/* =============================================
+   SAGAS QUICK MENU - Switch between sagas
+   ============================================= */
+
+async function openSagasQuickMenu() {
+    const container = document.getElementById('sagasQuickMenuList');
+    container.innerHTML = '';
+
+    if (!appData.sagas || appData.sagas.length === 0) {
+        container.innerHTML = '<div class="quick-menu-empty">Aucune saga créée</div>';
+    } else {
+        for (let i = 0; i < appData.sagas.length; i++) {
+            const saga = appData.sagas[i];
+            const isCurrent = i === appData.currentSaga;
+
+            const item = document.createElement('div');
+            item.className = 'quick-menu-item' + (isCurrent ? ' current' : '');
+            item.onclick = () => switchToSaga(i);
+
+            let iconHtml = '<span>📖</span>';
+            if (saga.mediaId) {
+                try {
+                    const media = await getMedia(saga.mediaId);
+                    if (media && media.data) {
+                        iconHtml = `<img src="${media.data}" alt="">`;
+                    }
+                } catch (e) {}
+            }
+
+            item.innerHTML = `
+                <div class="quick-menu-item-icon">${iconHtml}</div>
+                <div class="quick-menu-item-info">
+                    <div class="quick-menu-item-name">${saga.name || 'Sans nom'}</div>
+                    <div class="quick-menu-item-desc">${saga.description || 'Aucune description'}</div>
+                </div>
+                ${isCurrent ? '<span class="quick-menu-item-badge">Actuelle</span>' : ''}
+            `;
+            container.appendChild(item);
+        }
+    }
+
+    document.getElementById('sagasQuickMenuModal').classList.add('active');
+}
+
+async function switchToSaga(index) {
+    closeModal('sagasQuickMenuModal');
+
+    if (index === appData.currentSaga) return;
+
+    appData.currentSaga = index;
+    await renderSagaPage();
+    saveAppData();
+    showToast('Saga changée');
+}
+
 async function openSagaFromHome(index) {
     appData.currentSaga = index;
     appData.navStack.push('saga');
@@ -102,7 +157,7 @@ async function renderSagaPage() {
     if (saga.audioIds) await loadAudioTracks(saga.audioIds);
 
     // Reset crossline state
-    currentSagaCrosslineMain = 'creation';
+    currentSagaCrosslineMain = 'scenarii';
     currentSagaScenarioType = 'histoires';
 
     hideAllSagaSections();
@@ -167,7 +222,7 @@ function renderSagaItemline() {
 }
 
 /* =============================================
-   SAGA CROSSLINE - Main Tabs (Création / Scénarii / Éléments)
+   SAGA CROSSLINE - Main Tabs (Scénarii / Éléments)
    ============================================= */
 
 async function showSagaCrosslineMain(mainTab) {
@@ -178,18 +233,14 @@ async function showSagaCrosslineMain(mainTab) {
         btn.classList.toggle('active', btn.dataset.tab === mainTab);
     });
 
-    // Show/hide sections
-    const creationSection = document.getElementById('sagaCreationSection');
+    // Show/hide sections (only scenarii and elements now)
     const scenariiSection = document.getElementById('sagaScenariiSection');
     const elementsSection = document.getElementById('sagaElementsSection');
 
-    if (creationSection) creationSection.style.display = mainTab === 'creation' ? 'block' : 'none';
     if (scenariiSection) scenariiSection.style.display = mainTab === 'scenarii' ? 'block' : 'none';
     if (elementsSection) elementsSection.style.display = mainTab === 'elements' ? 'block' : 'none';
 
-    if (mainTab === 'creation') {
-        await renderSagaCreationBlocks();
-    } else if (mainTab === 'scenarii') {
+    if (mainTab === 'scenarii') {
         await renderSagaScenariiBlocks();
     } else {
         renderSagaElementTypes();

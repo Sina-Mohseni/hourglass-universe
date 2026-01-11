@@ -349,6 +349,35 @@
                         <path d="M19 12H5M12 19l-7-7 7-7"/>
                     </svg>
                 </button>
+                <!-- Quick Creation Icons -->
+                <div class="header-quick-icons">
+                    <button class="quick-icon-btn" onclick="openSagasQuickMenu()" title="Sagas">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                            <path d="M4 19.5A2.5 2.5 0 016.5 17H20"/>
+                            <path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/>
+                            <path d="M8 7h8M8 11h8M8 15h5"/>
+                        </svg>
+                    </button>
+                    <button class="quick-icon-btn" onclick="openCreateModal('universes', 'saga')" title="Univers">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                            <circle cx="12" cy="12" r="10"/>
+                            <ellipse cx="12" cy="12" rx="10" ry="4"/>
+                            <ellipse cx="12" cy="12" rx="4" ry="10"/>
+                        </svg>
+                    </button>
+                    <button class="quick-icon-btn" onclick="openCreateModal('worlds', 'saga')" title="Mondes">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                            <circle cx="12" cy="12" r="10"/>
+                            <path d="M2 12h20M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/>
+                        </svg>
+                    </button>
+                    <button class="quick-icon-btn" onclick="openCreateModal('eras', 'saga')" title="Époques">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                            <circle cx="12" cy="12" r="10"/>
+                            <polyline points="12 6 12 12 16 14"/>
+                        </svg>
+                    </button>
+                </div>
                 <div class="logo">
                     <span id="sagaTitle"></span>
                 </div>
@@ -415,18 +444,11 @@
                 <button class="btn btn-secondary" onclick="openItemlineModal('saga')" style="margin-top:20px;width:100%">+ Ajouter une description</button>
             </div>
 
-            <!-- Crossline Section - Restructured -->
+            <!-- Crossline Section - Scénarii & Éléments -->
             <div id="sagaCrossline" style="display:none">
-                <!-- Main Crossline Tabs: Création / Scénarii / Éléments -->
+                <!-- Main Crossline Tabs: Scénarii / Éléments -->
                 <div class="crossline-main-tabs">
-                    <button class="crossline-main-tab active" onclick="showSagaCrosslineMain('creation')" data-tab="creation">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                            <circle cx="12" cy="12" r="10"/>
-                            <path d="M2 12h20M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/>
-                        </svg>
-                        <span>Création</span>
-                    </button>
-                    <button class="crossline-main-tab" onclick="showSagaCrosslineMain('scenarii')" data-tab="scenarii">
+                    <button class="crossline-main-tab active" onclick="showSagaCrosslineMain('scenarii')" data-tab="scenarii">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
                             <path d="M12 3L2 9l10 6 10-6-10-6z"/>
                             <path d="M2 17l10 6 10-6"/>
@@ -445,14 +467,8 @@
                     </button>
                 </div>
 
-                <!-- Création Section (Univers, Monde, Époque) -->
-                <div id="sagaCreationSection" class="crossline-section">
-                    <p class="crossline-section-desc">Créez les fondations de votre saga</p>
-                    <div id="sagaCreationContainer"></div>
-                </div>
-
                 <!-- Scénarii Section -->
-                <div id="sagaScenariiSection" class="crossline-section" style="display:none">
+                <div id="sagaScenariiSection" class="crossline-section">
                     <p class="crossline-section-desc">Scénarios de la saga</p>
                     <div id="sagaScenariiContainer"></div>
                 </div>
@@ -1010,6 +1026,20 @@
             <div class="modal-footer">
                 <button class="btn btn-secondary" onclick="closeModal('yearEditModal')">Annuler</button>
                 <button class="btn btn-primary" onclick="saveYearEdit()">Appliquer</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sagas Quick Menu Modal -->
+    <div class="modal-overlay" id="sagasQuickMenuModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h2 class="modal-title">Sagas</h2>
+                <button class="modal-close" onclick="closeModal('sagasQuickMenuModal')">✕</button>
+            </div>
+            <div class="modal-body">
+                <div id="sagasQuickMenuList" class="quick-menu-list"></div>
+                <button class="btn btn-secondary" onclick="closeModal('sagasQuickMenuModal'); openCreateModal('saga')" style="margin-top:15px;width:100%">+ Nouvelle Saga</button>
             </div>
         </div>
     </div>
