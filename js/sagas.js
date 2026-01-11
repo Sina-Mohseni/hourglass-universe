@@ -681,7 +681,7 @@ function renderSagaCalendarsAccordion() {
     });
 }
 
-function renderCalendarYearsPreview(years, depth = 0) {
+function renderCalendarYearsPreview(years) {
     if (!years || years.length === 0) {
         return '<div class="empty-elements">Aucun cycle défini</div>';
     }
@@ -690,7 +690,7 @@ function renderCalendarYearsPreview(years, depth = 0) {
     years.forEach((year, yIdx) => {
         const subCount = countAllSubCycles(year);
         html += `
-            <div class="year-preview-block" style="margin-left: ${depth * 12}px">
+            <div class="year-preview-block">
                 <div class="year-preview-header">
                     <span class="year-preview-name">${year.name || 'Cycle'} ${year.number || (yIdx + 1)}</span>
                     <span class="year-preview-count">${subCount} sous-cycle${subCount > 1 ? 's' : ''}</span>
@@ -787,17 +787,17 @@ function createCycleElement(cycle, index, parentPath, depth) {
 
     const cycleEl = document.createElement('div');
     cycleEl.className = 'year-accordion-block';
-    cycleEl.style.marginLeft = `${depth * 16}px`;
     cycleEl.setAttribute('data-path', pathStr);
+    cycleEl.setAttribute('data-depth', depth);
 
-    const depthLabel = depth === 0 ? 'Cycle' : `Sous-cycle (niv. ${depth})`;
-    const depthIcon = depth === 0 ? '📆' : depth === 1 ? '📅' : '📄';
+    const depthLabel = depth === 0 ? 'Cycle' : `Niv.${depth}`;
+    const depthIcon = depth === 0 ? '📆' : depth === 1 ? '📅' : depth === 2 ? '📄' : '•';
 
     cycleEl.innerHTML = `
         <div class="year-accordion-header" onclick="toggleCycleExpand('${pathStr}')">
             <div class="year-accordion-icon">${depthIcon}</div>
             <div class="year-accordion-info">
-                <span class="year-accordion-name">${cycle.name || depthLabel} ${cycle.number || (index + 1)}</span>
+                <span class="year-accordion-name">${cycle.name || 'Cycle'} ${cycle.number || (index + 1)}</span>
                 <span class="year-accordion-count">${subCount} sous-cycle${subCount > 1 ? 's' : ''}</span>
             </div>
             <div class="year-accordion-actions">
