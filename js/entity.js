@@ -275,8 +275,13 @@ async function handleCreateEntity(entity) {
         }
 
         await saveAppData();
-        await renderSagaCreationBlocks();
-        showToast('Créé avec succès');
+        // Refresh the quick menu if it's open, otherwise just save
+        const quickMenuVisible = document.getElementById('universesQuickMenu')?.classList.contains('active') ||
+                                  document.getElementById('worldsQuickMenu')?.classList.contains('active') ||
+                                  document.getElementById('erasQuickMenu')?.classList.contains('active');
+        if (quickMenuVisible) {
+            // Refresh will happen when quick menu is reopened
+        }
     }
     // Create era in world (legacy)
     else if (modalState.type === 'era' && !modalState.parentType) {
