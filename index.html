@@ -694,40 +694,53 @@
                 <h2 class="modal-title" id="modalTitle">Créer</h2>
                 <button class="modal-close" onclick="closeModal('createModal')">✕</button>
             </div>
+            <!-- Mode selector tabs (hidden in edit mode) -->
+            <div class="modal-tabs" id="modalTabs">
+                <button class="modal-tab active" id="tabCreate" onclick="switchModalTab('create')">Créer nouveau</button>
+                <button class="modal-tab" id="tabExisting" onclick="switchModalTab('existing')">Ajouter existant</button>
+            </div>
             <div class="modal-body">
-                <div class="form-group">
-                    <label class="form-label">Nom</label>
-                    <input type="text" class="form-input" id="inputName" placeholder="Entrez un nom...">
-                </div>
-                <div class="form-group">
-                    <label class="form-label">Description</label>
-                    <textarea class="form-textarea" id="inputDesc" placeholder="Description..."></textarea>
-                </div>
-                <div class="form-group">
-                    <label class="form-label">Image/Vidéo</label>
-                    <div class="file-upload" onclick="document.getElementById('mediaInput').click()">
-                        <input type="file" id="mediaInput" accept="image/*,video/*" onchange="handleMediaUpload(event)" style="display:none">
-                        <div class="file-upload-icon">🖼️</div>
-                        <div class="file-upload-text">Cliquez pour uploader</div>
+                <!-- Create form section -->
+                <div id="createFormSection">
+                    <div class="form-group">
+                        <label class="form-label">Nom</label>
+                        <input type="text" class="form-input" id="inputName" placeholder="Entrez un nom...">
                     </div>
-                    <div class="file-preview" id="mediaPreview"></div>
-                </div>
-                <div class="form-group">
-                    <label class="form-label">Audio</label>
-                    <div class="file-upload" onclick="document.getElementById('audioInput').click()">
-                        <input type="file" id="audioInput" accept="audio/*" multiple onchange="handleAudioUpload(event)" style="display:none">
-                        <div class="file-upload-icon">🎵</div>
-                        <div class="file-upload-text">Cliquez pour ajouter des pistes</div>
+                    <div class="form-group">
+                        <label class="form-label">Description</label>
+                        <textarea class="form-textarea" id="inputDesc" placeholder="Description..."></textarea>
                     </div>
-                    <div id="audioList" class="audio-list" style="display:none"></div>
-                </div>
-                <div class="form-group">
-                    <label class="form-label">Sujets liés</label>
-                    <div class="file-upload" onclick="openEntityPicker()">
-                        <div class="file-upload-icon">🔗</div>
-                        <div class="file-upload-text">Cliquez pour lier un sujet existant</div>
+                    <div class="form-group">
+                        <label class="form-label">Image/Vidéo</label>
+                        <div class="file-upload" onclick="document.getElementById('mediaInput').click()">
+                            <input type="file" id="mediaInput" accept="image/*,video/*" onchange="handleMediaUpload(event)" style="display:none">
+                            <div class="file-upload-icon">🖼️</div>
+                            <div class="file-upload-text">Cliquez pour uploader</div>
+                        </div>
+                        <div class="file-preview" id="mediaPreview"></div>
                     </div>
-                    <div id="linkedEntitiesList" class="linked-entities-list" style="display:none"></div>
+                    <div class="form-group">
+                        <label class="form-label">Audio</label>
+                        <div class="file-upload" onclick="document.getElementById('audioInput').click()">
+                            <input type="file" id="audioInput" accept="audio/*" multiple onchange="handleAudioUpload(event)" style="display:none">
+                            <div class="file-upload-icon">🎵</div>
+                            <div class="file-upload-text">Cliquez pour ajouter des pistes</div>
+                        </div>
+                        <div id="audioList" class="audio-list" style="display:none"></div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Sujets liés</label>
+                        <div class="file-upload" onclick="openEntityPicker()">
+                            <div class="file-upload-icon">🔗</div>
+                            <div class="file-upload-text">Cliquez pour lier un sujet existant</div>
+                        </div>
+                        <div id="linkedEntitiesList" class="linked-entities-list" style="display:none"></div>
+                    </div>
+                </div>
+                <!-- Add existing section -->
+                <div id="existingEntitySection" style="display:none">
+                    <p class="form-help" style="margin-bottom:16px">Sélectionnez un sujet existant à ajouter:</p>
+                    <div id="existingEntityList" class="entity-picker-list"></div>
                 </div>
             </div>
             <div class="modal-footer">

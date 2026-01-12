@@ -69,6 +69,41 @@
     transform: rotate(90deg);
 }
 
+/* Modal Tabs */
+.modal-tabs {
+    display: flex;
+    border-bottom: 1px solid var(--glass-border);
+    padding: 0 clamp(16px, 4vmin, 24px);
+}
+
+.modal-tabs.hidden {
+    display: none;
+}
+
+.modal-tab {
+    flex: 1;
+    padding: 12px 16px;
+    background: transparent;
+    border: none;
+    border-bottom: 2px solid transparent;
+    color: var(--text-secondary);
+    font-family: var(--font-display);
+    font-size: clamp(12px, 2.5vmin, 14px);
+    letter-spacing: 0.05em;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.modal-tab:hover {
+    color: var(--text-primary);
+    background: rgba(212, 175, 55, 0.05);
+}
+
+.modal-tab.active {
+    color: var(--accent-gold);
+    border-bottom-color: var(--accent-gold);
+}
+
 .modal-body {
     padding: clamp(16px, 4vmin, 24px);
     overflow-y: auto;
