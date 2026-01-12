@@ -721,6 +721,14 @@
                     </div>
                     <div id="audioList" class="audio-list" style="display:none"></div>
                 </div>
+                <div class="form-group">
+                    <label class="form-label">Sujets liés</label>
+                    <div class="file-upload" onclick="openEntityPicker()">
+                        <div class="file-upload-icon">🔗</div>
+                        <div class="file-upload-text">Cliquez pour lier un sujet existant</div>
+                    </div>
+                    <div id="linkedEntitiesList" class="linked-entities-list" style="display:none"></div>
+                </div>
             </div>
             <div class="modal-footer">
                 <button class="btn btn-secondary" onclick="closeModal('createModal')">Annuler</button>
@@ -1069,6 +1077,31 @@
                     <button class="btn btn-secondary" onclick="closeModal('deleteModal')">Annuler</button>
                     <button class="btn btn-danger" onclick="confirmDelete()">Supprimer</button>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Entity Picker Modal -->
+    <div class="modal-overlay" id="entityPickerModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h2 class="modal-title">Lier un sujet</h2>
+                <button class="modal-close" onclick="closeModal('entityPickerModal')">✕</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label class="form-label">Type de sujet</label>
+                    <select class="form-input" id="entityPickerType" onchange="loadEntityPickerItems()">
+                        <option value="">-- Sélectionner un type --</option>
+                        <option value="sagas">Sagas</option>
+                        <option value="universes">Univers</option>
+                        <option value="worlds">Mondes</option>
+                        <option value="eras">Époques</option>
+                        <option value="histoires">Histoires</option>
+                        <option value="sujets">Sujets</option>
+                    </select>
+                </div>
+                <div id="entityPickerList" class="entity-picker-list"></div>
             </div>
         </div>
     </div>

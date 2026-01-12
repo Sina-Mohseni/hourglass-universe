@@ -26,7 +26,8 @@ let modalState = {
     mediaId: null,
     mediaBase64: null,
     mediaType: null,
-    audioFiles: []
+    audioFiles: [],
+    linkedEntities: []  // Sujets liés
 };
 
 let itemlineState = { parentType: null, editIndex: null };

@@ -11,7 +11,8 @@ function resetModalState() {
         mediaId: null,
         mediaBase64: null,
         mediaType: null,
-        audioFiles: []
+        audioFiles: [],
+        linkedEntities: []
     };
 }
 
@@ -31,6 +32,7 @@ function openCreateModal(type, parent = null) {
         document.getElementById('mediaPreview').classList.remove('active');
         document.getElementById('audioList').innerHTML = '';
         document.getElementById('audioList').style.display = 'none';
+        updateLinkedEntitiesList();
         document.getElementById('createModal').classList.add('active');
     } catch (error) {
         console.error('Erreur openCreateModal:', error);
@@ -104,6 +106,18 @@ async function openEditModal(type) {
         }
     }
 
+    // Charger les sujets liés existants
+    if (entity.linkedEntities) {
+        modalState.linkedEntities = entity.linkedEntities.map(item => ({
+            ...item,
+            _type: item.type,
+            _index: item.index,
+            _universeIndex: item.universeIndex,
+            _worldIndex: item.worldIndex,
+            _sagaIndex: item.sagaIndex
+        }));
+    }
+
     document.getElementById('modalTitle').textContent = 'Modifier';
     document.getElementById('modalSaveBtn').textContent = 'Enregistrer';
     document.getElementById('inputName').value = entity.name;
@@ -127,6 +141,7 @@ async function openEditModal(type) {
     }
 
     updateAudioListModal();
+    await updateLinkedEntitiesList();
     document.getElementById('createModal').classList.add('active');
 }
 
@@ -220,4 +235,176 @@ async function removeAudioModal(index) {
     if (audio.id) await deleteMedia(audio.id);
     modalState.audioFiles.splice(index, 1);
     updateAudioListModal();
+}
+
+/* =============================================
+   ENTITY LINKING
+   ============================================= */
+
+function openEntityPicker() {
+    document.getElementById('entityPickerType').value = '';
+    document.getElementById('entityPickerList').innerHTML = '<p style="color: var(--text-secondary); text-align: center; padding: 20px;">Sélectionnez un type de sujet</p>';
+    document.getElementById('entityPickerModal').classList.add('active');
+}
+
+async function loadEntityPickerItems() {
+    const type = document.getElementById('entityPickerType').value;
+    const listEl = document.getElementById('entityPickerList');
+
+    if (!type) {
+        listEl.innerHTML = '<p style="color: var(--text-secondary); text-align: center; padding: 20px;">Sélectionnez un type de sujet</p>';
+        return;
+    }
+
+    let items = [];
+    const typeLabels = {
+        sagas: 'Saga',
+        universes: 'Univers',
+        worlds: 'Monde',
+        eras: 'Époque',
+        histoires: 'Histoire',
+        sujets: 'Sujet'
+    };
+
+    // Collect all items of the selected type
+    if (type === 'sagas') {
+        items = (appData.sagas || []).map((item, index) => ({ ...item, _index: index, _type: type }));
+    } else if (type === 'universes') {
+        items = (appData.universes || []).map((item, index) => ({ ...item, _index: index, _type: type }));
+    } else if (type === 'worlds') {
+        // Collect worlds from all universes
+        (appData.universes || []).forEach((universe, uIndex) => {
+            (universe.worlds || []).forEach((world, wIndex) => {
+                items.push({ ...world, _universeIndex: uIndex, _index: wIndex, _type: type, _parentName: universe.name });
+            });
+        });
+    } else if (type === 'eras') {
+        // Collect eras from all worlds in all universes
+        (appData.universes || []).forEach((universe, uIndex) => {
+            (universe.worlds || []).forEach((world, wIndex) => {
+                (world.eras || []).forEach((era, eIndex) => {
+                    items.push({ ...era, _universeIndex: uIndex, _worldIndex: wIndex, _index: eIndex, _type: type, _parentName: world.name });
+                });
+            });
+        });
+    } else if (type === 'histoires' || type === 'sujets') {
+        // Collect from all sagas
+        (appData.sagas || []).forEach((saga, sIndex) => {
+            (saga[type] || []).forEach((item, iIndex) => {
+                items.push({ ...item, _sagaIndex: sIndex, _index: iIndex, _type: type, _parentName: saga.name });
+            });
+        });
+    }
+
+    if (items.length === 0) {
+        listEl.innerHTML = `<p style="color: var(--text-secondary); text-align: center; padding: 20px;">Aucun ${typeLabels[type].toLowerCase()} trouvé</p>`;
+        return;
+    }
+
+    // Filter out already linked items
+    const alreadyLinked = modalState.linkedEntities.map(e => `${e._type}-${e._index}`);
+    items = items.filter(item => !alreadyLinked.includes(`${item._type}-${item._index}`));
+
+    if (items.length === 0) {
+        listEl.innerHTML = `<p style="color: var(--text-secondary); text-align: center; padding: 20px;">Tous les ${typeLabels[type].toLowerCase()}s sont déjà liés</p>`;
+        return;
+    }
+
+    // Build the list
+    let html = '';
+    for (const item of items) {
+        const thumbHtml = await getEntityThumbnail(item.mediaId);
+        const parentInfo = item._parentName ? ` (${item._parentName})` : '';
+
+        html += `
+            <div class="entity-picker-item" onclick="addLinkedEntity(${JSON.stringify(item).replace(/"/g, '&quot;')})">
+                <div class="entity-picker-item-thumb">${thumbHtml}</div>
+                <div class="entity-picker-item-info">
+                    <div class="entity-picker-item-name">${item.name}${parentInfo}</div>
+                    <div class="entity-picker-item-type">${typeLabels[type]}</div>
+                </div>
+            </div>
+        `;
+    }
+
+    listEl.innerHTML = html;
+}
+
+async function getEntityThumbnail(mediaId) {
+    if (!mediaId) {
+        return '<span style="color: var(--text-secondary); font-size: 16px;">📄</span>';
+    }
+
+    const media = await getMedia(mediaId);
+    if (!media || !media.base64) {
+        return '<span style="color: var(--text-secondary); font-size: 16px;">📄</span>';
+    }
+
+    if (media.type && media.type.startsWith('video')) {
+        return `<video src="${media.base64}" muted style="width:100%;height:100%;object-fit:cover"></video>`;
+    } else {
+        return `<img src="${media.base64}" style="width:100%;height:100%;object-fit:cover">`;
+    }
+}
+
+function addLinkedEntity(item) {
+    // Check if already added
+    const exists = modalState.linkedEntities.some(e =>
+        e._type === item._type && e._index === item._index
+    );
+
+    if (!exists) {
+        modalState.linkedEntities.push(item);
+        updateLinkedEntitiesList();
+        showToast('Sujet lié ajouté');
+    }
+
+    closeModal('entityPickerModal');
+}
+
+function removeLinkedEntity(index) {
+    modalState.linkedEntities.splice(index, 1);
+    updateLinkedEntitiesList();
+}
+
+async function updateLinkedEntitiesList() {
+    const listEl = document.getElementById('linkedEntitiesList');
+    if (!listEl) return;
+
+    if (!modalState.linkedEntities || modalState.linkedEntities.length === 0) {
+        listEl.style.display = 'none';
+        listEl.innerHTML = '';
+        return;
+    }
+
+    const typeLabels = {
+        sagas: 'Saga',
+        universes: 'Univers',
+        worlds: 'Monde',
+        eras: 'Époque',
+        histoires: 'Histoire',
+        sujets: 'Sujet'
+    };
+
+    listEl.style.display = 'block';
+    let html = '';
+
+    for (let i = 0; i < modalState.linkedEntities.length; i++) {
+        const item = modalState.linkedEntities[i];
+        const thumbHtml = await getEntityThumbnail(item.mediaId);
+        const typeLabel = typeLabels[item._type] || item._type;
+
+        html += `
+            <div class="linked-entity-item">
+                <div class="linked-entity-item-thumb">${thumbHtml}</div>
+                <div class="linked-entity-item-info">
+                    <div class="linked-entity-item-name">${item.name}</div>
+                    <div class="linked-entity-item-type">${typeLabel}</div>
+                </div>
+                <button class="delete" onclick="removeLinkedEntity(${i})">✕</button>
+            </div>
+        `;
+    }
+
+    listEl.innerHTML = html;
 }

@@ -33,13 +33,25 @@ async function saveEntity() {
             }
         }
 
+        // Préparer les sujets liés (nettoyer les propriétés internes)
+        const linkedEntities = (modalState.linkedEntities || []).map(item => ({
+            type: item._type,
+            name: item.name,
+            mediaId: item.mediaId,
+            index: item._index,
+            universeIndex: item._universeIndex,
+            worldIndex: item._worldIndex,
+            sagaIndex: item._sagaIndex
+        }));
+
         const entity = {
             name: name,
             description: document.getElementById('inputDesc').value.trim(),
             mediaId: mediaId,
             audioIds: audioIds,
             itemline: [],
-            calendars: []
+            calendars: [],
+            linkedEntities: linkedEntities
         };
 
         if (modalState.mode === 'edit') {
