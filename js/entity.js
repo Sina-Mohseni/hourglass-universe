@@ -223,9 +223,60 @@ async function handleCreateEntity(entity) {
     else if ((modalState.type === 'universes' || modalState.type === 'worlds' || modalState.type === 'eras') && modalState.parentType === 'saga') {
         const saga = appData.sagas[appData.currentSaga];
         if (!saga[modalState.type]) saga[modalState.type] = [];
+
+        // Add to saga crossline
         saga[modalState.type].push(entity);
+
+        // Also add to main lists so it's accessible from home page universe icon
+        if (modalState.type === 'universes') {
+            // Add universe to main list
+            const universeEntity = {
+                ...entity,
+                worlds: [],
+                itemline: entity.itemline || [],
+                temporalSystems: []
+            };
+            appData.universes.push(universeEntity);
+        } else if (modalState.type === 'worlds') {
+            // If a linked universe is specified, add world to that universe
+            const linkedUniverse = (entity.linkedEntities || []).find(e => e.type === 'universes');
+            if (linkedUniverse && linkedUniverse.index !== undefined) {
+                const targetUniverse = appData.universes[linkedUniverse.index];
+                if (targetUniverse) {
+                    if (!targetUniverse.worlds) targetUniverse.worlds = [];
+                    const worldEntity = {
+                        ...entity,
+                        eras: [],
+                        itemline: entity.itemline || [],
+                        crosslineInfo: []
+                    };
+                    targetUniverse.worlds.push(worldEntity);
+                }
+            }
+        } else if (modalState.type === 'eras') {
+            // If a linked world is specified, add era to that world
+            const linkedWorld = (entity.linkedEntities || []).find(e => e.type === 'worlds');
+            if (linkedWorld && linkedWorld.universeIndex !== undefined && linkedWorld.index !== undefined) {
+                const targetUniverse = appData.universes[linkedWorld.universeIndex];
+                if (targetUniverse && targetUniverse.worlds) {
+                    const targetWorld = targetUniverse.worlds[linkedWorld.index];
+                    if (targetWorld) {
+                        if (!targetWorld.eras) targetWorld.eras = [];
+                        const eraEntity = {
+                            ...entity,
+                            sagas: [],
+                            itemline: entity.itemline || [],
+                            calendars: []
+                        };
+                        targetWorld.eras.push(eraEntity);
+                    }
+                }
+            }
+        }
+
         await saveAppData();
         await renderSagaCreationBlocks();
+        showToast('Créé avec succès');
     }
     // Create era in world (legacy)
     else if (modalState.type === 'era' && !modalState.parentType) {
