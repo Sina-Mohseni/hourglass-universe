@@ -41,7 +41,7 @@
     min-height: clamp(50px, 8vh, 70px);
     display: flex;
     align-items: center;
-    justify-content: center;
+    justify-content: space-between;
     padding: clamp(8px, 2vmin, 16px) clamp(12px, 3vmin, 24px);
     background: var(--glass-bg);
     backdrop-filter: blur(20px);
@@ -49,6 +49,18 @@
     z-index: 10;
     flex-shrink: 0;
     position: relative;
+}
+
+.footer-left, .footer-right {
+    display: flex;
+    align-items: center;
+    gap: clamp(8px, 2vmin, 16px);
+}
+
+.footer-center {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
 }
 
 .page-footer-title {

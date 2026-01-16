@@ -35,7 +35,6 @@ async function renderDetailPage() {
     const detail = getCurrentDetail();
     if (!detail) return;
 
-    document.getElementById('detailTitle').textContent = detail.name;
     document.getElementById('detailDesc').textContent = detail.description || '';
     document.getElementById('detailFooterTitle').textContent = detail.name;
 

@@ -76,27 +76,12 @@
         <div class="page-background" id="universeBackground"></div>
         <header class="header">
             <div class="header-left">
-                <button class="icon-btn" onclick="goBack()">
+                <button class="icon-btn" onclick="openUniverseWorldsQuickMenu()" title="Mondes">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M19 12H5M12 19l-7-7 7-7"/>
+                        <circle cx="12" cy="12" r="10"/>
+                        <path d="M2 12h20M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/>
                     </svg>
                 </button>
-                <!-- Quick Icons for Universe -->
-                <div class="header-quick-icons">
-                    <button class="icon-btn" onclick="openRootUniversesQuickMenu()" title="Univers">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <circle cx="12" cy="12" r="10"/>
-                            <ellipse cx="12" cy="12" rx="10" ry="4"/>
-                            <ellipse cx="12" cy="12" rx="4" ry="10"/>
-                        </svg>
-                    </button>
-                    <button class="icon-btn" onclick="openUniverseWorldsQuickMenu()" title="Mondes">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <circle cx="12" cy="12" r="10"/>
-                            <path d="M2 12h20M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/>
-                        </svg>
-                    </button>
-                </div>
             </div>
             <div class="header-right">
                 <button class="icon-btn" id="universeMusicBtn" onclick="toggleAudioPlayer()">
@@ -104,18 +89,6 @@
                         <path d="M9 18V5l12-2v13"/>
                         <circle cx="6" cy="18" r="3"/>
                         <circle cx="18" cy="16" r="3"/>
-                    </svg>
-                </button>
-                <button class="icon-btn" onclick="openEditModal('universe')">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/>
-                        <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/>
-                    </svg>
-                </button>
-                <button class="icon-btn" onclick="openDeleteConfirm('universe')">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <polyline points="3 6 5 6 21 6"/>
-                        <path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/>
                     </svg>
                 </button>
             </div>
@@ -182,7 +155,37 @@
             </div>
         </div>
         <footer class="page-footer">
-            <span class="page-footer-title" id="universeFooterTitle"></span>
+            <div class="footer-left">
+                <button class="icon-btn" onclick="goBack()">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M19 12H5M12 19l-7-7 7-7"/>
+                    </svg>
+                </button>
+                <button class="icon-btn" onclick="openRootUniversesQuickMenu()" title="Univers">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"/>
+                        <ellipse cx="12" cy="12" rx="10" ry="4"/>
+                        <ellipse cx="12" cy="12" rx="4" ry="10"/>
+                    </svg>
+                </button>
+            </div>
+            <div class="footer-center">
+                <span class="page-footer-title" id="universeFooterTitle"></span>
+            </div>
+            <div class="footer-right">
+                <button class="icon-btn" onclick="openEditModal('universe')">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/>
+                        <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                    </svg>
+                </button>
+                <button class="icon-btn" onclick="openDeleteConfirm('universe')">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="3 6 5 6 21 6"/>
+                        <path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/>
+                    </svg>
+                </button>
+            </div>
         </footer>
     </div>
 
@@ -193,33 +196,19 @@
         <div class="page-background" id="worldBackground"></div>
         <header class="header">
             <div class="header-left">
-                <button class="icon-btn" onclick="goBack()">
+                <button class="icon-btn" onclick="openRootUniversesQuickMenu()" title="Univers">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M19 12H5M12 19l-7-7 7-7"/>
+                        <circle cx="12" cy="12" r="10"/>
+                        <ellipse cx="12" cy="12" rx="10" ry="4"/>
+                        <ellipse cx="12" cy="12" rx="4" ry="10"/>
                     </svg>
                 </button>
-                <!-- Quick Icons for World -->
-                <div class="header-quick-icons">
-                    <button class="icon-btn" onclick="openRootUniversesQuickMenu()" title="Univers">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <circle cx="12" cy="12" r="10"/>
-                            <ellipse cx="12" cy="12" rx="10" ry="4"/>
-                            <ellipse cx="12" cy="12" rx="4" ry="10"/>
-                        </svg>
-                    </button>
-                    <button class="icon-btn" onclick="openUniverseWorldsQuickMenu()" title="Mondes">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <circle cx="12" cy="12" r="10"/>
-                            <path d="M2 12h20M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/>
-                        </svg>
-                    </button>
-                    <button class="icon-btn" onclick="openWorldErasQuickMenu()" title="Époques">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <circle cx="12" cy="12" r="10"/>
-                            <polyline points="12 6 12 12 16 14"/>
-                        </svg>
-                    </button>
-                </div>
+                <button class="icon-btn" onclick="openWorldErasQuickMenu()" title="Époques">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"/>
+                        <polyline points="12 6 12 12 16 14"/>
+                    </svg>
+                </button>
             </div>
             <div class="header-right">
                 <button class="icon-btn" id="worldMusicBtn" onclick="toggleAudioPlayer()">
@@ -227,18 +216,6 @@
                         <path d="M9 18V5l12-2v13"/>
                         <circle cx="6" cy="18" r="3"/>
                         <circle cx="18" cy="16" r="3"/>
-                    </svg>
-                </button>
-                <button class="icon-btn" onclick="openEditModal('world')">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/>
-                        <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/>
-                    </svg>
-                </button>
-                <button class="icon-btn" onclick="openDeleteConfirm('world')">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <polyline points="3 6 5 6 21 6"/>
-                        <path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/>
                     </svg>
                 </button>
             </div>
@@ -298,7 +275,36 @@
             </div>
         </div>
         <footer class="page-footer">
-            <span class="page-footer-title" id="worldFooterTitle"></span>
+            <div class="footer-left">
+                <button class="icon-btn" onclick="goBack()">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M19 12H5M12 19l-7-7 7-7"/>
+                    </svg>
+                </button>
+                <button class="icon-btn" onclick="openUniverseWorldsQuickMenu()" title="Mondes">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"/>
+                        <path d="M2 12h20M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/>
+                    </svg>
+                </button>
+            </div>
+            <div class="footer-center">
+                <span class="page-footer-title" id="worldFooterTitle"></span>
+            </div>
+            <div class="footer-right">
+                <button class="icon-btn" onclick="openEditModal('world')">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/>
+                        <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                    </svg>
+                </button>
+                <button class="icon-btn" onclick="openDeleteConfirm('world')">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="3 6 5 6 21 6"/>
+                        <path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/>
+                    </svg>
+                </button>
+            </div>
         </footer>
     </div>
 
@@ -309,40 +315,26 @@
         <div class="page-background" id="eraBackground"></div>
         <header class="header">
             <div class="header-left">
-                <button class="icon-btn" onclick="goBack()">
+                <button class="icon-btn" onclick="openRootUniversesQuickMenu()" title="Univers">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M19 12H5M12 19l-7-7 7-7"/>
+                        <circle cx="12" cy="12" r="10"/>
+                        <ellipse cx="12" cy="12" rx="10" ry="4"/>
+                        <ellipse cx="12" cy="12" rx="4" ry="10"/>
                     </svg>
                 </button>
-                <!-- Quick Icons for Era -->
-                <div class="header-quick-icons">
-                    <button class="icon-btn" onclick="openRootUniversesQuickMenu()" title="Univers">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <circle cx="12" cy="12" r="10"/>
-                            <ellipse cx="12" cy="12" rx="10" ry="4"/>
-                            <ellipse cx="12" cy="12" rx="4" ry="10"/>
-                        </svg>
-                    </button>
-                    <button class="icon-btn" onclick="openUniverseWorldsQuickMenu()" title="Mondes">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <circle cx="12" cy="12" r="10"/>
-                            <path d="M2 12h20M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/>
-                        </svg>
-                    </button>
-                    <button class="icon-btn" onclick="openWorldErasQuickMenu()" title="Époques">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <circle cx="12" cy="12" r="10"/>
-                            <polyline points="12 6 12 12 16 14"/>
-                        </svg>
-                    </button>
-                    <button class="icon-btn" onclick="openEraSagasQuickMenu()" title="Sagas">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M4 19.5A2.5 2.5 0 016.5 17H20"/>
-                            <path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/>
-                            <path d="M8 7h8M8 11h8M8 15h5"/>
-                        </svg>
-                    </button>
-                </div>
+                <button class="icon-btn" onclick="openUniverseWorldsQuickMenu()" title="Mondes">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"/>
+                        <path d="M2 12h20M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/>
+                    </svg>
+                </button>
+                <button class="icon-btn" onclick="openEraSagasQuickMenu()" title="Sagas">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M4 19.5A2.5 2.5 0 016.5 17H20"/>
+                        <path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/>
+                        <path d="M8 7h8M8 11h8M8 15h5"/>
+                    </svg>
+                </button>
             </div>
             <div class="header-right">
                 <button class="icon-btn" id="eraMusicBtn" onclick="toggleAudioPlayer()">
@@ -350,18 +342,6 @@
                         <path d="M9 18V5l12-2v13"/>
                         <circle cx="6" cy="18" r="3"/>
                         <circle cx="18" cy="16" r="3"/>
-                    </svg>
-                </button>
-                <button class="icon-btn" onclick="openEditModal('era')">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/>
-                        <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/>
-                    </svg>
-                </button>
-                <button class="icon-btn" onclick="openDeleteConfirm('era')">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <polyline points="3 6 5 6 21 6"/>
-                        <path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/>
                     </svg>
                 </button>
             </div>
@@ -422,7 +402,36 @@
             </div>
         </div>
         <footer class="page-footer">
-            <span class="page-footer-title" id="eraFooterTitle"></span>
+            <div class="footer-left">
+                <button class="icon-btn" onclick="goBack()">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M19 12H5M12 19l-7-7 7-7"/>
+                    </svg>
+                </button>
+                <button class="icon-btn" onclick="openWorldErasQuickMenu()" title="Époques">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"/>
+                        <polyline points="12 6 12 12 16 14"/>
+                    </svg>
+                </button>
+            </div>
+            <div class="footer-center">
+                <span class="page-footer-title" id="eraFooterTitle"></span>
+            </div>
+            <div class="footer-right">
+                <button class="icon-btn" onclick="openEditModal('era')">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/>
+                        <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                    </svg>
+                </button>
+                <button class="icon-btn" onclick="openDeleteConfirm('era')">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="3 6 5 6 21 6"/>
+                        <path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/>
+                    </svg>
+                </button>
+            </div>
         </footer>
     </div>
 
@@ -433,40 +442,25 @@
         <div class="page-background" id="sagaBackground"></div>
         <header class="header">
             <div class="header-left">
-                <button class="icon-btn" onclick="goBack()">
+                <button class="icon-btn" onclick="openErasQuickMenu()" title="Époques">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M19 12H5M12 19l-7-7 7-7"/>
+                        <circle cx="12" cy="12" r="10"/>
+                        <polyline points="12 6 12 12 16 14"/>
                     </svg>
                 </button>
-                <!-- Quick Creation Icons -->
-                <div class="header-quick-icons">
-                    <button class="icon-btn" onclick="openSagasQuickMenu()" title="Sagas">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M4 19.5A2.5 2.5 0 016.5 17H20"/>
-                            <path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/>
-                            <path d="M8 7h8M8 11h8M8 15h5"/>
-                        </svg>
-                    </button>
-                    <button class="icon-btn" onclick="openErasQuickMenu()" title="Époques">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <circle cx="12" cy="12" r="10"/>
-                            <polyline points="12 6 12 12 16 14"/>
-                        </svg>
-                    </button>
-                    <button class="icon-btn" onclick="openWorldsQuickMenu()" title="Mondes">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <circle cx="12" cy="12" r="10"/>
-                            <path d="M2 12h20M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/>
-                        </svg>
-                    </button>
-                    <button class="icon-btn" onclick="openUniversesQuickMenu()" title="Univers">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <circle cx="12" cy="12" r="10"/>
-                            <ellipse cx="12" cy="12" rx="10" ry="4"/>
-                            <ellipse cx="12" cy="12" rx="4" ry="10"/>
-                        </svg>
-                    </button>
-                </div>
+                <button class="icon-btn" onclick="openWorldsQuickMenu()" title="Mondes">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"/>
+                        <path d="M2 12h20M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/>
+                    </svg>
+                </button>
+                <button class="icon-btn" onclick="openUniversesQuickMenu()" title="Univers">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"/>
+                        <ellipse cx="12" cy="12" rx="10" ry="4"/>
+                        <ellipse cx="12" cy="12" rx="4" ry="10"/>
+                    </svg>
+                </button>
             </div>
             <div class="header-right">
                 <button class="icon-btn" id="sagaMusicBtn" onclick="toggleAudioPlayer()">
@@ -474,18 +468,6 @@
                         <path d="M9 18V5l12-2v13"/>
                         <circle cx="6" cy="18" r="3"/>
                         <circle cx="18" cy="16" r="3"/>
-                    </svg>
-                </button>
-                <button class="icon-btn" onclick="openEditModal('saga')">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/>
-                        <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/>
-                    </svg>
-                </button>
-                <button class="icon-btn" onclick="openDeleteConfirm('saga')">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <polyline points="3 6 5 6 21 6"/>
-                        <path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/>
                     </svg>
                 </button>
             </div>
@@ -576,7 +558,37 @@
             </div>
         </div>
         <footer class="page-footer">
-            <span class="page-footer-title" id="sagaFooterTitle"></span>
+            <div class="footer-left">
+                <button class="icon-btn" onclick="goBack()">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M19 12H5M12 19l-7-7 7-7"/>
+                    </svg>
+                </button>
+                <button class="icon-btn" onclick="openSagasQuickMenu()" title="Sagas">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M4 19.5A2.5 2.5 0 016.5 17H20"/>
+                        <path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/>
+                        <path d="M8 7h8M8 11h8M8 15h5"/>
+                    </svg>
+                </button>
+            </div>
+            <div class="footer-center">
+                <span class="page-footer-title" id="sagaFooterTitle"></span>
+            </div>
+            <div class="footer-right">
+                <button class="icon-btn" onclick="openEditModal('saga')">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/>
+                        <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                    </svg>
+                </button>
+                <button class="icon-btn" onclick="openDeleteConfirm('saga')">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="3 6 5 6 21 6"/>
+                        <path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/>
+                    </svg>
+                </button>
+            </div>
         </footer>
     </div>
 
@@ -587,14 +599,6 @@
         <div class="page-background" id="detailBackground"></div>
         <header class="header">
             <div class="header-left">
-                <button class="icon-btn" onclick="goBack()">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M19 12H5M12 19l-7-7 7-7"/>
-                    </svg>
-                </button>
-                <div class="logo">
-                    <span id="detailTitle"></span>
-                </div>
             </div>
             <div class="header-right">
                 <button class="icon-btn" id="detailMusicBtn" style="display:none" onclick="toggleAudioPlayer()">
@@ -602,18 +606,6 @@
                         <path d="M9 18V5l12-2v13"/>
                         <circle cx="6" cy="18" r="3"/>
                         <circle cx="18" cy="16" r="3"/>
-                    </svg>
-                </button>
-                <button class="icon-btn" onclick="openEditModal('detail')">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/>
-                        <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/>
-                    </svg>
-                </button>
-                <button class="icon-btn" onclick="openDeleteConfirm('detail')">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <polyline points="3 6 5 6 21 6"/>
-                        <path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/>
                     </svg>
                 </button>
             </div>
@@ -674,7 +666,30 @@
             </div>
         </div>
         <footer class="page-footer">
-            <span class="page-footer-title" id="detailFooterTitle"></span>
+            <div class="footer-left">
+                <button class="icon-btn" onclick="goBack()">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M19 12H5M12 19l-7-7 7-7"/>
+                    </svg>
+                </button>
+            </div>
+            <div class="footer-center">
+                <span class="page-footer-title" id="detailFooterTitle"></span>
+            </div>
+            <div class="footer-right">
+                <button class="icon-btn" onclick="openEditModal('detail')">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/>
+                        <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                    </svg>
+                </button>
+                <button class="icon-btn" onclick="openDeleteConfirm('detail')">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="3 6 5 6 21 6"/>
+                        <path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/>
+                    </svg>
+                </button>
+            </div>
         </footer>
     </div>
 
