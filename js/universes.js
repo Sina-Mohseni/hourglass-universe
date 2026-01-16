@@ -297,6 +297,7 @@ async function renderUniversePage() {
 
     document.getElementById('universeTitle').textContent = universe.name;
     document.getElementById('universeDesc').textContent = universe.description || '';
+    document.getElementById('universeFooterTitle').textContent = universe.name;
 
     await renderBackground('universeBackground', universe.mediaId);
 

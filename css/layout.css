@@ -35,6 +35,32 @@
     position: relative;
 }
 
+/* Page Footer */
+.page-footer {
+    width: 100%;
+    min-height: clamp(50px, 8vh, 70px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: clamp(8px, 2vmin, 16px) clamp(12px, 3vmin, 24px);
+    background: var(--glass-bg);
+    backdrop-filter: blur(20px);
+    border-top: 1px solid var(--glass-border);
+    z-index: 10;
+    flex-shrink: 0;
+    position: relative;
+}
+
+.page-footer-title {
+    font-family: var(--font-display);
+    font-size: clamp(14px, 3.5vmin, 24px);
+    font-weight: 600;
+    color: var(--accent-gold);
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    text-align: center;
+}
+
 .header-left, .header-right {
     display: flex;
     align-items: center;

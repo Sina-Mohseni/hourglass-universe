@@ -202,6 +202,7 @@ async function renderSagaPage() {
 
     document.getElementById('sagaTitle').textContent = saga.name;
     document.getElementById('sagaDesc').textContent = saga.description || '';
+    document.getElementById('sagaFooterTitle').textContent = saga.name;
 
     // Hide parent context since saga is now root level
     const parentContext = document.getElementById('sagaParentContext');

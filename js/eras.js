@@ -41,6 +41,7 @@ async function renderEraPage() {
     document.getElementById('eraTitle').textContent = era.name;
     document.getElementById('eraDesc').textContent = era.description || '';
     document.getElementById('eraParentContext').textContent = getCurrentWorldName();
+    document.getElementById('eraFooterTitle').textContent = era.name;
 
     await renderBackground('eraBackground', era.mediaId);
 

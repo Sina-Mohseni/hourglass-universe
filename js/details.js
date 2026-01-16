@@ -37,6 +37,7 @@ async function renderDetailPage() {
 
     document.getElementById('detailTitle').textContent = detail.name;
     document.getElementById('detailDesc').textContent = detail.description || '';
+    document.getElementById('detailFooterTitle').textContent = detail.name;
 
     // Always render background if mediaId exists
     await renderBackground('detailBackground', detail.mediaId);
