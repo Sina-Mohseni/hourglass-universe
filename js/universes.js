@@ -295,7 +295,6 @@ async function renderUniversePage() {
     if (!universe.worlds) universe.worlds = [];
     if (!universe.itemline) universe.itemline = [];
 
-    document.getElementById('universeTitle').textContent = universe.name;
     document.getElementById('universeDesc').textContent = universe.description || '';
     document.getElementById('universeFooterTitle').textContent = universe.name;
 

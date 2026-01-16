@@ -117,7 +117,6 @@ async function renderWorldPage() {
     const point = system.points[appData.currentWorldPoint];
     const worldData = getWorldData(appData.currentWorldSystem, appData.currentWorldPoint);
 
-    document.getElementById('worldTitle').textContent = point.name;
     document.getElementById('worldDesc').textContent = worldData.description || '';
     document.getElementById('worldParentContext').textContent = `${universe.name} - ${system.name}`;
     document.getElementById('worldFooterTitle').textContent = point.name;

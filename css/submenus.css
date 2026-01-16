@@ -9,7 +9,7 @@
     padding-bottom: calc(clamp(12px, 3vmin, 20px) + env(safe-area-inset-bottom, 0px));
     width: 100%;
     position: fixed;
-    bottom: 0;
+    bottom: clamp(50px, 8vh, 70px); /* Above the footer */
     left: 0;
     right: 0;
     z-index: 50;

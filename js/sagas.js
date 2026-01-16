@@ -200,7 +200,6 @@ async function renderSagaPage() {
     if (!saga.elementTypes) saga.elementTypes = [];
     if (!saga.calendars) saga.calendars = [];
 
-    document.getElementById('sagaTitle').textContent = saga.name;
     document.getElementById('sagaDesc').textContent = saga.description || '';
     document.getElementById('sagaFooterTitle').textContent = saga.name;
 
