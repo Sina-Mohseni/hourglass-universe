@@ -623,7 +623,7 @@ async function selectExistingEntity(item) {
             if (!saga[type]) saga[type] = [];
             saga[type].push(entityCopy);
             await saveAppData();
-            await renderSagaCreationBlocks();
+            await renderSagaScenariiBlocks();
             showToast('Sujet ajouté');
         } else if (parentType === 'detail') {
             const detail = getCurrentDetail();
